@@ -79,6 +79,7 @@ async function handleLogout() {
                 <el-dropdown-item command="/profile">个人信息</el-dropdown-item>
                 <el-dropdown-item command="/orders">我的订单</el-dropdown-item>
                 <el-dropdown-item command="/favorites">我的收藏</el-dropdown-item>
+                <el-dropdown-item command="/history">浏览历史</el-dropdown-item>
                 <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>

@@ -20,7 +20,8 @@ public class PublicReviewController {
     public ApiResponse<PageResponse<ReviewResponse>> getProductReviews(
             @PathVariable Long productId,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ApiResponse.success(reviewService.getProductReviews(productId, page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Integer rating) {
+        return ApiResponse.success(reviewService.getProductReviews(productId, page, size, rating));
     }
 }

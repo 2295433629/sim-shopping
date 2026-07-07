@@ -9,9 +9,11 @@ import com.sim.shopping.interfaces.dto.merchant.MerchantApplyRequest;
 import com.sim.shopping.interfaces.dto.merchant.MerchantInfoResponse;
 import com.sim.shopping.interfaces.dto.merchant.MerchantListResponse;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@PreAuthorize("hasRole('MERCHANT')")
 public class MerchantController {
 
     private final MerchantService merchantService;

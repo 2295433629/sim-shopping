@@ -21,6 +21,6 @@ export function getMerchantReviews(params: { page: number; size: number }) {
 }
 
 /** 回复评价 */
-export function replyReview(reviewId: number, reply: string) {
-  return request.post(`/merchant/reviews/${reviewId}/reply`, { reply })
+export function replyReview(reviewId: number, content: string) {
+  return request.post(`/merchant/reviews/${reviewId}/reply`, { content })
 }

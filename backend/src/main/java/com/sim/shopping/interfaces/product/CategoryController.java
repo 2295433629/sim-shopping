@@ -4,12 +4,14 @@ import com.sim.shopping.application.product.CategoryService;
 import com.sim.shopping.infrastructure.persistence.entity.CategoryDO;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@PreAuthorize("hasRole('ADMIN')")
 public class CategoryController {
 
     private final CategoryService categoryService;

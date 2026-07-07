@@ -5,12 +5,14 @@ import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.system.MenuRequest;
 import com.sim.shopping.interfaces.dto.system.MenuResponse;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/menus")
+@PreAuthorize("hasRole('ADMIN')")
 public class MenuController {
 
     private final MenuService menuService;

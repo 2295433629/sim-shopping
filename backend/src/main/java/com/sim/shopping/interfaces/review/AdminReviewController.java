@@ -4,10 +4,12 @@ import com.sim.shopping.application.review.ReviewService;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.review.ReviewResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/reviews")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminReviewController {
 
     private final ReviewService reviewService;
@@ -20,8 +22,11 @@ public class AdminReviewController {
     public ApiResponse<PageResponse<ReviewResponse>> getAdminReviews(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String keyword) {
-        return ApiResponse.success(reviewService.getAdminReviews(page, size, keyword));
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer rating,
+            @RequestParam(required = false) Boolean hasImage,
+            @RequestParam(required = false) Boolean replied) {
+        return ApiResponse.success(reviewService.getAdminReviews(page, size, keyword, rating, hasImage, replied));
     }
 
     @PatchMapping("/{reviewId}/hide")

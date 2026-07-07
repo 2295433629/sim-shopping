@@ -24,6 +24,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'shop/:shopId', name: 'Shop', component: () => import('@/views/ShopView.vue'), meta: { title: 'Shop' } },
       // === 需要登录 ===
       { path: 'favorites', name: 'Favorites', component: () => import('@/views/FavoriteView.vue'), meta: { title: 'Favorites', requiresAuth: true } },
+      { path: 'history', name: 'History', component: () => import('@/views/history/HistoryView.vue'), meta: { title: '浏览历史', requiresAuth: true } },
       { path: 'profile', name: 'Profile', component: () => import('@/views/profile/ProfileView.vue'), meta: { title: 'Profile', requiresAuth: true } },
       { path: 'addresses', name: 'Addresses', component: () => import('@/views/address/AddressView.vue'), meta: { title: 'Addresses', requiresAuth: true } },
       { path: 'cart', name: 'Cart', component: () => import('@/views/cart/CartView.vue'), meta: { title: 'Cart', requiresAuth: true } },

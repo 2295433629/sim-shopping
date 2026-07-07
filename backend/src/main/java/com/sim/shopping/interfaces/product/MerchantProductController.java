@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/merchant/products")
+@PreAuthorize("hasRole('MERCHANT')")
 public class MerchantProductController {
 
     private final ProductService productService;

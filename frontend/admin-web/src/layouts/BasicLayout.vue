@@ -29,6 +29,7 @@ const menuGroups: MenuGroup[] = [
       { index: '/users', title: '用户管理', icon: 'User' },
       { index: '/merchants', title: '商家管理', icon: 'Shop' },
       { index: '/roles', title: '角色管理', icon: 'UserFilled' },
+      { index: '/permissions', title: '权限管理', icon: 'Key' },
       { index: '/menus', title: '菜单管理', icon: 'Menu' },
       { index: '/dicts', title: '字典管理', icon: 'Collection' },
     ],

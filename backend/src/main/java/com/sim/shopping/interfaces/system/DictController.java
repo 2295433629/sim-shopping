@@ -7,12 +7,14 @@ import com.sim.shopping.interfaces.dto.system.DictItemResponse;
 import com.sim.shopping.interfaces.dto.system.DictTypeRequest;
 import com.sim.shopping.interfaces.dto.system.DictTypeResponse;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/dicts")
+@PreAuthorize("hasRole('ADMIN')")
 public class DictController {
 
     private final DictService dictService;

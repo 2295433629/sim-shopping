@@ -633,6 +633,21 @@ t_sys_notification → t_user (站内消息)
 **索引**：
 - UNIQUE `uk_config_key` (`config_key`)
 
+#### sys_cache — 缓存降级表
+
+> 当 Redis 不可用时，自动降级到 MySQL 数据库缓存。
+
+| 字段 | 类型 | 空 | 默认 | 说明 |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | NO | AUTO | 主键 |
+| cache_key | VARCHAR(255) | NO | | 缓存键 |
+| cache_value | LONGTEXT | YES | | 缓存值 |
+| expired_at | DATETIME | YES | | 过期时间 |
+| + 通用字段 | | | | |
+
+**索引**：
+- UNIQUE `uk_cache_key` (`cache_key`)
+
 #### t_sys_menu — 菜单表
 
 | 字段 | 类型 | 空 | 默认 | 说明 |
@@ -880,9 +895,10 @@ INSERT INTO t_sys_config (config_key, config_value, config_name, config_type, mo
 | 31 | t_sys_dict_type | System | 字典类型 |
 | 32 | t_sys_dict_item | System | 字典项 |
 | 33 | t_sys_config | System | 系统配置 |
-| 34 | t_sys_operation_log | System | 操作日志 |
-| 35 | t_sys_login_log | System | 登录日志 |
-| 36 | t_sys_notification | System | 站内消息 |
-| 37 | t_sys_file | System | 文件 |
+| 34 | sys_cache | System | 缓存降级（Redis不可用时使用） |
+| 35 | t_sys_operation_log | System | 操作日志 |
+| 36 | t_sys_login_log | System | 登录日志 |
+| 37 | t_sys_notification | System | 站内消息 |
+| 38 | t_sys_file | System | 文件 |
 
-**总计 37 张表，覆盖 PRD 全部 12 个领域。**
+**总计 38 张表，覆盖 PRD 全部 12 个领域。**

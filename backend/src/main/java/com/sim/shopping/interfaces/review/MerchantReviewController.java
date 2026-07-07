@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/merchant/reviews")
+@PreAuthorize("hasRole('MERCHANT')")
 public class MerchantReviewController {
 
     private final ReviewService reviewService;
@@ -42,8 +45,8 @@ public class MerchantReviewController {
     @PostMapping("/{reviewId}/reply")
     public ApiResponse<Void> replyReview(@PathVariable Long reviewId, @RequestBody Map<String, String> body) {
         Long shopId = resolveShopId();
-        String reply = body.get("reply");
-        reviewService.replyReview(shopId, reviewId, reply);
+        String content = body.get("content");
+        reviewService.replyReview(shopId, reviewId, content);
         return ApiResponse.success();
     }
 

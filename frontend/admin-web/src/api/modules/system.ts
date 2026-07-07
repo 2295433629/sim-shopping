@@ -51,7 +51,19 @@ export function deleteRole(id: number) {
 
 // Permissions
 export function getPermissions() {
-  return request.get<unknown, PermissionItem[]>('/admin/permissions')
+  return request.get<unknown, { list: PermissionItem[]; total: number }>('/admin/permissions')
+}
+
+export function createPermission(data: Omit<PermissionItem, 'id'>) {
+  return request.post<unknown, PermissionItem>('/admin/permissions', data)
+}
+
+export function updatePermission(id: number, data: Omit<PermissionItem, 'id'>) {
+  return request.put<unknown, PermissionItem>(`/admin/permissions/${id}`, data)
+}
+
+export function deletePermission(id: number) {
+  return request.delete<unknown, void>(`/admin/permissions/${id}`)
 }
 
 // Menus

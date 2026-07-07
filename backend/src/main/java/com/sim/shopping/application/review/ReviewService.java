@@ -110,12 +110,15 @@ public class ReviewService {
         return convertToReviewResponse(review);
     }
 
-    public PageResponse<ReviewResponse> getProductReviews(Long productId, int page, int size) {
+    public PageResponse<ReviewResponse> getProductReviews(Long productId, int page, int size, Integer rating) {
         Page<ReviewDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<ReviewDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ReviewDO::getProductId, productId)
-                .eq(ReviewDO::getStatus, REVIEW_STATUS_VISIBLE)
-                .orderByDesc(ReviewDO::getCreatedAt);
+                .eq(ReviewDO::getStatus, REVIEW_STATUS_VISIBLE);
+        if (rating != null) {
+            wrapper.eq(ReviewDO::getRating, rating);
+        }
+        wrapper.orderByDesc(ReviewDO::getCreatedAt);
 
         IPage<ReviewDO> result = reviewMapper.selectPage(pageObj, wrapper);
 
@@ -193,12 +196,42 @@ public class ReviewService {
         reviewMapper.updateById(review);
     }
 
-    public PageResponse<ReviewResponse> getAdminReviews(int page, int size, String keyword) {
+    public PageResponse<ReviewResponse> getAdminReviews(int page, int size, String keyword,
+                                                         Integer rating, Boolean hasImage, Boolean replied) {
         Page<ReviewDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<ReviewDO> wrapper = new LambdaQueryWrapper<>();
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.and(w -> w.like(ReviewDO::getContent, keyword)
                     .or().like(ReviewDO::getOrderNo, keyword));
+        }
+        if (rating != null) {
+            wrapper.eq(ReviewDO::getRating, rating);
+        }
+        if (hasImage != null) {
+            // t_review 表没有 hasImage 字段，通过 t_review_image 关联查询
+            LambdaQueryWrapper<ReviewImageDO> imgWrapper = new LambdaQueryWrapper<>();
+            imgWrapper.select(ReviewImageDO::getReviewId).groupBy(ReviewImageDO::getReviewId);
+            List<Long> reviewIdsWithImage = reviewImageMapper.selectList(imgWrapper)
+                    .stream().map(ReviewImageDO::getReviewId).distinct().collect(Collectors.toList());
+            if (hasImage) {
+                if (reviewIdsWithImage.isEmpty()) {
+                    // 强制返回空结果
+                    wrapper.eq(ReviewDO::getId, -1L);
+                } else {
+                    wrapper.in(ReviewDO::getId, reviewIdsWithImage);
+                }
+            } else {
+                if (!reviewIdsWithImage.isEmpty()) {
+                    wrapper.notIn(ReviewDO::getId, reviewIdsWithImage);
+                }
+            }
+        }
+        if (replied != null) {
+            if (replied) {
+                wrapper.isNotNull(ReviewDO::getMerchantReply);
+            } else {
+                wrapper.isNull(ReviewDO::getMerchantReply);
+            }
         }
         wrapper.orderByDesc(ReviewDO::getCreatedAt);
 

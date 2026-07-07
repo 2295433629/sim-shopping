@@ -25,6 +25,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'menus', name: 'Menus', component: () => import('@/views/menus/MenuListView.vue'), meta: { title: 'Menus', requiresAuth: true } },
       { path: 'dicts', name: 'Dicts', component: () => import('@/views/dicts/DictListView.vue'), meta: { title: 'Dicts', requiresAuth: true } },
       { path: 'roles', name: 'Roles', component: () => import('@/views/roles/RoleListView.vue'), meta: { title: 'Roles', requiresAuth: true } },
+      { path: 'permissions', name: 'Permissions', component: () => import('@/views/permissions/PermissionListView.vue'), meta: { title: 'Permissions', requiresAuth: true } },
       { path: 'reviews', name: 'ReviewManage', component: () => import('@/views/reviews/ReviewManageView.vue'), meta: { title: 'ReviewManage', requiresAuth: true } },
       { path: 'banners', name: 'BannerManage', component: () => import('@/views/banners/BannerManageView.vue'), meta: { title: 'BannerManage', requiresAuth: true } },
       { path: 'logs/operation', name: 'OperationLog', component: () => import('@/views/logs/OperationLogView.vue'), meta: { title: 'OperationLog', requiresAuth: true } },

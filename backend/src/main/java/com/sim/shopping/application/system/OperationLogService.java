@@ -8,6 +8,9 @@ import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.system.OperationLogItem;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +23,8 @@ public class OperationLogService {
         this.sysOperationLogMapper = sysOperationLogMapper;
     }
 
-    public PageResponse<OperationLogItem> getOperationLogs(int page, int size, String module, String operationType, String keyword) {
+    public PageResponse<OperationLogItem> getOperationLogs(int page, int size, String module, String operationType,
+                                                            String keyword, Long operatorId, String startDate, String endDate) {
         Page<SysOperationLogDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<SysOperationLogDO> wrapper = new LambdaQueryWrapper<>();
 
@@ -33,6 +37,18 @@ public class OperationLogService {
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.and(w -> w.like(SysOperationLogDO::getOperatorName, keyword)
                     .or().like(SysOperationLogDO::getRequestUrl, keyword));
+        }
+        if (operatorId != null) {
+            wrapper.eq(SysOperationLogDO::getOperatorId, operatorId);
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        if (startDate != null && !startDate.isEmpty()) {
+            LocalDateTime start = LocalDate.parse(startDate, formatter).atStartOfDay();
+            wrapper.ge(SysOperationLogDO::getCreatedAt, start);
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            LocalDateTime end = LocalDate.parse(endDate, formatter).atTime(23, 59, 59);
+            wrapper.le(SysOperationLogDO::getCreatedAt, end);
         }
         wrapper.orderByDesc(SysOperationLogDO::getCreatedAt);
 
