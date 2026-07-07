@@ -1,0 +1,9 @@
+package com.sim.shopping.infrastructure.persistence.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.sim.shopping.infrastructure.persistence.entity.SignInRecordDO;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface SignInRecordMapper extends BaseMapper<SignInRecordDO> {
+}

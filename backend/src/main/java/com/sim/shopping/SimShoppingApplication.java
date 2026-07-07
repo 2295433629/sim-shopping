@@ -1,0 +1,14 @@
+package com.sim.shopping;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+@MapperScan("com.sim.shopping.infrastructure.persistence.mapper")
+public class SimShoppingApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SimShoppingApplication.class, args);
+    }
+}
