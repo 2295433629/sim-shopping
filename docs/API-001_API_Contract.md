@@ -23,6 +23,11 @@
 - [14 系统管理模块](#14-系统管理模块)
 - [15 文件上传模块](#15-文件上传模块)
 - [16 消息通知模块](#16-消息通知模块)
+- [17 优惠券模块](#17-优惠券模块)
+- [18 积分模块](#18-积分模块)
+- [19 秒杀模块](#19-秒杀模块)
+- [20 专题活动模块](#20-专题活动模块)
+- [21 排行榜模块](#21-排行榜模块)
 
 ---
 
@@ -1192,6 +1197,950 @@ type: avatar | product | review | banner | license
 
 ---
 
+## 17 优惠券模块
+
+### 17.1 用户端
+
+#### GET /api/user/coupons/available — 可领取优惠券列表
+
+**权限**: 公开/登录
+
+**Query**: `page`, `size`
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "couponId": 1,
+      "couponCode": "SAVE10",
+      "couponName": "新用户立减10元",
+      "couponType": "FIXED_AMOUNT",
+      "discountValue": 10.00,
+      "minSpend": 50.00,
+      "totalQuantity": 1000,
+      "claimedQuantity": 320,
+      "validStartTime": "2026-07-01T00:00:00",
+      "validEndTime": "2026-07-31T23:59:59",
+      "applicableScope": "ALL"
+    }
+  ],
+  "total": 10,
+  "page": 1,
+  "size": 20,
+  "totalPages": 1
+}
+```
+
+#### POST /api/user/coupons/{couponId}/claim — 领取优惠券
+
+**权限**: 用户登录
+
+**Request**:
+```json
+{}
+```
+
+**Response**:
+```json
+{
+  "userCouponId": 1,
+  "couponId": 1,
+  "couponCode": "SAVE10",
+  "couponName": "新用户立减10元",
+  "couponType": "FIXED_AMOUNT",
+  "discountValue": 10.00,
+  "minSpend": 50.00,
+  "validStartTime": "2026-07-01T00:00:00",
+  "validEndTime": "2026-07-31T23:59:59",
+  "status": "UNUSED",
+  "claimedAt": "2026-07-07T10:00:00"
+}
+```
+
+#### GET /api/user/coupons/my — 我的优惠券列表
+
+**权限**: 用户登录
+
+**Query**: `page`, `size`, `status` (UNUSED/USED/EXPIRED)
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "userCouponId": 1,
+      "couponId": 1,
+      "couponCode": "SAVE10",
+      "couponName": "新用户立减10元",
+      "couponType": "FIXED_AMOUNT",
+      "discountValue": 10.00,
+      "minSpend": 50.00,
+      "validStartTime": "2026-07-01T00:00:00",
+      "validEndTime": "2026-07-31T23:59:59",
+      "status": "UNUSED",
+      "claimedAt": "2026-07-07T10:00:00",
+      "usedAt": null
+    }
+  ],
+  "total": 5,
+  "page": 1,
+  "size": 20,
+  "totalPages": 1
+}
+```
+
+#### GET /api/user/coupons/{couponId} — 优惠券详情
+
+**权限**: 用户登录
+
+**Response**:
+```json
+{
+  "couponId": 1,
+  "couponCode": "SAVE10",
+  "couponName": "新用户立减10元",
+  "couponType": "FIXED_AMOUNT",
+  "discountValue": 10.00,
+  "minSpend": 50.00,
+  "totalQuantity": 1000,
+  "claimedQuantity": 320,
+  "usedQuantity": 150,
+  "validStartTime": "2026-07-01T00:00:00",
+  "validEndTime": "2026-07-31T23:59:59",
+  "applicableScope": "ALL",
+  "applicableIds": [],
+  "status": "ACTIVE"
+}
+```
+
+### 17.2 管理端
+
+#### GET /api/admin/coupons — 优惠券列表
+
+**权限**: 管理员
+
+**Query**: `page`, `size`, `status`, `keyword`
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "couponId": 1,
+      "couponCode": "SAVE10",
+      "couponName": "新用户立减10元",
+      "couponType": "FIXED_AMOUNT",
+      "discountValue": 10.00,
+      "minSpend": 50.00,
+      "totalQuantity": 1000,
+      "claimedQuantity": 320,
+      "usedQuantity": 150,
+      "validStartTime": "2026-07-01T00:00:00",
+      "validEndTime": "2026-07-31T23:59:59",
+      "applicableScope": "ALL",
+      "status": "ACTIVE"
+    }
+  ],
+  "total": 10,
+  "page": 1,
+  "size": 20,
+  "totalPages": 1
+}
+```
+
+#### POST /api/admin/coupons — 创建优惠券
+
+**权限**: 管理员
+
+**Request**:
+```json
+{
+  "couponCode": "SAVE10",
+  "couponName": "新用户立减10元",
+  "couponType": "FIXED_AMOUNT",
+  "discountValue": 10.00,
+  "minSpend": 50.00,
+  "totalQuantity": 1000,
+  "validStartTime": "2026-07-01T00:00:00",
+  "validEndTime": "2026-07-31T23:59:59",
+  "applicableScope": "ALL",
+  "applicableIds": []
+}
+```
+
+**Response**:
+```json
+{
+  "couponId": 1,
+  "couponCode": "SAVE10",
+  "couponName": "新用户立减10元",
+  "status": "ACTIVE"
+}
+```
+
+#### PUT /api/admin/coupons/{couponId} — 编辑优惠券
+
+**权限**: 管理员
+
+**Request**:
+```json
+{
+  "couponName": "新用户立减10元",
+  "discountValue": 10.00,
+  "minSpend": 50.00,
+  "totalQuantity": 1000,
+  "validStartTime": "2026-07-01T00:00:00",
+  "validEndTime": "2026-07-31T23:59:59",
+  "applicableScope": "ALL",
+  "applicableIds": []
+}
+```
+
+**Response**: 无 data
+
+#### DELETE /api/admin/coupons/{couponId} — 删除优惠券
+
+**权限**: 管理员
+
+**Request**:
+```json
+{}
+```
+
+**Response**: 无 data
+
+#### PATCH /api/admin/coupons/{couponId}/enable — 启用优惠券
+
+**权限**: 管理员
+
+**Request**:
+```json
+{}
+```
+
+**Response**:
+```json
+{
+  "couponId": 1,
+  "status": "ACTIVE"
+}
+```
+
+#### PATCH /api/admin/coupons/{couponId}/disable — 禁用优惠券
+
+**权限**: 管理员
+
+**Request**:
+```json
+{}
+```
+
+**Response**:
+```json
+{
+  "couponId": 1,
+  "status": "INACTIVE"
+}
+```
+
+#### GET /api/admin/coupons/{couponId}/stats — 领取和使用统计
+
+**权限**: 管理员
+
+**Response**:
+```json
+{
+  "couponId": 1,
+  "couponName": "新用户立减10元",
+  "totalQuantity": 1000,
+  "claimedQuantity": 320,
+  "usedQuantity": 150,
+  "claimRate": 32.0,
+  "useRate": 46.9,
+  "totalDiscountAmount": 1500.00
+}
+```
+
+---
+
+## 18 积分模块
+
+### 18.1 用户端
+
+#### GET /api/user/points — 积分余额和总积分
+
+**权限**: 用户登录
+
+**Response**:
+```json
+{
+  "currentPoints": 126,
+  "totalEarned": 500,
+  "totalSpent": 374
+}
+```
+
+#### GET /api/user/points/records — 积分明细
+
+**权限**: 用户登录
+
+**Query**: `page`, `size`, `type` (EARN/SPEND)
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "recordId": 1,
+      "userId": 1,
+      "points": 10,
+      "type": "EARN",
+      "source": "SIGN_IN",
+      "description": "每日签到奖励",
+      "relatedId": null,
+      "createdAt": "2026-07-07T10:00:00"
+    },
+    {
+      "recordId": 2,
+      "userId": 1,
+      "points": -100,
+      "type": "SPEND",
+      "source": "EXCHANGE",
+      "description": "积分兑换商品",
+      "relatedId": 5,
+      "createdAt": "2026-07-06T15:00:00"
+    }
+  ],
+  "total": 50,
+  "page": 1,
+  "size": 20,
+  "totalPages": 3
+}
+```
+
+#### GET /api/user/points/products — 积分兑换商品列表
+
+**权限**: 公开/登录
+
+**Query**: `page`, `size`
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "productId": 1,
+      "productName": "定制帆布袋",
+      "description": "环保定制帆布袋",
+      "imageUrl": "/points/1.jpg",
+      "pointsRequired": 200,
+      "stock": 50,
+      "status": "ACTIVE"
+    }
+  ],
+  "total": 10,
+  "page": 1,
+  "size": 20,
+  "totalPages": 1
+}
+```
+
+#### POST /api/user/points/products/{productId}/exchange — 积分兑换
+
+**权限**: 用户登录
+
+**Request**:
+```json
+{
+  "quantity": 1
+}
+```
+
+**Response**:
+```json
+{
+  "exchangeId": 1,
+  "productId": 1,
+  "productName": "定制帆布袋",
+  "pointsUsed": 200,
+  "quantity": 1,
+  "status": "SUCCESS",
+  "exchangedAt": "2026-07-07T10:00:00"
+}
+```
+
+### 18.2 管理端
+
+#### GET /api/admin/points/records — 全平台积分明细
+
+**权限**: 管理员
+
+**Query**: `page`, `size`, `userId`, `type`, `source`
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "recordId": 1,
+      "userId": 1,
+      "nickname": "测试用户",
+      "points": 10,
+      "type": "EARN",
+      "source": "SIGN_IN",
+      "description": "每日签到奖励",
+      "relatedId": null,
+      "createdAt": "2026-07-07T10:00:00"
+    }
+  ],
+  "total": 1000,
+  "page": 1,
+  "size": 20,
+  "totalPages": 50
+}
+```
+
+#### GET /api/admin/points/products — 积分商品列表
+
+**权限**: 管理员
+
+**Query**: `page`, `size`, `status`, `keyword`
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "productId": 1,
+      "productName": "定制帆布袋",
+      "description": "环保定制帆布袋",
+      "imageUrl": "/points/1.jpg",
+      "pointsRequired": 200,
+      "stock": 50,
+      "status": "ACTIVE"
+    }
+  ],
+  "total": 10,
+  "page": 1,
+  "size": 20,
+  "totalPages": 1
+}
+```
+
+#### POST /api/admin/points/products — 创建积分商品
+
+**权限**: 管理员
+
+**Request**:
+```json
+{
+  "productName": "定制帆布袋",
+  "description": "环保定制帆布袋",
+  "imageUrl": "/points/1.jpg",
+  "pointsRequired": 200,
+  "stock": 50
+}
+```
+
+**Response**:
+```json
+{
+  "productId": 1,
+  "productName": "定制帆布袋",
+  "status": "ACTIVE"
+}
+```
+
+#### PUT /api/admin/points/products/{productId} — 编辑积分商品
+
+**权限**: 管理员
+
+**Request**:
+```json
+{
+  "productName": "定制帆布袋",
+  "description": "环保定制帆布袋",
+  "imageUrl": "/points/1.jpg",
+  "pointsRequired": 200,
+  "stock": 50
+}
+```
+
+**Response**: 无 data
+
+#### DELETE /api/admin/points/products/{productId} — 删除积分商品
+
+**权限**: 管理员
+
+**Request**:
+```json
+{}
+```
+
+**Response**: 无 data
+
+---
+
+## 19 秒杀模块
+
+### 19.1 用户端
+
+#### GET /api/public/flash-sales — 进行中的秒杀活动列表
+
+**权限**: 公开
+
+**Query**: `page`, `size`
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "saleId": 1,
+      "productId": 1,
+      "productName": "无线蓝牙耳机",
+      "productImage": "/product/1.jpg",
+      "originalPrice": 199.00,
+      "flashPrice": 99.00,
+      "stock": 100,
+      "soldCount": 45,
+      "startTime": "2026-07-07T10:00:00",
+      "endTime": "2026-07-07T12:00:00",
+      "limitPerUser": 2,
+      "status": "ACTIVE"
+    }
+  ],
+  "total": 5,
+  "page": 1,
+  "size": 20,
+  "totalPages": 1
+}
+```
+
+#### GET /api/public/flash-sales/{saleId} — 秒杀详情
+
+**权限**: 公开
+
+**Response**:
+```json
+{
+  "saleId": 1,
+  "productId": 1,
+  "productName": "无线蓝牙耳机",
+  "productImage": "/product/1.jpg",
+  "originalPrice": 199.00,
+  "flashPrice": 99.00,
+  "stock": 100,
+  "soldCount": 45,
+  "startTime": "2026-07-07T10:00:00",
+  "endTime": "2026-07-07T12:00:00",
+  "limitPerUser": 2,
+  "status": "ACTIVE"
+}
+```
+
+#### POST /api/user/flash-sales/{saleId}/order — 参与秒杀下单
+
+**权限**: 用户登录
+
+**Request**:
+```json
+{
+  "addressId": 1,
+  "quantity": 1
+}
+```
+
+**Response**:
+```json
+{
+  "orderId": 1,
+  "orderNo": "SD20260707100001FLAS",
+  "totalAmount": 99.00,
+  "shippingFee": 0.00,
+  "discountAmount": 0.00,
+  "payAmount": 99.00,
+  "saleId": 1,
+  "flashPrice": 99.00
+}
+```
+
+### 19.2 管理端
+
+#### GET /api/admin/flash-sales — 秒杀活动列表
+
+**权限**: 管理员
+
+**Query**: `page`, `size`, `status`, `keyword`
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "saleId": 1,
+      "productId": 1,
+      "productName": "无线蓝牙耳机",
+      "originalPrice": 199.00,
+      "flashPrice": 99.00,
+      "stock": 100,
+      "soldCount": 45,
+      "startTime": "2026-07-07T10:00:00",
+      "endTime": "2026-07-07T12:00:00",
+      "limitPerUser": 2,
+      "status": "ACTIVE"
+    }
+  ],
+  "total": 10,
+  "page": 1,
+  "size": 20,
+  "totalPages": 1
+}
+```
+
+#### POST /api/admin/flash-sales — 创建秒杀
+
+**权限**: 管理员
+
+**Request**:
+```json
+{
+  "productId": 1,
+  "flashPrice": 99.00,
+  "stock": 100,
+  "startTime": "2026-07-07T10:00:00",
+  "endTime": "2026-07-07T12:00:00",
+  "limitPerUser": 2
+}
+```
+
+**Response**:
+```json
+{
+  "saleId": 1,
+  "productId": 1,
+  "flashPrice": 99.00,
+  "status": "ACTIVE"
+}
+```
+
+#### PUT /api/admin/flash-sales/{saleId} — 编辑秒杀
+
+**权限**: 管理员
+
+**Request**:
+```json
+{
+  "flashPrice": 89.00,
+  "stock": 150,
+  "startTime": "2026-07-07T10:00:00",
+  "endTime": "2026-07-07T14:00:00",
+  "limitPerUser": 2
+}
+```
+
+**Response**: 无 data
+
+#### DELETE /api/admin/flash-sales/{saleId} — 删除秒杀
+
+**权限**: 管理员
+
+**Request**:
+```json
+{}
+```
+
+**Response**: 无 data
+
+#### PATCH /api/admin/flash-sales/{saleId}/enable — 启用秒杀
+
+**权限**: 管理员
+
+**Request**:
+```json
+{}
+```
+
+**Response**:
+```json
+{
+  "saleId": 1,
+  "status": "ACTIVE"
+}
+```
+
+#### PATCH /api/admin/flash-sales/{saleId}/disable — 禁用秒杀
+
+**权限**: 管理员
+
+**Request**:
+```json
+{}
+```
+
+**Response**:
+```json
+{
+  "saleId": 1,
+  "status": "INACTIVE"
+}
+```
+
+---
+
+## 20 专题活动模块
+
+### 20.1 用户端
+
+#### GET /api/public/activities — 活动列表
+
+**权限**: 公开
+
+**Query**: `page`, `size`, `status`
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "activityId": 1,
+      "title": "夏日清凉节",
+      "subtitle": "全场冷饮低至5折",
+      "coverImage": "/activity/1.jpg",
+      "bannerImage": "/activity/banner1.jpg",
+      "description": "夏日清凉节活动描述",
+      "startTime": "2026-07-01T00:00:00",
+      "endTime": "2026-07-15T23:59:59",
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    }
+  ],
+  "total": 5,
+  "page": 1,
+  "size": 20,
+  "totalPages": 1
+}
+```
+
+#### GET /api/public/activities/{activityId} — 活动详情
+
+**权限**: 公开
+
+**Response**:
+```json
+{
+  "activityId": 1,
+  "title": "夏日清凉节",
+  "subtitle": "全场冷饮低至5折",
+  "coverImage": "/activity/1.jpg",
+  "bannerImage": "/activity/banner1.jpg",
+  "description": "夏日清凉节活动描述",
+  "startTime": "2026-07-01T00:00:00",
+  "endTime": "2026-07-15T23:59:59",
+  "sortOrder": 1,
+  "status": "ACTIVE",
+  "products": [
+    {
+      "productId": 1,
+      "name": "冰镇果汁",
+      "mainImage": "/product/1.jpg",
+      "price": 9.90,
+      "originalPrice": 19.90
+    }
+  ]
+}
+```
+
+### 20.2 管理端
+
+#### GET /api/admin/activities — 活动列表
+
+**权限**: 管理员
+
+**Query**: `page`, `size`, `status`, `keyword`
+
+**Response**:
+```json
+{
+  "list": [
+    {
+      "activityId": 1,
+      "title": "夏日清凉节",
+      "subtitle": "全场冷饮低至5折",
+      "coverImage": "/activity/1.jpg",
+      "bannerImage": "/activity/banner1.jpg",
+      "startTime": "2026-07-01T00:00:00",
+      "endTime": "2026-07-15T23:59:59",
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    }
+  ],
+  "total": 10,
+  "page": 1,
+  "size": 20,
+  "totalPages": 1
+}
+```
+
+#### POST /api/admin/activities — 创建活动
+
+**权限**: 管理员
+
+**Request**:
+```json
+{
+  "title": "夏日清凉节",
+  "subtitle": "全场冷饮低至5折",
+  "coverImage": "/activity/1.jpg",
+  "bannerImage": "/activity/banner1.jpg",
+  "description": "夏日清凉节活动描述",
+  "startTime": "2026-07-01T00:00:00",
+  "endTime": "2026-07-15T23:59:59",
+  "sortOrder": 1
+}
+```
+
+**Response**:
+```json
+{
+  "activityId": 1,
+  "title": "夏日清凉节",
+  "status": "ACTIVE"
+}
+```
+
+#### PUT /api/admin/activities/{activityId} — 编辑活动
+
+**权限**: 管理员
+
+**Request**:
+```json
+{
+  "title": "夏日清凉节",
+  "subtitle": "全场冷饮低至5折",
+  "coverImage": "/activity/1.jpg",
+  "bannerImage": "/activity/banner1.jpg",
+  "description": "夏日清凉节活动描述",
+  "startTime": "2026-07-01T00:00:00",
+  "endTime": "2026-07-15T23:59:59",
+  "sortOrder": 1
+}
+```
+
+**Response**: 无 data
+
+#### DELETE /api/admin/activities/{activityId} — 删除活动
+
+**权限**: 管理员
+
+**Request**:
+```json
+{}
+```
+
+**Response**: 无 data
+
+#### POST /api/admin/activities/{activityId}/products — 添加活动商品
+
+**权限**: 管理员
+
+**Request**:
+```json
+{
+  "productIds": [1, 2, 3]
+}
+```
+
+**Response**:
+```json
+{
+  "activityId": 1,
+  "addedCount": 3
+}
+```
+
+#### DELETE /api/admin/activities/{activityId}/products/{productId} — 移除活动商品
+
+**权限**: 管理员
+
+**Request**:
+```json
+{}
+```
+
+**Response**: 无 data
+
+---
+
+## 21 排行榜模块
+
+### 21.1 用户端
+
+#### GET /api/public/rankings/consumption — 消费排行榜
+
+**权限**: 公开
+
+**Query**: `period` (WEEK/MONTH/ALL)
+
+**Response**:
+```json
+{
+  "period": "MONTH",
+  "list": [
+    {
+      "rank": 1,
+      "userId": 1,
+      "nickname": "张三",
+      "avatar": "/avatar/1.jpg",
+      "value": 5000.00,
+      "unit": "元"
+    },
+    {
+      "rank": 2,
+      "userId": 2,
+      "nickname": "李四",
+      "avatar": "/avatar/2.jpg",
+      "value": 3200.00,
+      "unit": "元"
+    }
+  ]
+}
+```
+
+#### GET /api/public/rankings/sign-in — 签到排行榜
+
+**权限**: 公开
+
+**Query**: `period` (WEEK/MONTH/ALL)
+
+**Response**:
+```json
+{
+  "period": "MONTH",
+  "list": [
+    {
+      "rank": 1,
+      "userId": 1,
+      "nickname": "张三",
+      "avatar": "/avatar/1.jpg",
+      "value": 30,
+      "unit": "天"
+    },
+    {
+      "rank": 2,
+      "userId": 2,
+      "nickname": "李四",
+      "avatar": "/avatar/2.jpg",
+      "value": 28,
+      "unit": "天"
+    }
+  ]
+}
+```
+
+---
+
 ## 附录：API 清单汇总
 
 | # | Method | URL | 权限 | 说明 |
@@ -1330,5 +2279,44 @@ type: avatar | product | review | banner | license
 | 132 | PUT | /api/notifications/{notificationId}/read | 登录 | 标记已读 |
 | 133 | PUT | /api/notifications/read-all | 登录 | 全部已读 |
 | 134 | DELETE | /api/notifications/{notificationId} | 登录 | 删除消息 |
+| 135 | GET | /api/user/coupons/available | 公开 | 可领取优惠券列表 |
+| 136 | POST | /api/user/coupons/{couponId}/claim | 用户 | 领取优惠券 |
+| 137 | GET | /api/user/coupons/my | 用户 | 我的优惠券列表 |
+| 138 | GET | /api/user/coupons/{couponId} | 用户 | 优惠券详情 |
+| 139 | GET | /api/admin/coupons | 管理员 | 优惠券列表 |
+| 140 | POST | /api/admin/coupons | 管理员 | 创建优惠券 |
+| 141 | PUT | /api/admin/coupons/{couponId} | 管理员 | 编辑优惠券 |
+| 142 | DELETE | /api/admin/coupons/{couponId} | 管理员 | 删除优惠券 |
+| 143 | PATCH | /api/admin/coupons/{couponId}/enable | 管理员 | 启用优惠券 |
+| 144 | PATCH | /api/admin/coupons/{couponId}/disable | 管理员 | 禁用优惠券 |
+| 145 | GET | /api/admin/coupons/{couponId}/stats | 管理员 | 优惠券统计 |
+| 146 | GET | /api/user/points | 用户 | 积分余额 |
+| 147 | GET | /api/user/points/records | 用户 | 积分明细 |
+| 148 | GET | /api/user/points/products | 公开 | 积分商品列表 |
+| 149 | POST | /api/user/points/products/{productId}/exchange | 用户 | 积分兑换 |
+| 150 | GET | /api/admin/points/records | 管理员 | 全平台积分明细 |
+| 151 | GET | /api/admin/points/products | 管理员 | 积分商品列表 |
+| 152 | POST | /api/admin/points/products | 管理员 | 创建积分商品 |
+| 153 | PUT | /api/admin/points/products/{productId} | 管理员 | 编辑积分商品 |
+| 154 | DELETE | /api/admin/points/products/{productId} | 管理员 | 删除积分商品 |
+| 155 | GET | /api/public/flash-sales | 公开 | 秒杀活动列表 |
+| 156 | GET | /api/public/flash-sales/{saleId} | 公开 | 秒杀详情 |
+| 157 | POST | /api/user/flash-sales/{saleId}/order | 用户 | 秒杀下单 |
+| 158 | GET | /api/admin/flash-sales | 管理员 | 秒杀活动列表 |
+| 159 | POST | /api/admin/flash-sales | 管理员 | 创建秒杀 |
+| 160 | PUT | /api/admin/flash-sales/{saleId} | 管理员 | 编辑秒杀 |
+| 161 | DELETE | /api/admin/flash-sales/{saleId} | 管理员 | 删除秒杀 |
+| 162 | PATCH | /api/admin/flash-sales/{saleId}/enable | 管理员 | 启用秒杀 |
+| 163 | PATCH | /api/admin/flash-sales/{saleId}/disable | 管理员 | 禁用秒杀 |
+| 164 | GET | /api/public/activities | 公开 | 活动列表 |
+| 165 | GET | /api/public/activities/{activityId} | 公开 | 活动详情 |
+| 166 | GET | /api/admin/activities | 管理员 | 活动列表 |
+| 167 | POST | /api/admin/activities | 管理员 | 创建活动 |
+| 168 | PUT | /api/admin/activities/{activityId} | 管理员 | 编辑活动 |
+| 169 | DELETE | /api/admin/activities/{activityId} | 管理员 | 删除活动 |
+| 170 | POST | /api/admin/activities/{activityId}/products | 管理员 | 添加活动商品 |
+| 171 | DELETE | /api/admin/activities/{activityId}/products/{productId} | 管理员 | 移除活动商品 |
+| 172 | GET | /api/public/rankings/consumption | 公开 | 消费排行榜 |
+| 173 | GET | /api/public/rankings/sign-in | 公开 | 签到排行榜 |
 
-**总计 134 个 API 接口。**
+**总计 173 个 API 接口。**

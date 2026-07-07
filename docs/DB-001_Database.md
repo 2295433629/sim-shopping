@@ -59,6 +59,11 @@ t_order ──1:1── t_payment
 t_order ──1:1── t_shipment ──1:1── t_logistics_record ──1:N── t_logistics_track
 t_order ──1:N── t_review ──1:N── t_review_image
 t_user ──1:N── t_sign_in_record
+t_user ──1:N── t_user_coupon ──N:1── t_coupon
+t_user ──1:1── t_user_points
+t_user ──1:N── t_points_record
+t_product ──1:N── t_flash_sale
+t_activity ──1:N── t_activity_product ──N:1── t_product
 t_user ──N:M── t_product (收藏 → t_favorite)
 t_user ──N:M── t_product (浏览历史 → t_browse_history)
 t_user ──1:N── t_search_history (搜索历史)
@@ -546,6 +551,151 @@ t_sys_notification → t_user (站内消息)
 **索引**：
 - INDEX `idx_status_sort` (`status`, `sort_order`)
 
+#### t_coupon — 优惠券表
+
+| 字段 | 类型 | 空 | 默认 | 说明 |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | NO | AUTO | 主键 |
+| coupon_code | VARCHAR(32) | NO | | 券码（唯一） |
+| coupon_name | VARCHAR(100) | NO | | 名称 |
+| coupon_type | VARCHAR(20) | NO | 'FIXED_AMOUNT' | FIXED_AMOUNT/PERCENTAGE/THRESHOLD |
+| discount_value | DECIMAL(10,2) | NO | 0.00 | 优惠值 |
+| min_spend | DECIMAL(10,2) | NO | 0.00 | 最低消费门槛 |
+| total_quantity | INT | NO | 0 | 总发放数量 |
+| claimed_quantity | INT | NO | 0 | 已领取数量 |
+| used_quantity | INT | NO | 0 | 已使用数量 |
+| valid_start_time | DATETIME | NO | | 有效期开始 |
+| valid_end_time | DATETIME | NO | | 有效期结束 |
+| applicable_scope | VARCHAR(20) | NO | 'ALL' | ALL/CATEGORY/PRODUCT |
+| applicable_ids | VARCHAR(500) | YES | | 适用对象ID（逗号分隔） |
+| status | VARCHAR(20) | NO | 'ACTIVE' | ACTIVE/INACTIVE/EXPIRED |
+| + 通用字段 | | | | |
+
+**索引**：
+- UNIQUE `uk_coupon_code` (`coupon_code`)
+- INDEX `idx_status` (`status`)
+- INDEX `idx_valid_time` (`valid_start_time`, `valid_end_time`)
+
+#### t_user_coupon — 用户优惠券关联表
+
+| 字段 | 类型 | 空 | 默认 | 说明 |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | NO | AUTO | 主键 |
+| user_id | BIGINT UNSIGNED | NO | | 用户ID |
+| coupon_id | BIGINT UNSIGNED | NO | | 优惠券ID |
+| claimed_at | DATETIME | NO | CURRENT_TIMESTAMP | 领取时间 |
+| used_at | DATETIME | YES | | 使用时间 |
+| order_no | VARCHAR(32) | YES | | 使用的订单号 |
+| status | VARCHAR(20) | NO | 'UNUSED' | UNUSED/USED/EXPIRED |
+| + 通用字段 | | | | |
+
+**索引**：
+- INDEX `idx_user_id` (`user_id`)
+- INDEX `idx_coupon_id` (`coupon_id`)
+- INDEX `idx_status` (`status`)
+
+#### t_user_points — 用户积分表
+
+| 字段 | 类型 | 空 | 默认 | 说明 |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | NO | AUTO | 主键 |
+| user_id | BIGINT UNSIGNED | NO | | 用户ID |
+| total_points | INT | NO | 0 | 总积分 |
+| available_points | INT | NO | 0 | 可用积分 |
+| + 通用字段 | | | | |
+
+**索引**：
+- UNIQUE `uk_user_id` (`user_id`)
+
+#### t_points_record — 积分明细表
+
+| 字段 | 类型 | 空 | 默认 | 说明 |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | NO | AUTO | 主键 |
+| user_id | BIGINT UNSIGNED | NO | | 用户ID |
+| points | INT | NO | | 变动积分（正=获得，负=消耗） |
+| type | VARCHAR(20) | NO | | EARN/SPEND |
+| source | VARCHAR(50) | NO | | SIGN_IN/ORDER/PURCHASE/EXCHANGE/ADMIN |
+| description | VARCHAR(255) | YES | | 说明 |
+| related_id | BIGINT | YES | | 关联ID |
+| + 通用字段 | | | | |
+
+**索引**：
+- INDEX `idx_user_id` (`user_id`)
+- INDEX `idx_type` (`type`)
+- INDEX `idx_source` (`source`)
+
+#### t_points_product — 积分兑换商品表
+
+| 字段 | 类型 | 空 | 默认 | 说明 |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | NO | AUTO | 主键 |
+| product_name | VARCHAR(200) | NO | | 商品名称 |
+| description | TEXT | YES | | 描述 |
+| image_url | VARCHAR(255) | YES | | 图片 |
+| points_required | INT | NO | | 所需积分 |
+| stock | INT | NO | 0 | 库存 |
+| status | VARCHAR(20) | NO | 'ACTIVE' | ACTIVE/INACTIVE/SOLD_OUT |
+| + 通用字段 | | | | |
+
+**索引**：
+- INDEX `idx_status` (`status`)
+
+#### t_flash_sale — 秒杀活动表
+
+| 字段 | 类型 | 空 | 默认 | 说明 |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | NO | AUTO | 主键 |
+| product_id | BIGINT UNSIGNED | NO | | 商品ID |
+| original_price | DECIMAL(10,2) | NO | | 原价 |
+| flash_price | DECIMAL(10,2) | NO | | 秒杀价 |
+| stock | INT | NO | 0 | 库存 |
+| sold_count | INT | NO | 0 | 已售数量 |
+| start_time | DATETIME | NO | | 开始时间 |
+| end_time | DATETIME | NO | | 结束时间 |
+| limit_per_user | INT | NO | 1 | 每人限购 |
+| status | VARCHAR(20) | NO | 'ACTIVE' | ACTIVE/INACTIVE/ENDED |
+| + 通用字段 | | | | |
+
+**索引**：
+- INDEX `idx_product_id` (`product_id`)
+- INDEX `idx_status` (`status`)
+- INDEX `idx_time` (`start_time`, `end_time`)
+
+#### t_activity — 专题活动表
+
+| 字段 | 类型 | 空 | 默认 | 说明 |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | NO | AUTO | 主键 |
+| title | VARCHAR(200) | NO | | 标题 |
+| subtitle | VARCHAR(500) | YES | | 副标题 |
+| cover_image | VARCHAR(255) | YES | | 封面图 |
+| banner_image | VARCHAR(255) | YES | | Banner图 |
+| description | TEXT | YES | | 描述 |
+| start_time | DATETIME | NO | | 开始时间 |
+| end_time | DATETIME | NO | | 结束时间 |
+| sort_order | INT | NO | 0 | 排序 |
+| status | VARCHAR(20) | NO | 'ACTIVE' | ACTIVE/INACTIVE/ENDED |
+| + 通用字段 | | | | |
+
+**索引**：
+- INDEX `idx_status` (`status`)
+- INDEX `idx_time` (`start_time`, `end_time`)
+
+#### t_activity_product — 活动商品关联表
+
+| 字段 | 类型 | 空 | 默认 | 说明 |
+|---|---|---|---|---|
+| id | BIGINT UNSIGNED | NO | AUTO | 主键 |
+| activity_id | BIGINT UNSIGNED | NO | | 活动ID |
+| product_id | BIGINT UNSIGNED | NO | | 商品ID |
+| sort_order | INT | NO | 0 | 排序 |
+| + 通用字段 | | | | |
+
+**索引**：
+- INDEX `idx_activity_id` (`activity_id`)
+- INDEX `idx_product_id` (`product_id`)
+
 ---
 
 ### 3.12 系统领域 (System Domain)
@@ -900,5 +1050,13 @@ INSERT INTO t_sys_config (config_key, config_value, config_name, config_type, mo
 | 36 | t_sys_login_log | System | 登录日志 |
 | 37 | t_sys_notification | System | 站内消息 |
 | 38 | t_sys_file | System | 文件 |
+| 39 | t_coupon | Marketing | 优惠券 |
+| 40 | t_user_coupon | Marketing | 用户优惠券关联 |
+| 41 | t_user_points | User | 用户积分 |
+| 42 | t_points_record | User | 积分明细 |
+| 43 | t_points_product | Marketing | 积分兑换商品 |
+| 44 | t_flash_sale | Marketing | 秒杀活动 |
+| 45 | t_activity | Marketing | 专题活动 |
+| 46 | t_activity_product | Marketing | 活动商品关联 |
 
-**总计 38 张表，覆盖 PRD 全部 12 个领域。**
+**总计 46 张表，覆盖 PRD 全部 12 个领域。**

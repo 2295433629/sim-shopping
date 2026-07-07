@@ -54,6 +54,16 @@ const menuGroups: MenuGroup[] = [
     ],
   },
   {
+    title: '营销管理',
+    items: [
+      { index: '/coupons', title: '优惠券管理', icon: 'Ticket' },
+      { index: '/points/products', title: '积分商品管理', icon: 'Goods' },
+      { index: '/points/records', title: '积分流水管理', icon: 'Document' },
+      { index: '/flash-sales', title: '秒杀活动管理', icon: 'AlarmClock' },
+      { index: '/activities', title: '专题活动管理', icon: 'Star' },
+    ],
+  },
+  {
     title: '系统监控',
     items: [
       { index: '/logs/operation', title: '操作日志', icon: 'Document' },

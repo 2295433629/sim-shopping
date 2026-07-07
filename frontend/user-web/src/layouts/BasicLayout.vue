@@ -80,6 +80,13 @@ async function handleLogout() {
                 <el-dropdown-item command="/orders">我的订单</el-dropdown-item>
                 <el-dropdown-item command="/favorites">我的收藏</el-dropdown-item>
                 <el-dropdown-item command="/history">浏览历史</el-dropdown-item>
+                <el-dropdown-item command="/coupon-center">领券中心</el-dropdown-item>
+                <el-dropdown-item command="/my-coupons">我的优惠券</el-dropdown-item>
+                <el-dropdown-item command="/points-mall">积分商城</el-dropdown-item>
+                <el-dropdown-item command="/points-records">积分明细</el-dropdown-item>
+                <el-dropdown-item command="/flash-sale">限时秒杀</el-dropdown-item>
+                <el-dropdown-item command="/activities">专题活动</el-dropdown-item>
+                <el-dropdown-item command="/rankings">排行榜</el-dropdown-item>
                 <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
