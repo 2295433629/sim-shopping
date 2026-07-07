@@ -36,7 +36,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims = jwtTokenProvider.parseToken(token);
                 String tokenType = claims.get("tokenType", String.class);
                 if ("access".equals(tokenType)) {
-                    Long userId = Long.parseLong(claims.getSubject());
+                    String subject = claims.getSubject();
+                    if (subject == null) {
+                        log.debug("Token subject is null");
+                        SecurityContextHolder.clearContext();
+                    } else {
+                        Long userId = Long.parseLong(subject);
                     String username = claims.get("username", String.class);
                     String userType = claims.get("userType", String.class);
 
@@ -45,6 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             } catch (Exception e) {
                 log.debug("Failed to set authentication from token: {}", e.getMessage());

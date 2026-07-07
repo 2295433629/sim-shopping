@@ -157,10 +157,10 @@ sim-shopping/
 
 ```bash
 # 创建数据库
-create database shopping_dream default character set utf8mb4;
+create database sim_shopping default character set utf8mb4;
 
 # 执行初始化脚本
-mysql -uroot -p shopping_dream < sql/init.sql
+mysql -uroot -p sim_shopping < sql/init.sql
 ```
 
 ### 2. 启动后端
@@ -207,7 +207,7 @@ npm run dev
 ```yaml
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/shopping_dream
+    url: jdbc:mysql://localhost:3306/sim_shopping
     username: root
     password: root
   redis:

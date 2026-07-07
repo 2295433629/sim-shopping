@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +34,7 @@ public class SearchService {
         List<ProductDO> products = productMapper.selectList(wrapper);
         List<String> suggestions = products.stream()
                 .map(ProductDO::getName)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
         return Map.of("suggestions", suggestions);
@@ -45,7 +47,9 @@ public class SearchService {
         List<SearchHistoryDO> recent = searchHistoryMapper.selectList(wrapper);
         // count frequency and return top 10
         List<String> keywords = recent.stream()
-                .collect(Collectors.groupingBy(SearchHistoryDO::getKeyword, Collectors.counting()))
+                .map(SearchHistoryDO::getKeyword)
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(k -> k, Collectors.counting()))
                 .entrySet().stream()
                 .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
                 .limit(10)

@@ -65,7 +65,7 @@ public class CartService {
 
         if (skuId != null) {
             ProductSkuDO sku = productSkuMapper.selectById(skuId);
-            if (sku == null || !sku.getProductId().equals(productId)) {
+            if (sku == null || !productId.equals(sku.getProductId())) {
                 throw new BusinessException(404, "商品规格不存在");
             }
         }
@@ -108,7 +108,7 @@ public class CartService {
     public CartResponse updateCartItem(Long userId, Long cartItemId, Integer quantity, Integer selected) {
         ShoppingCartDO cart = getOrCreateCart(userId);
         CartItemDO item = cartItemMapper.selectById(cartItemId);
-        if (item == null || !item.getCartId().equals(cart.getId())) {
+        if (item == null || !cart.getId().equals(item.getCartId())) {
             throw new BusinessException(404, "购物车商品不存在");
         }
 
@@ -129,7 +129,7 @@ public class CartService {
     public CartResponse removeCartItem(Long userId, Long cartItemId) {
         ShoppingCartDO cart = getOrCreateCart(userId);
         CartItemDO item = cartItemMapper.selectById(cartItemId);
-        if (item == null || !item.getCartId().equals(cart.getId())) {
+        if (item == null || !cart.getId().equals(item.getCartId())) {
             throw new BusinessException(404, "购物车商品不存在");
         }
         cartItemMapper.deleteById(cartItemId);
@@ -257,7 +257,7 @@ public class CartService {
                 }
 
                 // Calculate amounts
-                if (vo.getPrice() != null) {
+                if (vo.getPrice() != null && vo.getQuantity() != null) {
                     BigDecimal itemTotal = vo.getPrice().multiply(new BigDecimal(vo.getQuantity()));
                     totalAmount = totalAmount.add(itemTotal);
                     if (item.getSelected() != null && item.getSelected() == 1) {

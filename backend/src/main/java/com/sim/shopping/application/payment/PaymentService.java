@@ -34,7 +34,7 @@ public class PaymentService {
         if (order == null) {
             throw new BusinessException(404, "订单不存在");
         }
-        if (!order.getUserId().equals(userId)) {
+        if (!userId.equals(order.getUserId())) {
             throw new BusinessException(403, "无权操作此订单");
         }
         if (!"CREATED".equals(order.getStatus())) {

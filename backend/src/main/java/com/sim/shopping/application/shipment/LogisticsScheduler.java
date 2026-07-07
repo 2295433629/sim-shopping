@@ -74,6 +74,7 @@ public class LogisticsScheduler {
     }
 
     @Scheduled(fixedDelay = 30000)
+    @Transactional
     public void advanceLogisticsStatus() {
         // 查找所有未完成的物流记录（CREATED/PICKED_UP/SORTING/IN_TRANSIT/OUT_FOR_DELIVERY）
         LambdaQueryWrapper<LogisticsRecordDO> wrapper = new LambdaQueryWrapper<>();
@@ -83,6 +84,10 @@ public class LogisticsScheduler {
         for (LogisticsRecordDO record : records) {
             try {
                 String currentStatus = record.getStatus();
+                if (currentStatus == null) {
+                    log.warn("物流记录状态为空: recordId={}", record.getId());
+                    continue;
+                }
                 int currentIndex = STATUS_FLOW.indexOf(currentStatus);
                 if (currentIndex < 0 || currentIndex >= STATUS_FLOW.size() - 1) {
                     continue;

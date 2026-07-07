@@ -4,8 +4,8 @@
 -- 生成日期: 2026-07-03
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS shopping_dream DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE shopping_dream;
+CREATE DATABASE IF NOT EXISTS sim_shopping DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE sim_shopping;
 
 -- ============================================================
 -- 1. 用户领域 (User Domain)

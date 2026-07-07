@@ -1,0 +1,38 @@
+# ============================================================
+# 生产环境配置
+# 用途：服务器部署（Docker / 云服务器）
+# 特点：Redis 缓存；文件存服务器目录；Info 级别日志；关闭 SQL 打印
+# 启动方式：java -jar -Dspring.profiles.active=prod app.jar
+#          或 docker-compose 中设置 SPRING_PROFILES_ACTIVE=prod
+# ============================================================
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/sim_shopping?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DB:0}
+      timeout: 5000ms
+      password: ${REDIS_PASSWORD:}
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+app:
+  upload:
+    path: /app/uploads
+  cache:
+    type: redis
+
+logging:
+  level:
+    root: info
+    com.sim.shopping: info
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -71,7 +71,7 @@ public class OrderService {
 
         // Validate address
         UserAddressDO address = userAddressMapper.selectById(addressId);
-        if (address == null || !address.getUserId().equals(userId)) {
+        if (address == null || !userId.equals(address.getUserId())) {
             throw new BusinessException(400, "收货地址不存在或不属于当前用户");
         }
 
@@ -86,7 +86,7 @@ public class OrderService {
         // Validate cart items belong to user's cart
         for (CartItemDO cartItem : cartItems) {
             ShoppingCartDO cart = shoppingCartMapper.selectById(cartItem.getCartId());
-            if (cart == null || !cart.getUserId().equals(userId)) {
+            if (cart == null || !userId.equals(cart.getUserId())) {
                 throw new BusinessException(403, "购物车项不属于当前用户");
             }
         }
@@ -114,7 +114,8 @@ public class OrderService {
                 if (product == null) {
                     throw new BusinessException(400, "商品不存在: " + cartItem.getProductId());
                 }
-                if (product.getStock() < cartItem.getQuantity()) {
+                if (product.getStock() == null || cartItem.getQuantity() == null
+                        || product.getStock() < cartItem.getQuantity()) {
                     throw new BusinessException(400, "商品库存不足: " + product.getName());
                 }
 
@@ -210,7 +211,7 @@ public class OrderService {
         if (order == null) {
             throw new OrderException.OrderNotFoundException("订单不存在: " + orderNo);
         }
-        if (!order.getUserId().equals(userId)) {
+        if (!userId.equals(order.getUserId())) {
             throw new BusinessException(403, "无权查看此订单");
         }
         return convertToOrderDetailVO(order);
@@ -221,7 +222,7 @@ public class OrderService {
         if (order == null) {
             throw new OrderException.OrderNotFoundException("订单不存在: " + orderNo);
         }
-        if (!order.getShopId().equals(shopId)) {
+        if (!shopId.equals(order.getShopId())) {
             throw new BusinessException(403, "无权查看此订单");
         }
         return convertToOrderDetailVO(order);
@@ -233,7 +234,7 @@ public class OrderService {
         if (order == null) {
             throw new OrderException.OrderNotFoundException("订单不存在: " + orderNo);
         }
-        if (!order.getUserId().equals(userId)) {
+        if (!userId.equals(order.getUserId())) {
             throw new BusinessException(403, "无权操作此订单");
         }
         if (!ORDER_STATUS_CREATED.equals(order.getStatus())) {
@@ -268,7 +269,7 @@ public class OrderService {
         if (order == null) {
             throw new OrderException.OrderNotFoundException("订单不存在: " + orderNo);
         }
-        if (!order.getUserId().equals(userId)) {
+        if (!userId.equals(order.getUserId())) {
             throw new BusinessException(403, "无权操作此订单");
         }
         if (!ORDER_STATUS_DELIVERED.equals(order.getStatus())) {
@@ -342,7 +343,7 @@ public class OrderService {
 
     private String randomAlphanumeric(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        Random random = new Random();
+        java.util.concurrent.ThreadLocalRandom random = java.util.concurrent.ThreadLocalRandom.current();
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
             sb.append(chars.charAt(random.nextInt(chars.length())));

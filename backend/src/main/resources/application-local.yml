@@ -1,0 +1,35 @@
+# ============================================================
+# 本地开发环境配置
+# 用途：本地 IDEA 开发调试
+# 特点：无需 Redis，缓存降级到数据库；文件存本地目录；开启 Debug 日志
+# 启动方式：直接运行 SimShoppingApplication（默认加载此配置）
+# ============================================================
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sim_shopping?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 5000ms
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+app:
+  upload:
+    path: D:/workspace/shopping/sim-shopping/uploads
+  cache:
+    type: database
+
+logging:
+  level:
+    com.sim.shopping: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
