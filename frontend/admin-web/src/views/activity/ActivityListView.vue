@@ -31,7 +31,7 @@
             </el-image>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="活动名称" min-width="160" show-overflow-tooltip />
+        <el-table-column prop="activityName" label="活动名称" min-width="160" show-overflow-tooltip />
         <el-table-column prop="startTime" label="开始时间" width="150" />
         <el-table-column prop="endTime" label="结束时间" width="150" />
         <el-table-column prop="status" label="状态" width="90">
@@ -109,7 +109,7 @@
               ref="productTableRef"
             >
               <el-table-column type="selection" width="45" />
-              <el-table-column prop="productId" label="ID" width="60" />
+              <el-table-column prop="id" label="ID" width="60" />
               <el-table-column label="图片" width="70">
                 <template #default="{ row }">
                   <el-image :src="row.mainImage" fit="cover" style="width: 50px; height: 40px; border-radius: 4px;">
@@ -152,15 +152,10 @@ import {
   type Activity,
   type ActivityFormData,
 } from '@/api/modules/activity'
-import { getProducts } from '@/api/modules/product'
+import { getProducts, type ProductListItem } from '@/api/modules/product'
 
-/** 商品卡片简要信息 */
-interface ProductOption {
-  productId: number
-  name: string
-  mainImage?: string
-  price: number
-}
+/** 商品卡片简要信息 — 复用 ProductListItem */
+type ProductOption = ProductListItem
 
 const list = ref<Activity[]>([])
 const total = ref(0)
@@ -246,13 +241,13 @@ function handleProductSearch() {
 }
 
 function handleSelectionChange(selection: ProductOption[]) {
-  form.productIds = selection.map((item) => item.productId)
+  form.productIds = selection.map((item) => item.id)
 }
 
 function syncSelection() {
   if (!productTableRef.value) return
   productList.value.forEach((row) => {
-    const shouldSelected = form.productIds.includes(row.productId)
+    const shouldSelected = form.productIds.includes(row.id)
     productTableRef.value!.toggleRowSelection(row, shouldSelected)
   })
 }
@@ -269,8 +264,8 @@ function handleAdd() {
 function handleEdit(row: Activity) {
   resetForm()
   isEdit.value = true
-  editingId.value = row.activityId
-  form.name = row.name
+  editingId.value = row.id
+  form.name = row.activityName
   form.description = row.description || ''
   form.bannerImage = row.bannerImage
   form.startTime = row.startTime
@@ -305,12 +300,12 @@ async function handleSubmit() {
 
 async function handleDelete(row: Activity) {
   try {
-    await ElMessageBox.confirm(`确定删除专题活动 "${row.name}" 吗？`, '确认删除', {
+    await ElMessageBox.confirm(`确定删除专题活动 "${row.activityName}" 吗？`, '确认删除', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning',
     })
-    await deleteAdminActivity(row.activityId)
+    await deleteAdminActivity(row.id)
     ElMessage.success('删除成功')
     loadList()
   } catch (e: any) {

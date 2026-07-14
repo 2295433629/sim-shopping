@@ -30,7 +30,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="stock" label="库存" width="80" />
-        <el-table-column prop="sold" label="已售" width="80" />
+        <el-table-column prop="soldCount" label="已售" width="80" />
         <el-table-column prop="limitPerUser" label="限购" width="80" />
         <el-table-column prop="startTime" label="开始时间" width="150" />
         <el-table-column prop="endTime" label="结束时间" width="150" />

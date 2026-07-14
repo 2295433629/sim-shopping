@@ -2,7 +2,10 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import DOMPurify from 'dompurify'
 import { getProductDetail, addFavorite } from '@/api/modules/product'
+import { addToCart } from '@/api/modules/cart'
+import { getToken } from '@/utils/storage'
 import type { ProductDetailVO, SkuVO } from '@/types/product'
 
 const route = useRoute()
@@ -13,6 +16,11 @@ const product = ref<ProductDetailVO | null>(null)
 const selectedImage = ref('')
 const selectedSku = ref<SkuVO | null>(null)
 const quantity = ref(1)
+
+const safeDescription = computed(() => {
+  if (!product.value?.description) return '暂无描述'
+  return DOMPurify.sanitize(product.value.description)
+})
 
 const productId = computed(() => Number(route.params.productId))
 
@@ -52,16 +60,44 @@ function formatPrice(price: number): string {
   return `¥${price.toFixed(2)}`
 }
 
-function handleAddToCart() {
-  ElMessage.info('购物车功能将在 M3 实现')
+async function handleAddToCart() {
+  if (!product.value) return
+  if (!getToken()) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+  try {
+    await addToCart(product.value.productId, selectedSku.value?.skuId || 0, quantity.value)
+    ElMessage.success('已加入购物车')
+  } catch {
+    // error handled by interceptor
+  }
 }
 
-function handleBuyNow() {
-  ElMessage.info('购买功能将在 M3 实现')
+async function handleBuyNow() {
+  if (!product.value) return
+  if (!getToken()) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+  try {
+    await addToCart(product.value.productId, selectedSku.value?.skuId || 0, quantity.value)
+    ElMessage.success('已加入购物车，正在前往结算页...')
+    router.push('/checkout')
+  } catch {
+    // error handled by interceptor
+  }
 }
 
 async function handleFavorite() {
   if (!product.value) return
+  if (!getToken()) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
   try {
     await addFavorite(product.value.productId)
     ElMessage.success('已加入收藏')
@@ -155,8 +191,8 @@ function goToShop() {
 
             <!-- 操作按钮 -->
             <div class="action-buttons">
-              <el-button type="warning" size="large" @click="handleBuyNow" disabled>立即购买</el-button>
-              <el-button type="danger" size="large" @click="handleAddToCart" disabled>加入购物车</el-button>
+              <el-button type="warning" size="large" @click="handleBuyNow">立即购买</el-button>
+              <el-button type="danger" size="large" @click="handleAddToCart">加入购物车</el-button>
               <el-button size="large" @click="handleFavorite">
                 <el-icon><Star /></el-icon>
                 收藏
@@ -180,7 +216,7 @@ function goToShop() {
             <template #header>
               <span class="card-title">商品详情</span>
             </template>
-            <div class="product-description" v-html="product.description || '暂无描述'"></div>
+            <div class="product-description" v-html="safeDescription"></div>
           </el-card>
         </el-col>
         <el-col :xs="24" :md="6">

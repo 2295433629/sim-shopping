@@ -31,7 +31,7 @@ mybatis-plus:
 
 app:
   jwt:
-    secret: ShoppingDreamSecretKey2026ForJwtTokenGenerationMustBeLongEnough
+    secret: ${JWT_SECRET:ShoppingDreamSecretKey2026ForJwtTokenGenerationMustBeLongEnough}
     access-token-expiration: 86400000
     refresh-token-expiration: 604800000
   upload:

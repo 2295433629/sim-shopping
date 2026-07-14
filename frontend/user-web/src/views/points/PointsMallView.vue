@@ -27,7 +27,8 @@ onMounted(() => {
 async function loadProducts() {
   loading.value = true
   try {
-    productList.value = await getPointsProducts()
+    const result = await getPointsProducts()
+    productList.value = result.list || []
   } catch {
     productList.value = []
     ElMessage.error('加载商品列表失败')
@@ -40,7 +41,7 @@ async function loadUserPoints() {
   if (!userStore.isLoggedIn) return
   try {
     const data = await getPointsBalance()
-    userPoints.value = data.balance ?? 0
+    userPoints.value = data.currentPoints ?? 0
   } catch {
     userPoints.value = 0
   }

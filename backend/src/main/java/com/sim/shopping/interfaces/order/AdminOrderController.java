@@ -5,10 +5,12 @@ import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.order.OrderDetailVO;
 import com.sim.shopping.interfaces.dto.order.OrderListItemVO;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/orders")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminOrderController {
 
     private final OrderService orderService;

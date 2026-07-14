@@ -12,10 +12,12 @@ import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.order.OrderDetailVO;
 import com.sim.shopping.interfaces.dto.order.OrderListItemVO;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/merchant/orders")
+@PreAuthorize("hasRole('MERCHANT')")
 public class MerchantOrderController {
 
     private final OrderService orderService;

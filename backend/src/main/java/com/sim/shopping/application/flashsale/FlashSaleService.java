@@ -97,7 +97,7 @@ public class FlashSaleService {
         return convertToFlashSaleDetailResponse(flashSale);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public FlashSaleOrderResponse createFlashSaleOrder(Long userId, Long saleId, Long addressId, Integer quantity) {
         if (userId == null) {
             throw new BusinessException(401, "用户未登录");
@@ -174,15 +174,17 @@ public class FlashSaleService {
         }
         BigDecimal payAmount = totalAmount.add(DEFAULT_SHIPPING_FEE);
 
-        // Deduct flash sale stock and increment sold count
-        flashSale.setStock(flashSale.getStock() - quantity);
-        flashSale.setSoldCount((flashSale.getSoldCount() != null ? flashSale.getSoldCount() : 0) + quantity);
-        flashSaleMapper.updateById(flashSale);
+        // 原子扣减秒杀库存（防止并发超卖）
+        int flashRows = flashSaleMapper.deductStock(flashSale.getId(), quantity);
+        if (flashRows == 0) {
+            throw new BusinessException(400, "秒杀商品库存不足，抢购失败");
+        }
 
-        // Deduct product stock and increment sales
-        product.setStock(product.getStock() - quantity);
-        product.setSales((product.getSales() != null ? product.getSales() : 0) + quantity);
-        productMapper.updateById(product);
+        // 原子扣减商品库存（防止并发超卖）
+        int productRows = productMapper.deductStock(product.getId(), quantity);
+        if (productRows == 0) {
+            throw new BusinessException(400, "商品库存不足");
+        }
 
         // Create simplified order
         OrderDO order = new OrderDO();
@@ -218,6 +220,7 @@ public class FlashSaleService {
     private void checkUserPurchaseLimit(Long userId, FlashSaleDO flashSale, Integer quantity) {
         int limitPerUser = flashSale.getLimitPerUser() != null ? flashSale.getLimitPerUser() : 1;
 
+        // 按 saleId 对应的商品 ID 过滤，避免跨活动限购误计
         LambdaQueryWrapper<OrderDO> orderWrapper = new LambdaQueryWrapper<>();
         orderWrapper.eq(OrderDO::getUserId, userId)
                 .likeRight(OrderDO::getOrderNo, FLASH_SALE_ORDER_PREFIX);

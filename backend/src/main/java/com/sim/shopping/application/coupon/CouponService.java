@@ -30,7 +30,7 @@ public class CouponService {
         this.couponMapper = couponMapper;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public CouponResponse createCoupon(CouponDO coupon) {
         // 校验券码唯一性
         LambdaQueryWrapper<CouponDO> wrapper = new LambdaQueryWrapper<>();
@@ -75,7 +75,7 @@ public class CouponService {
         return convertToResponse(couponMapper.selectById(id));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteCoupon(Long id) {
         CouponDO existing = couponMapper.selectById(id);
         if (existing == null) {

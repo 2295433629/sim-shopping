@@ -17,10 +17,12 @@ import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.order.OrderListItemVO;
 import com.sim.shopping.interfaces.dto.shipment.CreateShipmentRequest;
 import com.sim.shopping.interfaces.dto.shipment.ShipmentResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/merchant")
+@PreAuthorize("hasRole('MERCHANT')")
 public class ShipmentController {
 
     private final ShipmentService shipmentService;

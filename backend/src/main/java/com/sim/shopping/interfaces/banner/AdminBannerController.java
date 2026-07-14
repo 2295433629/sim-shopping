@@ -6,6 +6,7 @@ import com.sim.shopping.infrastructure.persistence.entity.BannerDO;
 import com.sim.shopping.infrastructure.persistence.mapper.BannerMapper;
 import com.sim.shopping.interfaces.dto.banner.BannerResponse;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin/banners")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminBannerController {
 
     private final BannerService bannerService;

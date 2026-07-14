@@ -10,34 +10,34 @@ export type CouponScope = 'ALL' | 'CATEGORY' | 'PRODUCT'
 /** 优惠券状态 */
 export type CouponStatus = 'ACTIVE' | 'INACTIVE' | 'EXPIRED'
 
-/** 优惠券 */
+/** 优惠券 — 对齐后端 CouponResponse */
 export interface Coupon {
-  couponId: number
-  name: string
-  description?: string
-  type: CouponType
-  value: number
-  minOrderAmount: number
-  scope: CouponScope
-  scopeId?: number
-  scopeName?: string
-  totalCount: number
-  remainCount: number
-  limitPerUser: number
+  id: number
+  couponCode: string
+  couponName: string
+  couponType: CouponType
+  discountValue: number
+  minSpend: number
+  totalQuantity: number
+  claimedQuantity: number
+  usedQuantity: number
+  remainingQuantity: number
+  validStartTime: string
+  validEndTime: string
+  applicableScope: CouponScope
+  applicableIds: string
   status: CouponStatus
-  startTime: string
-  endTime: string
   createdAt: string
   updatedAt: string
 }
 
-/** 优惠券统计 */
+/** 优惠券统计 — 对齐后端 CouponStatisticsVO */
 export interface CouponStats {
-  couponId: number
+  totalCoupons: number
   totalClaimed: number
   totalUsed: number
-  usageRate: number
-  totalDiscountAmount: number
+  activeCoupons: number
+  expiredCoupons: number
 }
 
 /** 创建/编辑优惠券请求 */
@@ -68,14 +68,31 @@ export function getCouponList(params: CouponQueryParams) {
   return request.get<unknown, PageResponse<Coupon>>('/admin/coupons', { params })
 }
 
+/** 将前端 CouponFormData 映射为后端 CouponDO 的 camelCase 字段名 */
+function mapFormToBackend(data: CouponFormData): Record<string, unknown> {
+  return {
+    couponName: data.name,
+    couponType: data.type,
+    discountValue: data.value,
+    minSpend: data.minOrderAmount,
+    applicableScope: data.scope,
+    applicableIds: data.scopeId ? String(data.scopeId) : null,
+    totalQuantity: data.totalCount,
+    validStartTime: data.startTime,
+    validEndTime: data.endTime,
+    couponCode: 'COUPON_' + Date.now(),
+    status: 'ACTIVE',
+  }
+}
+
 /** 创建优惠券 */
 export function createCoupon(data: CouponFormData) {
-  return request.post<unknown, Coupon>('/admin/coupons', data)
+  return request.post<unknown, Coupon>('/admin/coupons', mapFormToBackend(data))
 }
 
 /** 更新优惠券 */
 export function updateCoupon(id: number, data: CouponFormData) {
-  return request.put<unknown, Coupon>(`/admin/coupons/${id}`, data)
+  return request.put<unknown, Coupon>(`/admin/coupons/${id}`, mapFormToBackend(data))
 }
 
 /** 删除优惠券 */
@@ -83,17 +100,7 @@ export function deleteCoupon(id: number) {
   return request.delete<unknown, void>(`/admin/coupons/${id}`)
 }
 
-/** 启用优惠券 */
-export function enableCoupon(id: number) {
-  return request.patch<unknown, void>(`/admin/coupons/${id}/enable`)
-}
-
-/** 禁用优惠券 */
-export function disableCoupon(id: number) {
-  return request.patch<unknown, void>(`/admin/coupons/${id}/disable`)
-}
-
-/** 获取优惠券统计 */
-export function getCouponStats(id: number) {
-  return request.get<unknown, CouponStats>(`/admin/coupons/${id}/stats`)
+/** 获取优惠券统计（全局） */
+export function getCouponStats() {
+  return request.get<unknown, CouponStats>('/admin/coupons/statistics')
 }

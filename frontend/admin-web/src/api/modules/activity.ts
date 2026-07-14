@@ -1,18 +1,16 @@
 import request from '@/api/request'
 import type { PageResponse } from '@/types/common'
 
-/** 专题活动 */
+/** 专题活动 — 对齐后端 ActivityResponse */
 export interface Activity {
-  activityId: number
-  name: string
+  id: number
+  activityName: string
   description: string
   bannerImage: string
   startTime: string
   endTime: string
   status: string
   productCount: number
-  createdAt: string
-  updatedAt: string
 }
 
 /** 专题活动表单数据 */

@@ -64,7 +64,7 @@ function goBack() {
         </el-image>
         <div class="banner-overlay">
           <div class="banner-content">
-            <h1 class="activity-title">{{ detail.name }}</h1>
+            <h1 class="activity-title">{{ detail.activityName }}</h1>
             <p v-if="detail.description" class="activity-desc">{{ detail.description }}</p>
             <div class="activity-time">
               <el-icon><Clock /></el-icon>
@@ -90,7 +90,7 @@ function goBack() {
           <el-col v-for="product in detail.products" :key="product.productId" :xs="12" :sm="8" :md="6" :lg="4">
             <div class="product-card" @click="goToProduct(product.productId)">
               <div class="product-image">
-                <el-image :src="product.mainImage" fit="cover" class="product-img">
+                <el-image :src="product.productImage" fit="cover" class="product-img">
                   <template #error>
                     <div class="image-placeholder">
                       <el-icon :size="32" color="#ccc"><Picture /></el-icon>
@@ -99,9 +99,8 @@ function goBack() {
                 </el-image>
               </div>
               <div class="product-body">
-                <div class="product-name" :title="product.name">{{ product.name }}</div>
+                <div class="product-name" :title="product.productName">{{ product.productName }}</div>
                 <div class="product-price">{{ formatPrice(product.price) }}</div>
-                <div class="product-sales">已售 {{ product.sales }} 件</div>
               </div>
             </div>
           </el-col>

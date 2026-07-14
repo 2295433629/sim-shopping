@@ -134,10 +134,11 @@ public class OrderService {
                 orderItem.setSubtotal(subtotal);
                 orderItems.add(orderItem);
 
-                // Decrement stock and increment sales
-                product.setStock(product.getStock() - cartItem.getQuantity());
-                product.setSales(product.getSales() + cartItem.getQuantity());
-                productMapper.updateById(product);
+                // 原子扣减库存并增加销量（防止并发超卖）
+                int rows = productMapper.deductStock(product.getId(), cartItem.getQuantity());
+                if (rows == 0) {
+                    throw new BusinessException(400, "商品库存不足: " + product.getName());
+                }
             }
 
             BigDecimal discountAmount = BigDecimal.ZERO;

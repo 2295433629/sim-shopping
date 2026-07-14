@@ -61,9 +61,8 @@
       </template>
 
       <el-table :data="list" v-loading="loading" border stripe>
-        <el-table-column prop="recordId" label="ID" width="70" />
+        <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="userId" label="用户ID" width="90" />
-        <el-table-column prop="username" label="用户名" width="120" show-overflow-tooltip />
         <el-table-column label="时间" width="160">
           <template #default="{ row }">
             {{ formatDate(row.createdAt) }}
@@ -85,7 +84,7 @@
         </el-table-column>
         <el-table-column prop="source" label="来源" width="120" />
         <el-table-column prop="description" label="说明" min-width="180" show-overflow-tooltip />
-        <el-table-column prop="orderNo" label="关联订单" width="160" show-overflow-tooltip />
+        <el-table-column prop="relatedId" label="关联ID" width="160" show-overflow-tooltip />
       </el-table>
 
       <el-empty v-if="!loading && list.length === 0" description="暂无积分流水" />

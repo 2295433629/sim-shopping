@@ -2,6 +2,7 @@ package com.sim.shopping.interfaces.system;
 
 import com.sim.shopping.application.system.DictService;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
+import com.sim.shopping.interfaces.dto.system.DictItemCreateRequest;
 import com.sim.shopping.interfaces.dto.system.DictItemRequest;
 import com.sim.shopping.interfaces.dto.system.DictItemResponse;
 import com.sim.shopping.interfaces.dto.system.DictTypeRequest;
@@ -40,7 +41,21 @@ public class DictController {
 
     @PostMapping("/{dictTypeId}/items")
     public ApiResponse<DictItemResponse> createDictItem(@PathVariable Long dictTypeId,
-                                                         @Valid @RequestBody DictItemRequest req) {
+                                                         @Valid @RequestBody DictItemCreateRequest req) {
         return ApiResponse.success(dictService.createDictItem(dictTypeId, req));
+    }
+
+    @PutMapping("/{dictTypeId}/items/{itemId}")
+    public ApiResponse<DictItemResponse> updateDictItem(@PathVariable Long dictTypeId,
+                                                         @PathVariable Long itemId,
+                                                         @Valid @RequestBody DictItemCreateRequest req) {
+        return ApiResponse.success(dictService.updateDictItem(dictTypeId, itemId, req));
+    }
+
+    @DeleteMapping("/{dictTypeId}/items/{itemId}")
+    public ApiResponse<Void> deleteDictItem(@PathVariable Long dictTypeId,
+                                             @PathVariable Long itemId) {
+        dictService.deleteDictItem(dictTypeId, itemId);
+        return ApiResponse.success();
     }
 }

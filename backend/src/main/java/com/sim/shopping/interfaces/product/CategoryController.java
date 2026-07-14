@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@PreAuthorize("hasRole('ADMIN')")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -26,22 +25,26 @@ public class CategoryController {
     }
 
     @GetMapping("/admin/categories")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<CategoryService.CategoryNode>> getAdminCategoryTree() {
         return ApiResponse.success(categoryService.getCategoryTree());
     }
 
     @PostMapping("/admin/categories")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<CategoryDO> createCategory(@Valid @RequestBody CategoryDO category) {
         return ApiResponse.success(categoryService.createCategory(category));
     }
 
     @PutMapping("/admin/categories/{categoryId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<CategoryDO> updateCategory(@PathVariable Long categoryId,
                                                    @Valid @RequestBody CategoryDO category) {
         return ApiResponse.success(categoryService.updateCategory(categoryId, category));
     }
 
     @DeleteMapping("/admin/categories/{categoryId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteCategory(@PathVariable Long categoryId) {
         categoryService.deleteCategory(categoryId);
         return ApiResponse.success();

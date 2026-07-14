@@ -10,7 +10,7 @@ export interface FlashSale {
   originalPrice: number
   flashPrice: number
   stock: number
-  sold: number
+  soldCount: number
   limitPerUser: number
   startTime: string
   endTime: string

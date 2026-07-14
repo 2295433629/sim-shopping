@@ -20,6 +20,10 @@ export function getUserDetail(id: number) {
   return request.get<unknown, UserItem>(`/admin/users/${id}`)
 }
 
-export function updateUserStatus(id: number, status: number) {
-  return request.patch<unknown, void>(`/admin/users/${id}/status`, { status })
+export function disableUser(id: number) {
+  return request.patch<unknown, void>(`/admin/users/${id}/disable`)
+}
+
+export function enableUser(id: number) {
+  return request.patch<unknown, void>(`/admin/users/${id}/enable`)
 }

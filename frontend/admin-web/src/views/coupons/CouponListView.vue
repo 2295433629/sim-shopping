@@ -19,12 +19,12 @@
       </template>
 
       <el-table :data="list" v-loading="loading" border>
-        <el-table-column prop="couponId" label="ID" width="60" />
-        <el-table-column prop="name" label="Name" min-width="160" />
-        <el-table-column prop="type" label="Type" width="100">
+        <el-table-column prop="id" label="ID" width="60" />
+        <el-table-column prop="couponName" label="Name" min-width="160" />
+        <el-table-column prop="couponType" label="Type" width="100">
           <template #default="{ row }">
-            <el-tag size="small" :type="typeTagType[row.type]">
-              {{ formatType(row.type) }}
+            <el-tag size="small" :type="typeTagType[row.couponType]">
+              {{ formatType(row.couponType) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -33,24 +33,22 @@
             {{ formatValue(row) }}
           </template>
         </el-table-column>
-        <el-table-column prop="minOrderAmount" label="Min Order" width="100">
-          <template #default="{ row }">${{ row.minOrderAmount.toFixed(2) }}</template>
+        <el-table-column prop="minSpend" label="Min Order" width="100">
+          <template #default="{ row }">${{ row.minSpend.toFixed(2) }}</template>
         </el-table-column>
-        <el-table-column prop="remainCount" label="Remain / Total" width="120">
-          <template #default="{ row }">{{ row.remainCount }} / {{ row.totalCount }}</template>
+        <el-table-column prop="remainingQuantity" label="Remain / Total" width="120">
+          <template #default="{ row }">{{ row.remainingQuantity }} / {{ row.totalQuantity }}</template>
         </el-table-column>
         <el-table-column prop="status" label="Status" width="90">
           <template #default="{ row }">
             <el-tag :type="statusTagType[row.status]" size="small">{{ row.status }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="startTime" label="Start" width="150" />
-        <el-table-column prop="endTime" label="End" width="150" />
-        <el-table-column label="Actions" width="220" fixed="right">
+        <el-table-column prop="validStartTime" label="Start" width="150" />
+        <el-table-column prop="validEndTime" label="End" width="150" />
+        <el-table-column label="Actions" width="160" fixed="right">
           <template #default="{ row }">
             <el-button size="small" type="primary" @click="handleEdit(row)">Edit</el-button>
-            <el-button v-if="row.status === 'INACTIVE' || row.status === 'EXPIRED'" size="small" type="success" @click="handleEnable(row)">Enable</el-button>
-            <el-button v-if="row.status === 'ACTIVE'" size="small" type="warning" @click="handleDisable(row)">Disable</el-button>
             <el-button size="small" type="info" @click="handleStats(row)">Stats</el-button>
             <el-button size="small" type="danger" @click="handleDelete(row)">Delete</el-button>
           </template>
@@ -125,10 +123,11 @@
     <el-dialog v-model="statsVisible" title="Coupon Statistics" width="400px">
       <div v-loading="statsLoading">
         <el-descriptions v-if="stats" :column="1" border>
+          <el-descriptions-item label="Total Coupons">{{ stats.totalCoupons }}</el-descriptions-item>
           <el-descriptions-item label="Total Claimed">{{ stats.totalClaimed }}</el-descriptions-item>
           <el-descriptions-item label="Total Used">{{ stats.totalUsed }}</el-descriptions-item>
-          <el-descriptions-item label="Usage Rate">{{ (stats.usageRate * 100).toFixed(2) }}%</el-descriptions-item>
-          <el-descriptions-item label="Total Discount">${{ stats.totalDiscountAmount.toFixed(2) }}</el-descriptions-item>
+          <el-descriptions-item label="Active Coupons">{{ stats.activeCoupons }}</el-descriptions-item>
+          <el-descriptions-item label="Expired Coupons">{{ stats.expiredCoupons }}</el-descriptions-item>
         </el-descriptions>
       </div>
     </el-dialog>
@@ -144,8 +143,6 @@ import {
   createCoupon,
   updateCoupon,
   deleteCoupon,
-  enableCoupon,
-  disableCoupon,
   getCouponStats,
   type Coupon,
   type CouponFormData,
@@ -213,10 +210,10 @@ function formatType(type: string) {
 }
 
 function formatValue(row: Coupon) {
-  if (row.type === 'PERCENTAGE') {
-    return `${row.value}% OFF`
+  if (row.couponType === 'PERCENTAGE') {
+    return `${row.discountValue}% OFF`
   }
-  return `$${row.value.toFixed(2)} OFF`
+  return `$${row.discountValue.toFixed(2)} OFF`
 }
 
 function resetForm() {
@@ -243,18 +240,18 @@ function handleAdd() {
 function handleEdit(row: Coupon) {
   resetForm()
   isEdit.value = true
-  editingId.value = row.couponId
-  form.name = row.name
-  form.description = row.description || ''
-  form.type = row.type
-  form.value = row.value
-  form.minOrderAmount = row.minOrderAmount
-  form.scope = row.scope
-  form.scopeId = row.scopeId
-  form.totalCount = row.totalCount
-  form.limitPerUser = row.limitPerUser
-  form.startTime = row.startTime
-  form.endTime = row.endTime
+  editingId.value = row.id
+  form.name = row.couponName
+  form.description = ''
+  form.type = row.couponType
+  form.value = Number(row.discountValue)
+  form.minOrderAmount = Number(row.minSpend)
+  form.scope = row.applicableScope
+  form.scopeId = row.applicableIds ? Number(row.applicableIds) : undefined
+  form.totalCount = row.totalQuantity
+  form.limitPerUser = 1
+  form.startTime = row.validStartTime
+  form.endTime = row.validEndTime
   dialogVisible.value = true
 }
 
@@ -283,12 +280,12 @@ async function handleSubmit() {
 
 async function handleDelete(row: Coupon) {
   try {
-    await ElMessageBox.confirm(`Delete coupon "${row.name}"?`, 'Confirm', {
+    await ElMessageBox.confirm(`Delete coupon "${row.couponName}"?`, 'Confirm', {
       confirmButtonText: 'Yes',
       cancelButtonText: 'No',
       type: 'warning',
     })
-    await deleteCoupon(row.couponId)
+    await deleteCoupon(row.id)
     ElMessage.success('Deleted successfully')
     loadList()
   } catch (e: any) {
@@ -296,36 +293,16 @@ async function handleDelete(row: Coupon) {
   }
 }
 
-async function handleEnable(row: Coupon) {
-  try {
-    await enableCoupon(row.couponId)
-    ElMessage.success('Enabled successfully')
-    loadList()
-  } catch {
-    ElMessage.error('Enable failed')
-  }
-}
-
-async function handleDisable(row: Coupon) {
-  try {
-    await disableCoupon(row.couponId)
-    ElMessage.success('Disabled successfully')
-    loadList()
-  } catch {
-    ElMessage.error('Disable failed')
-  }
-}
-
 const statsVisible = ref(false)
 const statsLoading = ref(false)
 const stats = ref<CouponStats | null>(null)
 
-async function handleStats(row: Coupon) {
+async function handleStats(_row: Coupon) {
   statsVisible.value = true
   statsLoading.value = true
   stats.value = null
   try {
-    stats.value = await getCouponStats(row.couponId)
+    stats.value = await getCouponStats()
   } catch {
     ElMessage.error('Failed to load stats')
   } finally {

@@ -6,6 +6,7 @@ import com.sim.shopping.infrastructure.persistence.entity.SysDictItemDO;
 import com.sim.shopping.infrastructure.persistence.entity.SysDictTypeDO;
 import com.sim.shopping.infrastructure.persistence.mapper.SysDictItemMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.SysDictTypeMapper;
+import com.sim.shopping.interfaces.dto.system.DictItemCreateRequest;
 import com.sim.shopping.interfaces.dto.system.DictItemRequest;
 import com.sim.shopping.interfaces.dto.system.DictItemResponse;
 import com.sim.shopping.interfaces.dto.system.DictTypeRequest;
@@ -59,7 +60,7 @@ public class DictService {
     }
 
     @Transactional
-    public DictItemResponse createDictItem(Long dictTypeId, DictItemRequest req) {
+    public DictItemResponse createDictItem(Long dictTypeId, DictItemCreateRequest req) {
         // Verify dict type exists
         SysDictTypeDO dictType = sysDictTypeMapper.selectById(dictTypeId);
         if (dictType == null) {
@@ -73,6 +74,29 @@ public class DictService {
         dictItem.setStatus(req.getStatus() != null ? req.getStatus() : "ACTIVE");
         sysDictItemMapper.insert(dictItem);
         return toItemResponse(dictItem);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public DictItemResponse updateDictItem(Long dictTypeId, Long itemId, DictItemCreateRequest req) {
+        SysDictItemDO dictItem = sysDictItemMapper.selectById(itemId);
+        if (dictItem == null || !dictItem.getDictTypeId().equals(dictTypeId)) {
+            throw new BusinessException(404, "字典项不存在");
+        }
+        dictItem.setLabel(req.getItemText());
+        dictItem.setValue(req.getItemValue());
+        dictItem.setSortOrder(req.getSortOrder() != null ? req.getSortOrder() : 0);
+        dictItem.setStatus(req.getStatus() != null ? req.getStatus() : dictItem.getStatus());
+        sysDictItemMapper.updateById(dictItem);
+        return toItemResponse(dictItem);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteDictItem(Long dictTypeId, Long itemId) {
+        SysDictItemDO dictItem = sysDictItemMapper.selectById(itemId);
+        if (dictItem == null || !dictItem.getDictTypeId().equals(dictTypeId)) {
+            throw new BusinessException(404, "字典项不存在");
+        }
+        sysDictItemMapper.deleteById(itemId);
     }
 
     private DictTypeResponse toTypeResponse(SysDictTypeDO dictType) {

@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- ShoppingDream 数据库初始化脚本
 -- DB-001 v1.0.0 | MySQL 8.0+ / 9.x
 -- 生成日期: 2026-07-03
@@ -795,23 +795,23 @@ CREATE TABLE `sys_cache` (
 
 -- 默认管理员 (密码: admin123, BCrypt加密)
 INSERT INTO `t_user` (`username`, `password`, `nickname`, `role`, `status`, `phone`, `email`, `points`) VALUES
-('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '超级管理员', 'ADMIN', 'ACTIVE', '13000000000', 'admin@sim.com', 0);
+('admin', '$2a$10$7MaASWMlYItDrcW.KLnGYOqklzVZ9mlIIJToy0EVzCLZ0jFkwegJ2', '超级管理员', 'ADMIN', 'ACTIVE', '13000000000', 'admin@sim.com', 0);
 
--- 测试商家用户
+-- 测试商家用户 (密码各不相同)
 INSERT INTO `t_user` (`username`, `password`, `nickname`, `role`, `status`, `phone`, `email`, `points`) VALUES
-('merchant1', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '数码达人', 'MERCHANT', 'ACTIVE', '13800138001', 'merchant1@test.com', 0),
-('merchant2', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '美妆女王', 'MERCHANT', 'ACTIVE', '13800138002', 'merchant2@test.com', 0),
-('merchant3', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '潮流服饰', 'MERCHANT', 'ACTIVE', '13800138003', 'merchant3@test.com', 0),
-('merchant4', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '美食天下', 'MERCHANT', 'ACTIVE', '13800138004', 'merchant4@test.com', 0),
-('merchant5', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '居家好物', 'MERCHANT', 'ACTIVE', '13800138005', 'merchant5@test.com', 0),
-('merchant6', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '运动达人', 'MERCHANT', 'ACTIVE', '13800138006', 'merchant6@test.com', 0),
-('merchant7', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '书虫书屋', 'MERCHANT', 'ACTIVE', '13800138007', 'merchant7@test.com', 0),
-('merchant8', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '宝贝乐园', 'MERCHANT', 'ACTIVE', '13800138008', 'merchant8@test.com', 0);
+('merchant1', '$2a$10$CIAvymesYwLeArEOQ9fDWO.SEANZ91QLNjC7lF3JfyZw8PyMZPFgS', '数码达人', 'MERCHANT', 'ACTIVE', '13800138001', 'merchant1@test.com', 0),
+('merchant2', '$2a$10$6k6e80g3ndhEDPjYfPqC8OBVGYbahlh6IXSuXT9WmFtchoUkZQizi', '美妆女王', 'MERCHANT', 'ACTIVE', '13800138002', 'merchant2@test.com', 0),
+('merchant3', '$2a$10$ChR2p6vItrBlvGUN64carOZNXaTCKsP7ks.Ra1zVXTao64Rk4iAsm', '潮流服饰', 'MERCHANT', 'ACTIVE', '13800138003', 'merchant3@test.com', 0),
+('merchant4', '$2a$10$BJzOeTxeCZy8IePltNVG5.bfVinpFviow9Zkr9Hw5dt6SUgSli6OC', '美食天下', 'MERCHANT', 'ACTIVE', '13800138004', 'merchant4@test.com', 0),
+('merchant5', '$2a$10$eiIDa9dRIWodYW7fo3KV5OyFXF2QpVrnErrBbTtzbmf9kiCCks5Ru', '居家好物', 'MERCHANT', 'ACTIVE', '13800138005', 'merchant5@test.com', 0),
+('merchant6', '$2a$10$vCxO.jCsVNC8FLycmsxpq.lTY25vCWNgPl3MaDD.gJKjWN72de1aW', '运动达人', 'MERCHANT', 'ACTIVE', '13800138006', 'merchant6@test.com', 0),
+('merchant7', '$2a$10$zP.bfYapZZCb7MJjG6Qr5OeYR/Jzs8151IbI6bJaZaCz6zbX2POhK', '书虫书屋', 'MERCHANT', 'ACTIVE', '13800138007', 'merchant7@test.com', 0),
+('merchant8', '$2a$10$XG/dwyF3nyAjKF1.tXPb.Ojn9.9eQ2O3XN7QsrkfAt70j2ZiCTwwK', '宝贝乐园', 'MERCHANT', 'ACTIVE', '13800138008', 'merchant8@test.com', 0);
 
--- 测试普通用户
+-- 测试普通用户 (密码各不相同)
 INSERT INTO `t_user` (`username`, `password`, `nickname`, `role`, `status`, `phone`, `email`, `points`) VALUES
-('user1', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '测试用户', 'USER', 'ACTIVE', '13900139001', 'user1@test.com', 100),
-('user2', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '购物达人', 'USER', 'ACTIVE', '13900139002', 'user2@test.com', 200);
+('user1', '$2a$10$4h91VahjMi/2.WJgf/oahOfZ7hFuHbiOdwofu9P/DeKLnImJ/QvmS', '测试用户', 'USER', 'ACTIVE', '13900139001', 'user1@test.com', 100),
+('user2', '$2a$10$DTbmtBHH3NgOFo0.LMrWPevSejyO068I4oClVweVBidjjoEzIJbf2', '购物达人', 'USER', 'ACTIVE', '13900139002', 'user2@test.com', 200);
 
 -- 默认角色
 INSERT INTO `t_sys_role` (`role_code`, `role_name`, `description`, `status`) VALUES

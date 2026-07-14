@@ -34,7 +34,7 @@ public class ActivityAdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ActivityDO> createActivity(@RequestBody ActivityCreateRequest request) {
         ActivityDO activity = new ActivityDO();
-        activity.setActivityName(request.getActivityName());
+        activity.setActivityName(request.getName());
         activity.setBannerImage(request.getBannerImage());
         activity.setDescription(request.getDescription());
         activity.setStartTime(request.getStartTime());
@@ -48,7 +48,7 @@ public class ActivityAdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ActivityDO> updateActivity(@PathVariable Long activityId, @RequestBody ActivityCreateRequest request) {
         ActivityDO activity = new ActivityDO();
-        activity.setActivityName(request.getActivityName());
+        activity.setActivityName(request.getName());
         activity.setBannerImage(request.getBannerImage());
         activity.setDescription(request.getDescription());
         activity.setStartTime(request.getStartTime());
@@ -66,7 +66,7 @@ public class ActivityAdminController {
     }
 
     public static class ActivityCreateRequest {
-        private String activityName;
+        private String name;
         private String bannerImage;
         private String description;
         private java.time.LocalDateTime startTime;
@@ -75,12 +75,12 @@ public class ActivityAdminController {
         private String status;
         private List<Long> productIds;
 
-        public String getActivityName() {
-            return this.activityName;
+        public String getName() {
+            return this.name;
         }
 
-        public void setActivityName(String activityName) {
-            this.activityName = activityName;
+        public void setName(String name) {
+            this.name = name;
         }
 
         public String getBannerImage() {

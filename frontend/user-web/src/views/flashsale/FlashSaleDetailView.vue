@@ -74,9 +74,9 @@ function formatPrice(price: number): string {
 
 function soldPercent(): number {
   if (!detail.value) return 0
-  const total = detail.value.sold + detail.value.stock
-  if (total <= 0) return 0
-  return Math.round((detail.value.sold / total) * 100)
+  const total = detail.value.soldCount + detail.value.stock
+  if (total === 0) return 0
+  return Math.round((detail.value.soldCount / total) * 100)
 }
 
 function isEnded(): boolean {
@@ -98,7 +98,7 @@ async function handleOrder() {
   }
   ordering.value = true
   try {
-    const res = await createFlashSaleOrder(detail.value.saleId, { quantity: quantity.value })
+    const res = await createFlashSaleOrder(detail.value.saleId, { quantity: quantity.value, addressId: 0 })
     ElMessage.success('抢购成功')
     router.push(`/orders/${res.orderNo}`)
   } catch {
@@ -138,7 +138,7 @@ function goBack() {
         <el-col :xs="24" :md="14">
           <div class="info-section">
             <h1 class="product-name">{{ detail.productName }}</h1>
-            <p v-if="detail.description" class="product-desc">{{ detail.description }}</p>
+            <p v-if="detail.productName" class="product-desc">{{ detail.productName }}</p>
 
             <div class="countdown-box">
               <el-icon><Timer /></el-icon>
@@ -159,7 +159,7 @@ function goBack() {
               <span class="info-label">库存</span>
               <span class="info-value">{{ detail.stock }} 件</span>
               <span class="info-label">已售</span>
-              <span class="info-value">{{ detail.sold }} 件</span>
+              <span class="info-value">{{ detail.soldCount }} 件</span>
               <span class="info-label">限购</span>
               <span class="info-value">每人 {{ detail.limitPerUser }} 件</span>
             </div>
@@ -198,17 +198,6 @@ function goBack() {
         </el-col>
       </el-row>
 
-      <!-- 商品描述 -->
-      <el-row style="margin-top: 24px">
-        <el-col :span="24">
-          <el-card shadow="never">
-            <template #header>
-              <span class="card-title">商品详情</span>
-            </template>
-            <div class="product-description" v-html="detail.productDescription || '暂无描述'"></div>
-          </el-card>
-        </el-col>
-      </el-row>
     </template>
 
     <el-empty v-if="!loading && !detail" description="秒杀活动不存在或已结束" />

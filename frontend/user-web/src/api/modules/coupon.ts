@@ -26,20 +26,24 @@ export interface AvailableCoupon {
   endTime: string
 }
 
-/** 我的优惠券 */
+/** 我的优惠券 — 对齐后端 UserCouponResponse */
 export interface MyCoupon {
-  userCouponId: number
+  id: number
+  userId: number
   couponId: number
-  name: string
-  description?: string
-  type: CouponType
-  value: number
-  minOrderAmount: number
-  status: UserCouponStatus
+  couponCode: string
+  couponName: string
+  couponType: CouponType
+  discountValue: number
+  minSpend: number
+  validStartTime: string
+  validEndTime: string
+  applicableScope: CouponScope
+  applicableIds: string
   claimedAt: string
   usedAt?: string
-  expiredAt: string
   orderNo?: string
+  status: UserCouponStatus
 }
 
 /** 领取优惠券 */
@@ -54,5 +58,5 @@ export function getAvailableCoupons() {
 
 /** 获取我的优惠券列表 */
 export function getMyCoupons(params: { status?: string; page?: number; size?: number }) {
-  return request.get<unknown, PageResponse<MyCoupon>>('/user/coupons/my', { params })
+  return request.get<unknown, PageResponse<MyCoupon>>('/user/coupons', { params })
 }

@@ -1,11 +1,19 @@
 import request from '@/api/request'
 import type { PageResponse } from '@/types/common'
-import type { ProductCardVO } from '@/types/product'
 
-/** 专题活动 */
+/** 活动商品 — 对齐后端 ActivityProductResponse */
+export interface ActivityProduct {
+  productId: number
+  productName: string
+  productImage: string
+  price: number
+  sortOrder: number
+}
+
+/** 专题活动 — 对齐后端 ActivityResponse */
 export interface Activity {
-  activityId: number
-  name: string
+  id: number
+  activityName: string
   description: string
   bannerImage: string
   startTime: string
@@ -14,9 +22,9 @@ export interface Activity {
   productCount: number
 }
 
-/** 专题活动详情 */
+/** 专题活动详情 — 对齐后端 ActivityDetailResponse */
 export interface ActivityDetail extends Activity {
-  products: ProductCardVO[]
+  products: ActivityProduct[]
 }
 
 /** 专题活动查询参数 */

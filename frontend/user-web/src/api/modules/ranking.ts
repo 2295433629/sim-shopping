@@ -13,14 +13,21 @@ export interface RankingItem {
   nickname: string
   avatar?: string
   value: number
+  unit?: string
+}
+
+/** 排行榜响应 — 对齐后端 RankingListResponse */
+export interface RankingListResponse {
+  period: string
+  list: RankingItem[]
 }
 
 /** 获取消费排行榜（公开） */
 export function getConsumptionRanking(period: RankingPeriod) {
-  return request.get<unknown, RankingItem[]>('/public/rankings/consumption', { params: { period } })
+  return request.get<unknown, RankingListResponse>('/public/rankings/consumption', { params: { period } })
 }
 
 /** 获取签到排行榜（公开） */
 export function getSignInRanking(period: RankingPeriod) {
-  return request.get<unknown, RankingItem[]>('/public/rankings/sign-in', { params: { period } })
+  return request.get<unknown, RankingListResponse>('/public/rankings/sign-in', { params: { period } })
 }

@@ -122,16 +122,17 @@ public class PointsService {
             throw new BusinessException(400, "积分不足");
         }
 
-        // 扣减库存
-        product.setStock(stock - quantity);
-        if (product.getStock() <= 0) {
-            product.setStatus("SOLD_OUT");
+        // 原子扣减积分商品库存（防止并发超兑换）
+        int stockRows = pointsProductMapper.deductStock(productId, quantity);
+        if (stockRows == 0) {
+            throw new BusinessException(400, "商品库存不足");
         }
-        pointsProductMapper.updateById(product);
 
-        // 扣减积分
-        userPoints.setAvailablePoints(availablePoints - totalPointsNeeded);
-        userPointsMapper.updateById(userPoints);
+        // 原子扣减用户积分（防止并发超扣）
+        int pointsRows = userPointsMapper.deductPoints(userId, totalPointsNeeded);
+        if (pointsRows == 0) {
+            throw new BusinessException(400, "积分不足或积分账户异常");
+        }
 
         // 生成积分记录
         PointsRecordDO record = new PointsRecordDO();
@@ -143,13 +144,18 @@ public class PointsService {
         record.setRelatedId(productId);
         pointsRecordMapper.insert(record);
 
+        // 查询最新积分余额
+        UserPointsDO updatedPoints = userPointsMapper.selectByUserId(userId);
+        int remainingPoints = updatedPoints != null && updatedPoints.getAvailablePoints() != null
+                ? updatedPoints.getAvailablePoints() : 0;
+
         ExchangeResponse response = new ExchangeResponse();
         response.setRecordId(record.getId());
         response.setProductId(productId);
         response.setProductName(product.getProductName());
         response.setQuantity(quantity);
         response.setTotalPoints(totalPointsNeeded);
-        response.setRemainingPoints(userPoints.getAvailablePoints());
+        response.setRemainingPoints(remainingPoints);
         response.setExchangeTime(LocalDateTime.now());
         return response;
     }

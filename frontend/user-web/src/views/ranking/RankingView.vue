@@ -2,7 +2,6 @@
 import { ref, watch, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getConsumptionRanking, getSignInRanking, type RankingPeriod, type RankingItem } from '@/api/modules/ranking'
-
 type MainTab = 'consumption' | 'signIn'
 
 const mainTab = ref<MainTab>('consumption')
@@ -44,13 +43,13 @@ onMounted(() => {
 async function loadRanking() {
   loading.value = true
   try {
-    let data: RankingItem[]
+    let result
     if (mainTab.value === 'consumption') {
-      data = await getConsumptionRanking(subTab.value)
+      result = await getConsumptionRanking(subTab.value)
     } else {
-      data = await getSignInRanking(subTab.value)
+      result = await getSignInRanking(subTab.value)
     }
-    list.value = data || []
+    list.value = result.list || []
   } catch {
     list.value = []
     ElMessage.error('加载排行榜失败')
@@ -129,7 +128,7 @@ function formatValue(item: RankingItem) {
       <!-- 列表展示 -->
       <div v-if="list.length > 0" class="ranking-list">
         <div
-          v-for="(item, index) in list"
+          v-for="item in list"
           :key="item.userId"
           class="ranking-item"
           :class="{ 'top-bg': item.rank <= 3 }"

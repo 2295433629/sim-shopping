@@ -1,15 +1,30 @@
-import request from '../request'
+import request from '@/api/request'
+
+export interface ProductListItem {
+  id: number
+  name: string
+  mainImage?: string
+  price: number
+  stock: number
+  status: string
+  shopId?: number
+  shopName?: string
+  categoryId?: number
+  categoryName?: string
+  sales?: number
+  createdAt?: string
+}
 
 export function getProducts(params: { page: number; size: number; status?: string; shopId?: number; keyword?: string }) {
-  return request.get('/admin/products', { params })
+  return request.get<unknown, { list: ProductListItem[]; total: number; page: number; size: number; totalPages: number }>('/admin/products', { params })
 }
 
 export function getProductDetail(id: number) {
-  return request.get(`/admin/products/${id}`)
+  return request.get<unknown, ProductListItem>(`/admin/products/${id}`)
 }
 
 export function forceOfflineProduct(id: number, reason: string) {
-  return request.patch(`/admin/products/${id}/force-offline`, { reason })
+  return request.patch<unknown, void>(`/admin/products/${id}/force-offline`, { reason })
 }
 
 export function getCategories() {

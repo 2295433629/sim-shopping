@@ -56,8 +56,8 @@ const loadList = async () => {
   loading.value = true
   try {
     const res = await getProducts({ page: page.value, size: size.value, status: filter.status, keyword: filter.keyword })
-    list.value = res.data.list || []
-    total.value = res.data.total || 0
+    list.value = res.list || []
+    total.value = res.total || 0
   } catch { ElMessage.error('Load failed') }
   loading.value = false
 }

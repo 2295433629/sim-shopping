@@ -60,32 +60,18 @@ public class AdminDashboardService {
         vo.setTotalOrders(orderMapper.selectCount(null));
         vo.setTotalProducts(productMapper.selectCount(null));
 
-        // Total sales: sum payAmount from orders with paid statuses
-        // TODO: 生产环境应使用SQL聚合查询(如自定义Mapper中的SUM聚合方法)替代全表加载到内存计算
-        LambdaQueryWrapper<OrderDO> paidWrapper = new LambdaQueryWrapper<>();
-        paidWrapper.in(OrderDO::getStatus, PAID_STATUS_LIST);
-        List<OrderDO> paidOrders = orderMapper.selectList(paidWrapper);
-        BigDecimal totalSales = paidOrders.stream()
-                .map(order -> order.getPayAmount() != null ? order.getPayAmount() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        vo.setTotalSales(totalSales);
+        // Total sales: sum payAmount from orders with paid statuses (SQL聚合)
+        vo.setTotalSales(orderMapper.sumPayAmountByStatus(PAID_STATUS_LIST));
 
         // Today's start and end
         LocalDateTime todayStart = LocalDate.now().atStartOfDay();
         LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
 
-        // Today orders
-        LambdaQueryWrapper<OrderDO> todayWrapper = new LambdaQueryWrapper<>();
-        todayWrapper.between(OrderDO::getCreatedAt, todayStart, todayEnd);
-        List<OrderDO> todayOrders = orderMapper.selectList(todayWrapper);
-        vo.setTodayOrders(todayOrders.size());
+        // Today orders (SQL COUNT)
+        vo.setTodayOrders(orderMapper.countByDateRange(todayStart, todayEnd));
 
-        // Today sales
-        BigDecimal todaySales = todayOrders.stream()
-                .filter(order -> PAID_STATUS_LIST.contains(order.getStatus()))
-                .map(order -> order.getPayAmount() != null ? order.getPayAmount() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        vo.setTodaySales(todaySales);
+        // Today sales (SQL SUM)
+        vo.setTodaySales(orderMapper.sumPayAmountByDateAndStatus(todayStart, todayEnd, PAID_STATUS_LIST));
 
         // Pending merchants
         Long pendingMerchants = merchantMapper.selectCount(

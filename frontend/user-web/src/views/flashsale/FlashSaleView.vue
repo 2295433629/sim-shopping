@@ -79,9 +79,9 @@ function formatPrice(price: number): string {
 }
 
 function soldPercent(item: FlashSale): number {
-  const total = item.sold + item.stock
-  if (total <= 0) return 0
-  return Math.round((item.sold / total) * 100)
+  const total = item.soldCount + item.stock
+  if (total === 0) return 0
+  return Math.round((item.soldCount / total) * 100)
 }
 </script>
 
@@ -123,7 +123,7 @@ function soldPercent(item: FlashSale): number {
                 </div>
                 <div class="stock-info">
                   <el-progress :percentage="soldPercent(item)" :show-text="false" :stroke-width="8" color="#f56c6c" />
-                  <span class="stock-text">已抢 {{ item.sold }} 件 / 剩 {{ item.stock }} 件</span>
+                  <span class="stock-text">已抢 {{ item.soldCount }} 件 / 剩 {{ item.stock }} 件</span>
                 </div>
                 <div class="countdown-row">
                   <el-icon><Timer /></el-icon>

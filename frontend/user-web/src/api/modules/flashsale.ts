@@ -1,27 +1,24 @@
 import request from '@/api/request'
 import type { PageResponse } from '@/types/common'
 
-/** 秒杀活动 */
+/** 秒杀活动 — 对齐后端 FlashSaleResponse */
 export interface FlashSale {
   saleId: number
   productId: number
   productName: string
   productImage: string
-  description: string
   originalPrice: number
   flashPrice: number
   stock: number
-  sold: number
+  soldCount: number
   limitPerUser: number
   startTime: string
   endTime: string
   status: string
 }
 
-/** 秒杀活动详情 */
+/** 秒杀活动详情 — 对齐后端 FlashSaleDetailResponse */
 export interface FlashSaleDetail extends FlashSale {
-  productImages: string[]
-  productDescription: string
 }
 
 /** 创建秒杀订单结果 */
@@ -48,6 +45,6 @@ export function getFlashSaleDetail(saleId: number) {
 }
 
 /** 创建秒杀订单 */
-export function createFlashSaleOrder(saleId: number, data: { quantity: number }) {
+export function createFlashSaleOrder(saleId: number, data: { addressId: number; quantity: number }) {
   return request.post<unknown, FlashSaleOrderResult>(`/user/flash-sales/${saleId}/order`, data)
 }

@@ -62,8 +62,8 @@ function formatTimeRange(startTime: string, endTime: string): string {
 
       <div v-loading="loading" class="activity-list">
         <el-row :gutter="16">
-          <el-col v-for="item in activityList" :key="item.activityId" :xs="24" :sm="12" :md="8" :lg="6">
-            <div class="activity-card" @click="goToDetail(item.activityId)">
+          <el-col v-for="item in activityList" :key="item.id" :xs="24" :sm="12" :md="8" :lg="6">
+            <div class="activity-card" @click="goToDetail(item.id)">
               <div class="activity-image">
                 <el-image :src="item.bannerImage" fit="cover" class="banner-img">
                   <template #error>
@@ -75,7 +75,7 @@ function formatTimeRange(startTime: string, endTime: string): string {
                 <div class="activity-badge">专题</div>
               </div>
               <div class="activity-body">
-                <div class="activity-name">{{ item.name }}</div>
+                <div class="activity-name">{{ item.activityName }}</div>
                 <div class="activity-desc" v-if="item.description">{{ item.description }}</div>
                 <div class="activity-time">
                   <el-icon><Clock /></el-icon>

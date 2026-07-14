@@ -32,16 +32,15 @@ export interface PointsProductFormData {
 /** 积分记录类型 */
 export type PointsRecordType = 'EARN' | 'DEDUCT'
 
-/** 积分记录 */
+/** 积分记录 — 对齐后端 PointsRecordResponse */
 export interface PointsRecord {
-  recordId: number
+  id: number
   userId: number
-  username?: string
   points: number
   type: PointsRecordType
   source: string
   description?: string
-  orderNo?: string
+  relatedId?: number
   createdAt: string
 }
 

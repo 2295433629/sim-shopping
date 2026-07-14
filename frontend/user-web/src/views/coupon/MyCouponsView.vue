@@ -50,10 +50,10 @@ function handlePageChange(p: number) {
 }
 
 function formatValue(coupon: MyCoupon) {
-  if (coupon.type === 'PERCENTAGE') {
-    return `${coupon.value}% OFF`
+  if (coupon.couponType === 'PERCENTAGE') {
+    return `${coupon.discountValue}% OFF`
   }
-  return `$${coupon.value.toFixed(2)} OFF`
+  return `$${coupon.discountValue.toFixed(2)} OFF`
 }
 
 function formatType(type: string) {
@@ -78,25 +78,24 @@ function formatType(type: string) {
       </el-tabs>
 
       <div v-loading="loading">
-        <div v-for="coupon in couponList" :key="coupon.userCouponId" class="coupon-item">
+        <div v-for="coupon in couponList" :key="coupon.id" class="coupon-item">
           <div class="coupon-left">
             <div class="coupon-value">{{ formatValue(coupon) }}</div>
-            <div class="coupon-type">{{ formatType(coupon.type) }}</div>
+            <div class="coupon-type">{{ formatType(coupon.couponType) }}</div>
           </div>
           <div class="coupon-right">
             <div class="coupon-info">
-              <div class="coupon-name">{{ coupon.name }}</div>
-              <div v-if="coupon.description" class="coupon-desc">{{ coupon.description }}</div>
+              <div class="coupon-name">{{ coupon.couponName }}</div>
               <div class="coupon-meta">
-                <span>Min order: ${{ coupon.minOrderAmount.toFixed(2) }}</span>
+                <span>Min spend: ${{ coupon.minSpend.toFixed(2) }}</span>
                 <el-tag :type="(statusTagType[coupon.status] as any) || 'info'" size="small">
                   {{ coupon.status }}
                 </el-tag>
               </div>
               <div class="coupon-time">
-                <span v-if="coupon.status === 'UNUSED'">Expires: {{ coupon.expiredAt }}</span>
+                <span v-if="coupon.status === 'UNUSED'">Valid until: {{ coupon.validEndTime }}</span>
                 <span v-else-if="coupon.status === 'USED'">Used: {{ coupon.usedAt }}</span>
-                <span v-else>Expired: {{ coupon.expiredAt }}</span>
+                <span v-else>Expired: {{ coupon.validEndTime }}</span>
               </div>
               <div v-if="coupon.orderNo" class="coupon-order">Order: {{ coupon.orderNo }}</div>
             </div>
