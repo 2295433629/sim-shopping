@@ -114,20 +114,21 @@ function formatTimeRange(startTime: string, endTime: string): string {
   .card-header {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-md);
 
     .card-title {
-      font-size: 18px;
-      font-weight: bold;
-      color: #e6a23c;
+      font-size: var(--font-size-heading-sm);
+      font-weight: 500;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+      color: var(--color-warning);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--space-sm);
     }
 
     .card-subtitle {
-      font-size: 13px;
-      color: #999;
+      font-size: var(--font-size-micro);
+      color: var(--color-shade-40);
     }
   }
 
@@ -136,23 +137,23 @@ function formatTimeRange(startTime: string, endTime: string): string {
   }
 
   .activity-card {
-    background: #fff;
-    border-radius: 8px;
+    background: var(--color-canvas-light);
+    border-radius: var(--rounded-lg);
     overflow: hidden;
-    border: 1px solid #ebeef5;
-    margin-bottom: 16px;
+    border: 1px solid var(--color-hairline-light);
+    margin-bottom: var(--space-lg);
     cursor: pointer;
-    transition: box-shadow 0.3s, transform 0.3s;
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal);
 
     &:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      box-shadow: var(--shadow-lg);
       transform: translateY(-2px);
     }
 
     .activity-image {
       position: relative;
       height: 180px;
-      background-color: #f5f5f5;
+      background-color: var(--color-canvas-cream);
 
       .banner-img {
         width: 100%;
@@ -169,24 +170,24 @@ function formatTimeRange(startTime: string, endTime: string): string {
 
       .activity-badge {
         position: absolute;
-        top: 8px;
-        left: 8px;
-        background: linear-gradient(135deg, #f5c842, #e6a23c);
+        top: var(--space-sm);
+        left: var(--space-sm);
+        background: linear-gradient(135deg, #f5c842, var(--color-warning));
         color: #fff;
-        font-size: 12px;
-        font-weight: bold;
-        padding: 4px 10px;
-        border-radius: 4px;
+        font-size: var(--font-size-eyebrow);
+        font-weight: 500;
+        padding: var(--space-xs) 10px;
+        border-radius: var(--rounded-md);
       }
     }
 
     .activity-body {
-      padding: 12px;
+      padding: var(--space-md);
 
       .activity-name {
-        font-size: 15px;
-        font-weight: bold;
-        color: #333;
+        font-size: var(--font-size-heading-sm);
+        font-weight: 500;
+        color: var(--color-ink);
         margin-bottom: 6px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -194,9 +195,9 @@ function formatTimeRange(startTime: string, endTime: string): string {
       }
 
       .activity-desc {
-        font-size: 13px;
-        color: #666;
-        margin-bottom: 8px;
+        font-size: var(--font-size-micro);
+        color: var(--color-shade-50);
+        margin-bottom: var(--space-sm);
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
@@ -209,8 +210,8 @@ function formatTimeRange(startTime: string, endTime: string): string {
         display: flex;
         align-items: center;
         gap: 6px;
-        color: #999;
-        font-size: 12px;
+        color: var(--color-shade-40);
+        font-size: var(--font-size-eyebrow);
         margin-bottom: 6px;
       }
 
@@ -220,18 +221,18 @@ function formatTimeRange(startTime: string, endTime: string): string {
         justify-content: space-between;
 
         .product-count {
-          font-size: 12px;
-          color: #409eff;
+          font-size: var(--font-size-eyebrow);
+          color: var(--color-info);
           background-color: #ecf5ff;
-          padding: 2px 8px;
-          border-radius: 4px;
+          padding: 2px var(--space-sm);
+          border-radius: var(--rounded-md);
         }
       }
     }
   }
 
   .pagination-wrapper {
-    margin-top: 24px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

@@ -129,10 +129,10 @@ function goBack() {
   .activity-banner {
     position: relative;
     height: 280px;
-    border-radius: 8px;
+    border-radius: var(--rounded-lg);
     overflow: hidden;
-    margin-bottom: 20px;
-    background-color: #f5f5f5;
+    margin-bottom: var(--space-xl);
+    background-color: var(--color-canvas-cream);
 
     .banner-bg {
       width: 100%;
@@ -145,7 +145,7 @@ function goBack() {
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #f0f0f0;
+      background-color: var(--color-hairline-light);
     }
 
     .banner-overlay {
@@ -154,21 +154,22 @@ function goBack() {
       left: 0;
       right: 0;
       background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-      padding: 40px 24px 24px;
+      padding: var(--space-xl) var(--space-lg) var(--space-lg);
 
       .banner-content {
         color: #fff;
 
         .activity-title {
-          font-size: 28px;
-          font-weight: bold;
-          margin: 0 0 8px 0;
+          font-size: var(--font-size-heading-xl);
+          font-weight: 500;
+          margin: 0 0 var(--space-sm) 0;
           text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          font-family: var(--font-display, 'Helvetica Neue', sans-serif);
         }
 
         .activity-desc {
-          font-size: 14px;
-          margin: 0 0 12px 0;
+          font-size: var(--font-size-caption);
+          margin: 0 0 var(--space-md) 0;
           opacity: 0.9;
         }
 
@@ -176,10 +177,10 @@ function goBack() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          font-size: 13px;
+          font-size: var(--font-size-micro);
           background: rgba(255, 255, 255, 0.2);
-          padding: 4px 12px;
-          border-radius: 4px;
+          padding: var(--space-xs) var(--space-md);
+          border-radius: var(--rounded-md);
           backdrop-filter: blur(4px);
         }
       }
@@ -187,7 +188,7 @@ function goBack() {
   }
 
   .products-card {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-xl);
 
     .card-header {
       display: flex;
@@ -195,38 +196,39 @@ function goBack() {
       justify-content: space-between;
 
       .card-title {
-        font-size: 16px;
-        font-weight: bold;
-        color: #333;
+        font-size: var(--font-size-body-md);
+        font-weight: 500;
+        font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+        color: var(--color-ink);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--space-sm);
       }
 
       .card-subtitle {
-        font-size: 13px;
-        color: #999;
+        font-size: var(--font-size-micro);
+        color: var(--color-shade-40);
       }
     }
   }
 
   .product-card {
-    background: #fff;
-    border-radius: 8px;
+    background: var(--color-canvas-light);
+    border-radius: var(--rounded-lg);
     overflow: hidden;
-    border: 1px solid #ebeef5;
-    margin-bottom: 16px;
+    border: 1px solid var(--color-hairline-light);
+    margin-bottom: var(--space-lg);
     cursor: pointer;
-    transition: box-shadow 0.3s, transform 0.3s;
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal);
 
     &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-md);
       transform: translateY(-2px);
     }
 
     .product-image {
       height: 160px;
-      background-color: #f5f5f5;
+      background-color: var(--color-canvas-cream);
 
       .product-img {
         width: 100%;
@@ -246,8 +248,8 @@ function goBack() {
       padding: 10px;
 
       .product-name {
-        font-size: 13px;
-        color: #333;
+        font-size: var(--font-size-micro);
+        color: var(--color-ink);
         margin-bottom: 6px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -255,15 +257,15 @@ function goBack() {
       }
 
       .product-price {
-        font-size: 16px;
-        font-weight: bold;
-        color: #f56c6c;
-        margin-bottom: 4px;
+        font-size: var(--font-size-body-md);
+        font-weight: 500;
+        color: var(--color-price);
+        margin-bottom: var(--space-xs);
       }
 
       .product-sales {
-        font-size: 12px;
-        color: #999;
+        font-size: var(--font-size-eyebrow);
+        color: var(--color-shade-40);
       }
     }
   }
@@ -271,7 +273,7 @@ function goBack() {
   .back-action {
     display: flex;
     justify-content: center;
-    margin-top: 24px;
+    margin-top: var(--space-xl);
   }
 }
 </style>

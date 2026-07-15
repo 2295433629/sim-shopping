@@ -69,6 +69,6 @@ onMounted(loadList)
 </script>
 
 <style scoped>
-.product-manage { padding: 20px; }
+.product-manage { padding: var(--space-xl); }
 .card-header { display: flex; justify-content: space-between; align-items: center; }
 </style>

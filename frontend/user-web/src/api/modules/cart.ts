@@ -38,7 +38,7 @@ export function getCart() {
 }
 
 /** Add to cart */
-export function addToCart(productId: number, skuId: number, quantity: number) {
+export function addToCart(productId: number, skuId: number | undefined, quantity: number) {
   return request.post<unknown, void>('/user/cart', { productId, skuId, quantity })
 }
 

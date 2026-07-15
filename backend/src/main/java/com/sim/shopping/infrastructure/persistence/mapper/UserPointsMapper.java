@@ -17,4 +17,11 @@ public interface UserPointsMapper extends BaseMapper<UserPointsDO> {
     @Update("UPDATE t_user_points SET available_points = available_points - #{points}, total_spent = total_spent + #{points} " +
             "WHERE user_id = #{userId} AND available_points >= #{points}")
     int deductPoints(@Param("userId") Long userId, @Param("points") int points);
+
+    /**
+     * 原子增加用户可用积分。
+     */
+    @Update("UPDATE t_user_points SET available_points = available_points + #{points}, total_points = total_points + #{points} " +
+            "WHERE user_id = #{userId}")
+    int addPoints(@Param("userId") Long userId, @Param("points") int points);
 }

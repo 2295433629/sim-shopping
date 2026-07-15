@@ -9,8 +9,12 @@ import com.sim.shopping.domain.event.OrderCancelledEvent;
 import com.sim.shopping.domain.event.OrderCreatedEvent;
 import com.sim.shopping.infrastructure.persistence.entity.*;
 import com.sim.shopping.infrastructure.persistence.mapper.*;
+import com.sim.shopping.application.points.PointsService;
+import com.sim.shopping.application.refund.RefundService;
+import com.sim.shopping.application.settlement.SettlementService;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.order.*;
+import com.sim.shopping.interfaces.dto.refund.RefundVO;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +38,9 @@ public class OrderService {
     private final PaymentMapper paymentMapper;
     private final ShipmentMapper shipmentMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final RefundService refundService;
+    private final PointsService pointsService;
+    private final SettlementService settlementService;
 
     private static final BigDecimal DEFAULT_SHIPPING_FEE = new BigDecimal("10.00");
     private static final String ORDER_STATUS_CREATED = "CREATED";
@@ -50,7 +57,10 @@ public class OrderService {
                        ShopMapper shopMapper,
                        PaymentMapper paymentMapper,
                        ShipmentMapper shipmentMapper,
-                       ApplicationEventPublisher eventPublisher) {
+                       ApplicationEventPublisher eventPublisher,
+                       RefundService refundService,
+                       PointsService pointsService,
+                       SettlementService settlementService) {
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.cartItemMapper = cartItemMapper;
@@ -61,6 +71,9 @@ public class OrderService {
         this.paymentMapper = paymentMapper;
         this.shipmentMapper = shipmentMapper;
         this.eventPublisher = eventPublisher;
+        this.refundService = refundService;
+        this.pointsService = pointsService;
+        this.settlementService = settlementService;
     }
 
     @Transactional
@@ -280,6 +293,16 @@ public class OrderService {
         order.setStatus(ORDER_STATUS_COMPLETED);
         order.setCompletedAt(LocalDateTime.now());
         orderMapper.updateById(order);
+
+        // 购物返积分：每10元累计1积分，不足10元不计
+        BigDecimal payAmount = order.getPayAmount() != null ? order.getPayAmount() : BigDecimal.ZERO;
+        int earnedPoints = payAmount.divideToIntegralValue(BigDecimal.TEN).intValue();
+        if (earnedPoints > 0) {
+            pointsService.grantOrderRewardPoints(userId, order.getId(), orderNo, earnedPoints);
+        }
+
+        // 订单结算：金额入商户账户
+        settlementService.settleOrder(order.getId(), orderNo, order.getShopId(), payAmount);
     }
 
     public PageResponse<OrderListItemVO> getMerchantOrders(Long shopId, int page, int size, String status, String keyword) {
@@ -471,6 +494,12 @@ public class OrderService {
             logVO.setLogisticsCompany(shipment.getLogisticsCompany());
             logVO.setStatus(shipment.getStatus());
             vo.setLogistics(logVO);
+        }
+
+        // Refund info
+        RefundVO refund = refundService.getRefundByOrderNo(order.getOrderNo());
+        if (refund != null) {
+            vo.setRefund(refund);
         }
 
         return vo;

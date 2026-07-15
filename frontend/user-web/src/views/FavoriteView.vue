@@ -95,24 +95,25 @@ function handlePageChange(page: number) {
   margin: 0 auto;
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 
   .favorite-item-wrapper {
     position: relative;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-lg);
 
     .remove-btn {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: var(--space-sm);
+      right: var(--space-sm);
       z-index: 10;
     }
   }
 
   .pagination-wrapper {
-    margin-top: 24px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

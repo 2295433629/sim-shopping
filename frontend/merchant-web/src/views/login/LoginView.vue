@@ -26,28 +26,31 @@ const rules = reactive<FormRules>({
 
 async function handleLogin() {
   if (!loginFormRef.value) return
-  await loginFormRef.value.validate(async (valid) => {
+  try {
+    const valid = await loginFormRef.value.validate()
     if (!valid) return
-    loading.value = true
-    try {
-      await userStore.login(loginForm.username, loginForm.password)
-      await userStore.fetchUserInfo()
-      // 检查是否为商家账号
-      const role = userStore.userInfo?.role
-      if (role && role !== 'MERCHANT' && role !== 'ADMIN') {
-        ElMessage.error('非商家账号，无权登录')
-        await userStore.logout()
-        return
-      }
-      ElMessage.success('登录成功')
-      const redirect = (route.query.redirect as string) || '/home'
-      router.push(redirect)
-    } catch {
-      // 错误已在拦截器中处理
-    } finally {
-      loading.value = false
+  } catch {
+    return
+  }
+  loading.value = true
+  try {
+    await userStore.login(loginForm.username, loginForm.password)
+    await userStore.fetchUserInfo()
+    // 检查是否为商家账号
+    const role = userStore.userInfo?.role
+    if (role && role !== 'MERCHANT' && role !== 'ADMIN') {
+      ElMessage.error('非商家账号，无权登录')
+      await userStore.logout()
+      return
     }
-  })
+    ElMessage.success('登录成功')
+    const redirect = (route.query.redirect as string) || '/home'
+    router.push(redirect)
+  } catch {
+    // 错误已在拦截器中处理
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -86,18 +89,24 @@ async function handleLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+  background-color: var(--color-canvas-night);
 }
 
 .login-card {
   width: 420px;
   max-width: 90vw;
 
+  :deep(.el-card) {
+    border: none;
+  }
+
   .login-title {
     text-align: center;
     margin: 0;
-    font-size: 20px;
-    color: #333;
+    font-size: var(--font-size-heading-md);
+    color: var(--color-ink);
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+    font-weight: 330;
   }
 }
 </style>

@@ -1,59 +1,59 @@
 <template>
   <div class="shop-settings">
     <el-card>
-      <template #header>Shop Settings</template>
+      <template #header>店铺设置</template>
       <el-form :model="shopForm" label-width="100px" v-loading="loading">
-        <el-form-item label="Shop Name">
+        <el-form-item label="店铺名称">
           <el-input v-model="shopForm.shopName" />
         </el-form-item>
         <el-form-item label="Logo">
           <el-upload action="/api/common/upload" :show-file-list="false" :on-success="handleLogoSuccess" :before-upload="beforeUpload">
             <el-image v-if="shopForm.shopLogo" :src="shopForm.shopLogo" fit="cover" style="width:80px;height:80px;border-radius:8px" />
-            <el-button v-else type="primary" plain>Upload</el-button>
+            <el-button v-else type="primary" plain>上传</el-button>
           </el-upload>
         </el-form-item>
-        <el-form-item label="Description">
+        <el-form-item label="店铺描述">
           <el-input v-model="shopForm.description" type="textarea" :rows="4" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="saveShop">Save</el-button>
+          <el-button type="primary" @click="saveShop">保存</el-button>
         </el-form-item>
       </el-form>
     </el-card>
     <el-card style="margin-top:20px">
       <template #header>
         <div class="card-header">
-          <span>Banners</span>
-          <el-button type="primary" :icon="Plus" @click="showBannerDialog = true">Add Banner</el-button>
+          <span>轮播图管理</span>
+          <el-button type="primary" :icon="Plus" @click="showBannerDialog = true">添加轮播图</el-button>
         </div>
       </template>
       <el-table :data="banners" border>
-        <el-table-column label="Image" width="120">
+        <el-table-column label="图片" width="120">
           <template #default="{ row }"><el-image :src="row.imageUrl" fit="cover" style="width:80px;height:40px" /></template>
         </el-table-column>
-        <el-table-column prop="sortOrder" label="Sort" width="80" />
-        <el-table-column prop="linkUrl" label="Link" />
-        <el-table-column label="Actions" width="100">
-          <template #default="{ row }"
-            ><el-button size="small" type="danger" @click="handleRemoveBanner(row)">Delete</el-button></template
-          >
+        <el-table-column prop="sortOrder" label="排序" width="80" />
+        <el-table-column prop="linkUrl" label="链接" />
+        <el-table-column label="操作" width="100">
+          <template #default="{ row }">
+            <el-button size="small" type="danger" @click="handleRemoveBanner(row)">删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
     </el-card>
-    <el-dialog v-model="showBannerDialog" title="Add Banner" width="500px">
+    <el-dialog v-model="showBannerDialog" title="添加轮播图" width="500px">
       <el-form :model="bannerForm" label-width="80px">
-        <el-form-item label="Image">
+        <el-form-item label="图片">
           <el-upload action="/api/common/upload" :show-file-list="false" :on-success="handleBannerSuccess" :before-upload="beforeUpload">
             <el-image v-if="bannerForm.imageUrl" :src="bannerForm.imageUrl" fit="cover" style="width:120px;height:60px" />
-            <el-button v-else type="primary" plain>Upload</el-button>
+            <el-button v-else type="primary" plain>上传</el-button>
           </el-upload>
         </el-form-item>
-        <el-form-item label="Sort"><el-input-number v-model="bannerForm.sortOrder" :min="0" /></el-form-item>
-        <el-form-item label="Link"><el-input v-model="bannerForm.linkUrl" placeholder="Link URL (optional)" /></el-form-item>
+        <el-form-item label="排序"><el-input-number v-model="bannerForm.sortOrder" :min="0" /></el-form-item>
+        <el-form-item label="链接"><el-input v-model="bannerForm.linkUrl" placeholder="链接地址（可选）" /></el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showBannerDialog = false">Cancel</el-button>
-        <el-button type="primary" @click="handleAddBanner">OK</el-button>
+        <el-button @click="showBannerDialog = false">取消</el-button>
+        <el-button type="primary" @click="handleAddBanner">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -77,8 +77,8 @@ const showBannerDialog = ref(false)
 const bannerForm = reactive({ imageUrl: '', sortOrder: 0, linkUrl: '' })
 
 const beforeUpload = (file: File) => {
-  if (!file.type.startsWith('image/')) { ElMessage.error('Image only'); return false }
-  if (file.size / 1024 / 1024 > 5) { ElMessage.error('Max 5MB'); return false }
+  if (!file.type.startsWith('image/')) { ElMessage.error('仅支持图片文件'); return false }
+  if (file.size / 1024 / 1024 > 5) { ElMessage.error('图片最大5MB'); return false }
   return true
 }
 const handleLogoSuccess = (res: any) => { if (res.code === 200) shopForm.shopLogo = res.data }
@@ -86,38 +86,64 @@ const handleBannerSuccess = (res: any) => { if (res.code === 200) bannerForm.ima
 
 const loadShop = async () => {
   loading.value = true
-  try { const res = await getShopInfo(); Object.assign(shopForm, res.data) } catch { ElMessage.error('Load failed') }
+  try {
+    const res = await getShopInfo()
+    Object.assign(shopForm, res)
+  } catch (e: any) { ElMessage.error(e?.message || '加载失败') }
   loading.value = false
 }
 const saveShop = async () => {
-  try { await updateShopInfo(shopForm); ElMessage.success('Saved') } catch { ElMessage.error('Save failed') }
+  try { await updateShopInfo(shopForm); ElMessage.success('保存成功') } catch (e: any) { ElMessage.error(e?.message || '保存失败') }
 }
 const handleAddBanner = async () => {
-  if (!bannerForm.imageUrl) { ElMessage.warning('Upload image first'); return }
+  if (!bannerForm.imageUrl) { ElMessage.warning('请先上传图片'); return }
   try {
     await addShopBanner(bannerForm)
-    ElMessage.success('Added')
+    ElMessage.success('添加成功')
     showBannerDialog.value = false
     bannerForm.imageUrl = ''
     bannerForm.sortOrder = 0
     bannerForm.linkUrl = ''
-  } catch {
-    ElMessage.error('Failed')
+    loadBanners()
+  } catch (e: any) {
+    ElMessage.error(e?.message || '操作失败')
   }
+}
+const loadBanners = async () => {
+  try {
+    const res = await getShopInfo()
+    banners.value = (res as any).banners || []
+  } catch { /* ignore */ }
 }
 const handleRemoveBanner = async (row: any) => {
   try {
     await removeShopBanner(row.id)
-    ElMessage.success('Deleted')
+    ElMessage.success('删除成功')
     banners.value = banners.value.filter((b) => b.id !== row.id)
-  } catch {
-    ElMessage.error('Failed')
+  } catch (e: any) {
+    ElMessage.error(e?.message || '操作失败')
   }
 }
-onMounted(loadShop)
+onMounted(() => { loadShop(); loadBanners() })
 </script>
 
-<style scoped>
-.shop-settings { padding: 20px; max-width: 800px; margin: 0 auto; }
-.card-header { display: flex; justify-content: space-between; align-items: center; }
+<style scoped lang="scss">
+.shop-settings {
+  padding: var(--space-xl);
+  max-width: 800px;
+  margin: 0 auto;
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    span {
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+      font-weight: 330;
+      font-size: var(--font-size-heading-lg);
+      color: var(--color-ink);
+    }
+  }
+}
 </style>

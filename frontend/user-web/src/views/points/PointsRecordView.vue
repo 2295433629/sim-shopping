@@ -93,7 +93,7 @@ function formatPoints(row: PointsRecord) {
       </template>
 
       <el-table :data="list" v-loading="loading" border stripe>
-        <el-table-column prop="recordId" label="ID" width="70" />
+        <el-table-column prop="recordId" label="编号" width="70" />
         <el-table-column label="时间" width="170">
           <template #default="{ row }">
             {{ formatDate(row.createdAt) }}
@@ -115,7 +115,7 @@ function formatPoints(row: PointsRecord) {
         </el-table-column>
         <el-table-column prop="source" label="来源" width="130" />
         <el-table-column prop="description" label="说明" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="orderNo" label="关联订单" width="170" show-overflow-tooltip />
+        <el-table-column prop="relatedId" label="关联ID" width="120" show-overflow-tooltip />
       </el-table>
 
       <el-empty v-if="!loading && list.length === 0" description="暂无积分记录" />
@@ -144,24 +144,25 @@ function formatPoints(row: PointsRecord) {
   }
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 
   .header-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--space-sm);
     align-items: center;
   }
 
   .points-earn {
-    color: #67c23a;
-    font-weight: bold;
+    color: var(--color-success);
+    font-weight: 500;
   }
 
   .points-deduct {
-    color: #f56c6c;
-    font-weight: bold;
+    color: var(--color-danger);
+    font-weight: 500;
   }
 }
 </style>

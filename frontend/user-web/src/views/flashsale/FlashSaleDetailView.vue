@@ -215,8 +215,8 @@ function goBack() {
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #f5f5f5;
-      border-radius: 8px;
+      background-color: var(--color-canvas-cream);
+      border-radius: var(--rounded-lg);
       overflow: hidden;
 
       .main-img {
@@ -228,33 +228,34 @@ function goBack() {
 
   .info-section {
     .product-name {
-      font-size: 22px;
-      font-weight: bold;
-      color: #333;
-      margin: 0 0 8px 0;
+      font-size: var(--font-size-heading-xl);
+      font-weight: 500;
+      color: var(--color-ink);
+      margin: 0 0 var(--space-sm) 0;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
     }
 
     .product-desc {
-      font-size: 14px;
-      color: #666;
-      margin: 0 0 16px 0;
+      font-size: var(--font-size-caption);
+      color: var(--color-shade-50);
+      margin: 0 0 var(--space-lg) 0;
     }
 
     .countdown-box {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--space-sm);
       background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
       color: #fff;
-      padding: 8px 16px;
-      border-radius: 4px;
-      margin-bottom: 16px;
-      font-size: 14px;
+      padding: var(--space-sm) var(--space-lg);
+      border-radius: var(--rounded-md);
+      margin-bottom: var(--space-lg);
+      font-size: var(--font-size-caption);
 
       .countdown-text {
-        font-weight: bold;
-        font-family: monospace;
-        font-size: 16px;
+        font-weight: 500;
+        font-family: var(--font-mono);
+        font-size: var(--font-size-body-md);
 
         &.expired {
           opacity: 0.8;
@@ -264,48 +265,48 @@ function goBack() {
 
     .price-box {
       background-color: #fff8f0;
-      padding: 16px;
-      border-radius: 4px;
-      margin-bottom: 16px;
+      padding: var(--space-lg);
+      border-radius: var(--rounded-md);
+      margin-bottom: var(--space-lg);
       display: flex;
       align-items: baseline;
-      gap: 12px;
+      gap: var(--space-md);
 
       .flash-price {
-        font-size: 32px;
-        font-weight: bold;
-        color: #f56c6c;
+        font-size: var(--font-size-display-lg);
+        font-weight: 500;
+        color: var(--color-danger);
       }
 
       .original-price {
-        font-size: 14px;
-        color: #ccc;
+        font-size: var(--font-size-caption);
+        color: var(--color-shade-30);
         text-decoration: line-through;
       }
     }
 
     .info-row {
       display: flex;
-      gap: 16px;
+      gap: var(--space-lg);
       flex-wrap: wrap;
-      margin-bottom: 16px;
-      font-size: 14px;
+      margin-bottom: var(--space-lg);
+      font-size: var(--font-size-caption);
 
       .info-label {
-        color: #999;
+        color: var(--color-shade-40);
       }
 
       .info-value {
-        color: #333;
+        color: var(--color-ink);
         font-weight: 500;
       }
     }
 
     .progress-row {
-      margin-bottom: 20px;
+      margin-bottom: var(--space-xl);
 
       .progress-text {
-        font-size: 12px;
+        font-size: var(--font-size-eyebrow);
         color: #fff;
       }
     }
@@ -313,18 +314,18 @@ function goBack() {
     .quantity-section {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
 
       .quantity-label {
-        font-size: 14px;
-        color: #666;
+        font-size: var(--font-size-caption);
+        color: var(--color-shade-50);
       }
     }
 
     .action-buttons {
       display: flex;
-      gap: 12px;
+      gap: var(--space-md);
 
       .el-button {
         min-width: 180px;
@@ -333,13 +334,14 @@ function goBack() {
   }
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 
   .product-description {
     line-height: 1.8;
-    color: #333;
+    color: var(--color-ink);
 
     :deep(img) {
       max-width: 100%;

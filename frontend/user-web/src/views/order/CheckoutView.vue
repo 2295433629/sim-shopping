@@ -54,7 +54,7 @@ async function loadData() {
       ...g,
       items: g.items.filter(i => i.selected === 1),
     })).filter(g => g.items.length > 0)
-    addressList.value = addrData.list || []
+    addressList.value = addrData || []
     const def = addressList.value.find(a => a.isDefault === 1)
     selectedAddressId.value = def ? def.id : (addressList.value[0]?.id ?? null)
   } catch {
@@ -66,11 +66,11 @@ async function loadData() {
 
 async function handleSubmit() {
   if (!selectedAddressId.value) {
-    ElMessage.warning('Please select a delivery address')
+    ElMessage.warning('请选择收货地址')
     return
   }
   if (selectedItems.value.length === 0) {
-    ElMessage.warning('No items to checkout')
+    ElMessage.warning('没有可结算的商品')
     return
   }
   submitting.value = true
@@ -81,8 +81,14 @@ async function handleSubmit() {
       remark: remark.value || undefined,
       cartItemIds,
     })
-    ElMessage.success('Order created successfully')
-    router.push(`/payment/${result.orderNo}`)
+    ElMessage.success('订单创建成功')
+    // 后端按店铺拆单，取第一个订单跳支付页
+    const firstOrder = result.orders?.[0]
+    if (firstOrder) {
+      router.push(`/payment/${firstOrder.orderNo}`)
+    } else {
+      router.push('/orders')
+    }
   } catch {
     // handled by interceptor
   } finally {
@@ -97,13 +103,13 @@ function formatAddress(addr: AddressInfo) {
 
 <template>
   <div class="checkout-container" v-loading="loading">
-    <el-page-header @back="router.back()" title="Back" content="Checkout" />
+    <el-page-header @back="router.back()" title="返回" content="确认订单" />
 
     <el-card v-if="selectedItems.length > 0" shadow="never" class="section-card">
-      <template #header><span class="section-title">Delivery Address</span></template>
+      <template #header><span class="section-title">收货地址</span></template>
       <el-select
         v-model="selectedAddressId"
-        placeholder="Select address"
+        placeholder="请选择收货地址"
         style="width: 100%"
         size="large"
       >
@@ -118,7 +124,7 @@ function formatAddress(addr: AddressInfo) {
         <el-icon><Location /></el-icon>
         <span>{{ formatAddress(selectedAddress) }}</span>
       </div>
-      <el-button text type="primary" @click="router.push('/addresses')">Manage Addresses</el-button>
+      <el-button text type="primary" @click="router.push('/addresses')">管理收货地址</el-button>
     </el-card>
 
     <el-card v-for="group in shopGroups" :key="group.shopId" shadow="never" class="section-card">
@@ -127,50 +133,50 @@ function formatAddress(addr: AddressInfo) {
       </template>
       <div v-for="item in group.items" :key="item.cartItemId" class="checkout-item">
         <el-image :src="item.productImage" fit="cover" class="item-image">
-          <template #error><div class="img-fallback">N/A</div></template>
+          <template #error><div class="img-fallback">暂无图片</div></template>
         </el-image>
         <div class="item-detail">
           <div class="item-name">{{ item.productName }}</div>
           <div class="item-sku">{{ item.skuName }}</div>
         </div>
-        <div class="item-price">$ {{ item.price.toFixed(2) }}</div>
+        <div class="item-price">¥ {{ item.price.toFixed(2) }}</div>
         <div class="item-qty">x{{ item.quantity }}</div>
-        <div class="item-subtotal">${{ (item.price * item.quantity).toFixed(2) }}</div>
+        <div class="item-subtotal">¥{{ (item.price * item.quantity).toFixed(2) }}</div>
       </div>
     </el-card>
 
     <el-card shadow="never" class="section-card">
-      <template #header><span class="section-title">Order Remark</span></template>
+      <template #header><span class="section-title">订单备注</span></template>
       <el-input
         v-model="remark"
         type="textarea"
         :rows="2"
-        placeholder="Leave a message to seller (optional)"
+        placeholder="给卖家留言（选填）"
         maxlength="200"
         show-word-limit
       />
     </el-card>
 
     <el-card shadow="never" class="section-card">
-      <template #header><span class="section-title">Order Summary</span></template>
+      <template #header><span class="section-title">订单金额</span></template>
       <div class="summary-row">
-        <span>Items Total:</span>
-        <span>${{ totalAmount.toFixed(2) }}</span>
+        <span>商品总额：</span>
+        <span>¥{{ totalAmount.toFixed(2) }}</span>
       </div>
       <div class="summary-row">
-        <span>Shipping Fee:</span>
-        <span>${{ shippingFee.toFixed(2) }}</span>
+        <span>运费：</span>
+        <span>¥{{ shippingFee.toFixed(2) }}</span>
       </div>
       <el-divider />
       <div class="summary-row total">
-        <span>Total:</span>
-        <span class="pay-amount">${{ payAmount.toFixed(2) }}</span>
+        <span>应付总额：</span>
+        <span class="pay-amount">¥{{ payAmount.toFixed(2) }}</span>
       </div>
     </el-card>
 
     <div class="submit-bar">
       <span class="pay-info">
-        Pay: <span class="pay-amount">${{ payAmount.toFixed(2) }}</span>
+        应付：<span class="pay-amount">¥{{ payAmount.toFixed(2) }}</span>
       </span>
       <el-button
         type="primary"
@@ -179,12 +185,12 @@ function formatAddress(addr: AddressInfo) {
         :disabled="selectedItems.length === 0"
         @click="handleSubmit"
       >
-        Submit Order
+        提交订单
       </el-button>
     </div>
 
-    <el-empty v-if="!loading && selectedItems.length === 0" description="No items selected for checkout">
-      <el-button type="primary" @click="router.push('/cart')">Back to Cart</el-button>
+    <el-empty v-if="!loading && selectedItems.length === 0" description="没有可结算的商品">
+      <el-button type="primary" @click="router.push('/cart')">返回购物车</el-button>
     </el-empty>
   </div>
 </template>
@@ -210,10 +216,10 @@ function formatAddress(addr: AddressInfo) {
     gap: 6px;
     margin-top: 12px;
     padding: 10px 12px;
-    background: #f5f7fa;
+    background: var(--color-canvas-cream);
     border-radius: 4px;
     font-size: 14px;
-    color: #333;
+    color: var(--color-ink);
   }
 
   .checkout-item {
@@ -221,7 +227,7 @@ function formatAddress(addr: AddressInfo) {
     align-items: center;
     gap: 12px;
     padding: 12px 0;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--color-canvas-cream);
 
     &:last-child {
       border-bottom: none;
@@ -239,7 +245,7 @@ function formatAddress(addr: AddressInfo) {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #f5f5f5;
+        background: var(--color-canvas-cream);
         color: #ccc;
         font-size: 12px;
       }
@@ -250,30 +256,30 @@ function formatAddress(addr: AddressInfo) {
 
       .item-name {
         font-size: 14px;
-        color: #333;
+        color: var(--color-ink);
       }
 
       .item-sku {
         font-size: 12px;
-        color: #999;
+        color: var(--color-shade-40);
         margin-top: 2px;
       }
     }
 
     .item-price {
-      color: #666;
+      color: var(--color-shade-50);
       font-size: 13px;
     }
 
     .item-qty {
-      color: #999;
+      color: var(--color-shade-40);
       font-size: 13px;
     }
 
     .item-subtotal {
       width: 100px;
       text-align: right;
-      color: #e4393c;
+      color: var(--color-price);
       font-weight: 600;
     }
   }
@@ -283,16 +289,16 @@ function formatAddress(addr: AddressInfo) {
     justify-content: space-between;
     padding: 8px 0;
     font-size: 14px;
-    color: #666;
+    color: var(--color-shade-50);
 
     &.total {
       font-size: 16px;
       font-weight: 600;
-      color: #333;
+      color: var(--color-ink);
     }
 
     .pay-amount {
-      color: #e4393c;
+      color: var(--color-price);
       font-size: 22px;
       font-weight: 700;
     }
@@ -306,7 +312,7 @@ function formatAddress(addr: AddressInfo) {
     max-width: 900px;
     margin: 0 auto;
     height: 60px;
-    background: #fff;
+    background: var(--color-canvas-light);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
@@ -319,7 +325,7 @@ function formatAddress(addr: AddressInfo) {
       font-size: 14px;
 
       .pay-amount {
-        color: #e4393c;
+        color: var(--color-price);
         font-size: 22px;
         font-weight: 700;
       }

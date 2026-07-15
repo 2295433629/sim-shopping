@@ -31,28 +31,31 @@ const rules = computed<FormRules>(() => ({
 
 async function handleSubmit() {
   if (!loginFormRef.value) return
-  await loginFormRef.value.validate(async (valid) => {
+  try {
+    const valid = await loginFormRef.value.validate()
     if (!valid) return
-    loading.value = true
-    try {
-      if (isRegister.value) {
-        await userStore.register(loginForm.username, loginForm.password, loginForm.nickname)
-        ElMessage.success('注册成功')
-        const redirect = (route.query.redirect as string) || '/home'
-        router.push(redirect)
-      } else {
-        await userStore.login(loginForm.username, loginForm.password)
-        await userStore.fetchUserInfo()
-        ElMessage.success('登录成功')
-        const redirect = (route.query.redirect as string) || '/home'
-        router.push(redirect)
-      }
-    } catch {
-      // 错误已在拦截器中处理
-    } finally {
-      loading.value = false
+  } catch {
+    return
+  }
+  loading.value = true
+  try {
+    if (isRegister.value) {
+      await userStore.register(loginForm.username, loginForm.password, loginForm.nickname)
+      ElMessage.success('注册成功')
+      const redirect = (route.query.redirect as string) || '/home'
+      router.push(redirect)
+    } else {
+      await userStore.login(loginForm.username, loginForm.password)
+      await userStore.fetchUserInfo()
+      ElMessage.success('登录成功')
+      const redirect = (route.query.redirect as string) || '/home'
+      router.push(redirect)
     }
-  })
+  } catch {
+    // 错误已在拦截器中处理
+  } finally {
+    loading.value = false
+  }
 }
 
 function toggleMode() {
@@ -104,7 +107,7 @@ function toggleMode() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: var(--color-canvas-night);
 }
 
 .login-card {
@@ -114,8 +117,10 @@ function toggleMode() {
   .login-title {
     text-align: center;
     margin: 0;
-    font-size: 20px;
-    color: #333;
+    font-size: var(--font-size-heading-md);
+    color: var(--color-ink);
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+    font-weight: 330;
   }
 }
 </style>

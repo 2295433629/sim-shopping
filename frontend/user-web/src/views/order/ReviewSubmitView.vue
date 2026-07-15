@@ -134,40 +134,42 @@ function handleImageRemove(_file: UploadFile, _fileList: UploadFile[]) {
 .page-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
 
   h3 {
     margin: 0;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+    font-weight: 330;
   }
 }
 
 .review-form {
-  padding: 8px 0;
+  padding: var(--space-sm) 0;
 
   .form-section {
-    margin-bottom: 24px;
+    margin-bottom: var(--space-xl);
 
     .form-label {
       display: block;
-      font-size: 14px;
-      font-weight: 600;
-      color: #303133;
-      margin-bottom: 8px;
+      font-size: var(--font-size-caption);
+      font-weight: 500;
+      color: var(--color-ink);
+      margin-bottom: var(--space-sm);
     }
   }
 
   .upload-tip {
-    font-size: 12px;
-    color: #909399;
-    margin-top: 8px;
+    font-size: var(--font-size-eyebrow);
+    color: var(--color-shade-40);
+    margin-top: var(--space-sm);
   }
 
   .form-actions {
     display: flex;
     justify-content: center;
-    gap: 12px;
-    margin-top: 32px;
+    gap: var(--space-md);
+    margin-top: var(--space-xxl);
   }
 }
 </style>

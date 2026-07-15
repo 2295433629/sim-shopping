@@ -37,8 +37,8 @@ const roleList = ref<unknown[]>([])
   align-items: center;
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 600;
   }
 }
 </style>

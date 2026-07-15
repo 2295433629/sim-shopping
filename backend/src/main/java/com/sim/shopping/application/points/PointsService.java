@@ -34,6 +34,40 @@ public class PointsService {
         this.pointsProductMapper = pointsProductMapper;
     }
 
+    /**
+     * 购物返积分：确认收货后按每10元1积分发放
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void grantOrderRewardPoints(Long userId, Long orderId, String orderNo, int points) {
+        // 确保积分账户存在
+        LambdaQueryWrapper<UserPointsDO> upWrapper = new LambdaQueryWrapper<>();
+        upWrapper.eq(UserPointsDO::getUserId, userId);
+        UserPointsDO userPoints = userPointsMapper.selectOne(upWrapper);
+        if (userPoints == null) {
+            userPoints = new UserPointsDO();
+            userPoints.setUserId(userId);
+            userPoints.setAvailablePoints(0);
+            userPoints.setTotalPoints(0);
+            userPoints.setCreatedAt(LocalDateTime.now());
+            userPoints.setUpdatedAt(LocalDateTime.now());
+            userPointsMapper.insert(userPoints);
+        }
+
+        // 原子增加积分
+        userPointsMapper.addPoints(userId, points);
+
+        // 记录积分明细
+        PointsRecordDO record = new PointsRecordDO();
+        record.setUserId(userId);
+        record.setPoints(points);
+        record.setType("EARN");
+        record.setSource("ORDER_REWARD");
+        record.setDescription("购物返积分：订单 " + orderNo + " 确认收货，实付" +
+                (points * 10) + "元，获得" + points + "积分");
+        record.setRelatedId(orderId);
+        pointsRecordMapper.insert(record);
+    }
+
     public PointsBalanceVO getPointsBalance(Long userId) {
         if (userId == null) {
             throw new BusinessException(400, "用户ID不能为空");
@@ -42,7 +76,14 @@ public class PointsService {
         userPointsWrapper.eq(UserPointsDO::getUserId, userId);
         UserPointsDO userPoints = userPointsMapper.selectOne(userPointsWrapper);
         if (userPoints == null) {
-            throw new BusinessException(404, "用户积分账户不存在");
+            // 自动创建积分账户
+            userPoints = new UserPointsDO();
+            userPoints.setUserId(userId);
+            userPoints.setAvailablePoints(0);
+            userPoints.setTotalPoints(0);
+            userPoints.setCreatedAt(LocalDateTime.now());
+            userPoints.setUpdatedAt(LocalDateTime.now());
+            userPointsMapper.insert(userPoints);
         }
 
         Integer currentPoints = userPoints.getAvailablePoints() != null ? userPoints.getAvailablePoints() : 0;
@@ -115,7 +156,14 @@ public class PointsService {
         upWrapper.eq(UserPointsDO::getUserId, userId);
         UserPointsDO userPoints = userPointsMapper.selectOne(upWrapper);
         if (userPoints == null) {
-            throw new BusinessException(404, "用户积分账户不存在");
+            // 自动创建积分账户
+            userPoints = new UserPointsDO();
+            userPoints.setUserId(userId);
+            userPoints.setAvailablePoints(0);
+            userPoints.setTotalPoints(0);
+            userPoints.setCreatedAt(LocalDateTime.now());
+            userPoints.setUpdatedAt(LocalDateTime.now());
+            userPointsMapper.insert(userPoints);
         }
         Integer availablePoints = userPoints.getAvailablePoints() != null ? userPoints.getAvailablePoints() : 0;
         if (availablePoints < totalPointsNeeded) {

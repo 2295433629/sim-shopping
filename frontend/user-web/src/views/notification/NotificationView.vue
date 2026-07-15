@@ -29,7 +29,7 @@ watch([page], () => {
 async function loadNotifications() {
   loading.value = true
   try {
-    const data = await getNotifications({ page: page.value, size: pageSize.value }) as any
+    const data = await getNotifications({ pageNum: page.value, pageSize: pageSize.value }) as any
     notifications.value = data.list || []
     total.value = data.total || 0
   } catch {
@@ -100,7 +100,9 @@ function handlePageChange(p: number) {
 const typeMap: Record<string, string> = {
   ORDER: '订单消息',
   PAYMENT: '支付消息',
-  SHIPMENT: '物流消息',
+  SHIPMENT: '发货消息',
+  LOGISTICS: '物流消息',
+  REVIEW: '评价消息',
   PROMOTION: '促销消息',
   SYSTEM: '系统消息',
 }
@@ -109,6 +111,8 @@ const typeTagMap: Record<string, string> = {
   ORDER: 'primary',
   PAYMENT: 'success',
   SHIPMENT: 'warning',
+  LOGISTICS: 'warning',
+  REVIEW: 'info',
   PROMOTION: 'danger',
   SYSTEM: 'info',
 }
@@ -203,39 +207,40 @@ const typeTagMap: Record<string, string> = {
     .header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: var(--space-md);
     }
 
     .card-title {
-      font-size: 16px;
-      font-weight: bold;
+      font-size: var(--font-size-body-md);
+      font-weight: 500;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
     }
   }
 
   .notification-item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 16px;
-    border: 1px solid #ebeef5;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    transition: background-color 0.2s;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    border: 1px solid var(--color-hairline-light);
+    border-radius: var(--rounded-lg);
+    margin-bottom: var(--space-md);
+    transition: background-color var(--transition-fast);
 
     &:hover {
-      background: #fafafa;
+      background: var(--color-canvas-cream);
     }
 
     &.unread {
-      background: #f0f7ff;
-      border-color: #d0e3ff;
+      background: var(--color-aloe-10);
+      border-color: var(--color-pistachio-10);
     }
 
     .notification-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #409eff;
+      background: var(--color-ink);
       flex-shrink: 0;
       margin-top: 6px;
     }
@@ -246,39 +251,39 @@ const typeTagMap: Record<string, string> = {
       .notification-header {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--space-sm);
         margin-bottom: 6px;
 
         .notification-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #303133;
+          font-size: var(--font-size-caption);
+          font-weight: 500;
+          color: var(--color-ink);
         }
 
         .notification-time {
           margin-left: auto;
-          font-size: 12px;
-          color: #909399;
+          font-size: var(--font-size-eyebrow);
+          color: var(--color-shade-40);
           flex-shrink: 0;
         }
       }
 
       .notification-body {
-        font-size: 14px;
-        color: #606266;
+        font-size: var(--font-size-caption);
+        color: var(--color-shade-50);
         line-height: 1.6;
       }
     }
 
     .notification-actions {
       display: flex;
-      gap: 4px;
+      gap: var(--space-xs);
       flex-shrink: 0;
     }
   }
 
   .pagination-wrap {
-    margin-top: 20px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

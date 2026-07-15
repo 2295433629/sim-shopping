@@ -48,12 +48,12 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function updateProfile(data: Partial<UserInfo>) {
-    const res = await updateProfileApi(data)
-    userInfo.value = { ...userInfo.value, ...res }
+    await updateProfileApi(data)
+    userInfo.value = { ...userInfo.value, ...data } as UserInfo
     if (userInfo.value) {
       setUserInfo(userInfo.value)
     }
-    return res
+    return userInfo.value
   }
 
   async function logout() {

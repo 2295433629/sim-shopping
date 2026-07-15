@@ -17,12 +17,14 @@
 }
 .not-found h1 {
   font-size: 80px;
-  color: #ccc;
+  color: var(--color-shade-30);
   margin: 0;
+  font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+  font-weight: 330;
 }
 .not-found p {
-  font-size: 18px;
-  color: #666;
-  margin: 16px 0 24px;
+  font-size: var(--font-size-body-lg);
+  color: var(--color-shade-50);
+  margin: var(--space-lg) 0 var(--space-xl);
 }
 </style>

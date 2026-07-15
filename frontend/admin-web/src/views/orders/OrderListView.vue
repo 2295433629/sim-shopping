@@ -138,24 +138,24 @@ function handleDetail(row: OrderListVO) {
 
 <style scoped lang="scss">
 .card-title {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: var(--font-size-body-md);
+  font-weight: 600;
 }
 
 .filter-bar {
   display: flex;
-  gap: 12px;
+  gap: var(--space-md);
   align-items: center;
   flex-wrap: wrap;
 }
 
 .amount {
-  color: #e4393c;
+  color: var(--color-price);
   font-weight: 600;
 }
 
 .pagination-wrap {
-  margin-top: 20px;
+  margin-top: var(--space-xl);
   display: flex;
   justify-content: center;
 }

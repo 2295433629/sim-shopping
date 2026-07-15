@@ -15,7 +15,7 @@ export interface NotificationItem {
 }
 
 /** 消息列表 */
-export function getNotifications(params: { page: number; size: number }) {
+export function getNotifications(params: { pageNum: number; pageSize: number }) {
   return request.get('/notifications', { params })
 }
 

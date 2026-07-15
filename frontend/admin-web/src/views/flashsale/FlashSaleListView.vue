@@ -26,7 +26,7 @@
         </el-table-column>
         <el-table-column prop="flashPrice" label="秒杀价" width="100">
           <template #default="{ row }">
-            <span style="color: #f56c6c; font-weight: bold;">¥{{ row.flashPrice.toFixed(2) }}</span>
+            <span style="color: var(--color-price); font-weight: bold;">¥{{ row.flashPrice.toFixed(2) }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="stock" label="库存" width="80" />
@@ -259,7 +259,7 @@ onMounted(loadList)
 
 <style scoped>
 .flash-sale-manage {
-  padding: 20px;
+  padding: var(--space-xl);
 }
 .card-header {
   display: flex;
@@ -268,7 +268,7 @@ onMounted(loadList)
 }
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   align-items: center;
 }
 </style>

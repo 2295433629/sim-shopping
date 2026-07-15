@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.application.merchant.MerchantService;
 import com.sim.shopping.domain.common.exception.BusinessException;
 import com.sim.shopping.domain.common.exception.MerchantException;
+import com.sim.shopping.application.settlement.SettlementService;
+import com.sim.shopping.infrastructure.persistence.entity.SettlementRecordDO;
 import com.sim.shopping.infrastructure.persistence.entity.*;
 import com.sim.shopping.infrastructure.persistence.mapper.*;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
@@ -30,6 +32,7 @@ public class ShopService {
     private final ReviewMapper reviewMapper;
     private final BannerMapper bannerMapper;
     private final MerchantService merchantService;
+    private final SettlementRecordMapper settlementRecordMapper;
 
     public ShopService(ShopMapper shopMapper,
                        MerchantMapper merchantMapper,
@@ -37,7 +40,8 @@ public class ShopService {
                        OrderMapper orderMapper,
                        ReviewMapper reviewMapper,
                        BannerMapper bannerMapper,
-                       MerchantService merchantService) {
+                       MerchantService merchantService,
+                       SettlementRecordMapper settlementRecordMapper) {
         this.shopMapper = shopMapper;
         this.merchantMapper = merchantMapper;
         this.productMapper = productMapper;
@@ -45,6 +49,7 @@ public class ShopService {
         this.reviewMapper = reviewMapper;
         this.bannerMapper = bannerMapper;
         this.merchantService = merchantService;
+        this.settlementRecordMapper = settlementRecordMapper;
     }
 
     public ShopResponse getShopInfo(Long userId) {
@@ -120,9 +125,15 @@ public class ShopService {
         Long todayOrders = orderMapper.selectCount(todayOrderWrapper);
         resp.setTodayOrders(todayOrders.intValue());
 
-        // Today's sales — sum payAmount of paid orders today
-        // For simplicity, return 0 for now (M3/M5 will refine)
-        resp.setTodaySales(BigDecimal.ZERO);
+        // Today's sales — sum amount of settlement records created today for this shop
+        LambdaQueryWrapper<SettlementRecordDO> todaySettlementWrapper = new LambdaQueryWrapper<>();
+        todaySettlementWrapper.eq(SettlementRecordDO::getShopId, shopId)
+                              .ge(SettlementRecordDO::getCreatedAt, startOfDay);
+        java.util.List<SettlementRecordDO> todayRecords = settlementRecordMapper.selectList(todaySettlementWrapper);
+        BigDecimal todaySales = todayRecords.stream()
+                .map(r -> r.getAmount() != null ? r.getAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        resp.setTodaySales(todaySales);
 
         // Pending shipments — orders with status PAID (not yet shipped)
         LambdaQueryWrapper<OrderDO> pendingWrapper = new LambdaQueryWrapper<>();

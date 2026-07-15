@@ -130,8 +130,9 @@ function handlePageChange(page: number) {
 
   .category-tree-card {
     .card-title {
-      font-size: 16px;
-      font-weight: bold;
+      font-size: var(--font-size-body-md);
+      font-weight: 500;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
     }
   }
 
@@ -140,7 +141,7 @@ function handlePageChange(page: number) {
   }
 
   .pagination-wrapper {
-    margin-top: 24px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

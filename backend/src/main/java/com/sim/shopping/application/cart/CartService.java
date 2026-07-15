@@ -63,11 +63,13 @@ public class CartService {
             throw new BusinessException(404, "商品不存在或已下架");
         }
 
-        if (skuId != null) {
+        if (skuId != null && skuId > 0) {
             ProductSkuDO sku = productSkuMapper.selectById(skuId);
             if (sku == null || !productId.equals(sku.getProductId())) {
                 throw new BusinessException(404, "商品规格不存在");
             }
+        } else {
+            skuId = null;
         }
 
         ShoppingCartDO cart = getOrCreateCart(userId);

@@ -80,7 +80,7 @@
           <el-radio-group v-model="form.type">
             <el-radio-button label="FIXED_AMOUNT">Fixed Amount</el-radio-button>
             <el-radio-button label="PERCENTAGE">Percentage</el-radio-button>
-            <el-radio-button label="FIXED_DISCOUNT">Fixed Discount</el-radio-button>
+            <el-radio-button label="THRESHOLD">Threshold</el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="Value" prop="value">
@@ -197,14 +197,14 @@ const statusTagType: Record<string, string> = {
 const typeTagType: Record<string, string> = {
   FIXED_AMOUNT: 'primary',
   PERCENTAGE: 'warning',
-  FIXED_DISCOUNT: 'success',
+  THRESHOLD: 'success',
 }
 
 function formatType(type: string) {
   const map: Record<string, string> = {
     FIXED_AMOUNT: 'Fixed',
     PERCENTAGE: 'Percent',
-    FIXED_DISCOUNT: 'Discount',
+    THRESHOLD: 'Threshold',
   }
   return map[type] || type
 }
@@ -330,7 +330,7 @@ onMounted(loadList)
 
 <style scoped>
 .coupon-manage {
-  padding: 20px;
+  padding: var(--space-xl);
 }
 .card-header {
   display: flex;
@@ -339,11 +339,11 @@ onMounted(loadList)
 }
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   align-items: center;
 }
 .form-tip {
-  margin-left: 8px;
-  color: #666;
+  margin-left: var(--space-sm);
+  color: var(--color-shade-50);
 }
 </style>

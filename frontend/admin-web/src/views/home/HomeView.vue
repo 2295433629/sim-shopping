@@ -43,17 +43,17 @@ const stats = [
 <style scoped lang="scss">
 .home-container {
   .stat-card {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-xl);
 
     .stat-content {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: var(--space-lg);
 
       .stat-icon {
         width: 56px;
         height: 56px;
-        border-radius: 8px;
+        border-radius: var(--rounded-md);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -62,16 +62,16 @@ const stats = [
 
       .stat-info {
         .stat-value {
-          font-size: 24px;
-          font-weight: bold;
-          color: #333;
+          font-size: var(--font-size-heading-lg);
+          font-weight: 700;
+          color: var(--color-ink);
           margin: 0;
         }
 
         .stat-label {
-          font-size: 14px;
-          color: #999;
-          margin: 4px 0 0 0;
+          font-size: var(--font-size-caption);
+          color: var(--color-shade-40);
+          margin: var(--space-xs) 0 0 0;
         }
       }
     }

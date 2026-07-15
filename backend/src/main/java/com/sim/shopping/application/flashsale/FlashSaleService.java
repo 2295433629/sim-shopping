@@ -264,8 +264,12 @@ public class FlashSaleService {
         FlashSaleResponse resp = new FlashSaleResponse();
         resp.setSaleId(sale.getId());
         resp.setProductId(sale.getProductId());
-        resp.setProductName(sale.getProductName());
-        resp.setProductImage(sale.getProductImage());
+        // 从商品表获取名称和图片（数据库表缺少 product_name/product_image 字段）
+        ProductDO product = productMapper.selectById(sale.getProductId());
+        if (product != null) {
+            resp.setProductName(product.getName());
+            resp.setProductImage(product.getMainImage());
+        }
         resp.setOriginalPrice(sale.getOriginalPrice());
         resp.setFlashPrice(sale.getFlashPrice());
         resp.setStock(sale.getStock());
@@ -281,8 +285,11 @@ public class FlashSaleService {
         FlashSaleDetailResponse resp = new FlashSaleDetailResponse();
         resp.setSaleId(sale.getId());
         resp.setProductId(sale.getProductId());
-        resp.setProductName(sale.getProductName());
-        resp.setProductImage(sale.getProductImage());
+        ProductDO product = productMapper.selectById(sale.getProductId());
+        if (product != null) {
+            resp.setProductName(product.getName());
+            resp.setProductImage(product.getMainImage());
+        }
         resp.setOriginalPrice(sale.getOriginalPrice());
         resp.setFlashPrice(sale.getFlashPrice());
         resp.setStock(sale.getStock());

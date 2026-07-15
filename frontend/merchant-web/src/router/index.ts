@@ -23,6 +23,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'orders/shipping', name: 'ShippingOrders', component: () => import('@/views/orders/ShippingListView.vue'), meta: { title: '待发货订单', requiresAuth: true } },
       { path: 'reviews', name: 'MerchantReviews', component: () => import('@/views/reviews/ReviewListView.vue'), meta: { title: '评价管理', requiresAuth: true } },
       { path: 'notifications', name: 'MerchantNotifications', component: () => import('@/views/notification/NotificationView.vue'), meta: { title: '消息中心', requiresAuth: true } },
+      { path: 'finance', name: 'Finance', component: () => import('@/views/settlement/FinanceView.vue'), meta: { title: '财务收入', requiresAuth: true } },
       { path: 'settings', name: 'Settings', component: () => import('@/views/settings/ShopSettingsView.vue'), meta: { title: '店铺设置', requiresAuth: true } },
     ],
   },

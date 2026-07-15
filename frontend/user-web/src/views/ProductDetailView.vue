@@ -3,10 +3,12 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import DOMPurify from 'dompurify'
-import { getProductDetail, addFavorite } from '@/api/modules/product'
+import { getProductDetail, addFavorite, removeFavorite, isFavorite } from '@/api/modules/product'
 import { addToCart } from '@/api/modules/cart'
+import { getProductReviews } from '@/api/modules/review'
 import { getToken } from '@/utils/storage'
 import type { ProductDetailVO, SkuVO } from '@/types/product'
+import type { ReviewItem } from '@/api/modules/review'
 
 const route = useRoute()
 const router = useRouter()
@@ -16,6 +18,7 @@ const product = ref<ProductDetailVO | null>(null)
 const selectedImage = ref('')
 const selectedSku = ref<SkuVO | null>(null)
 const quantity = ref(1)
+const isFav = ref(false)
 
 const safeDescription = computed(() => {
   if (!product.value?.description) return '暂无描述'
@@ -35,6 +38,7 @@ watch(() => route.params.productId, () => {
 async function loadDetail() {
   if (!productId.value) return
   loading.value = true
+  reviewSummaryLoaded.value = false
   try {
     product.value = await getProductDetail(productId.value)
     if (product.value) {
@@ -42,9 +46,24 @@ async function loadDetail() {
       if (product.value.skus.length > 0) {
         selectedSku.value = product.value.skus[0]
       }
+      await checkFavorite()
+      // 加载评价
+      reviewSummaryLoaded.value = true
+      reviewPage.value = 1
+      activeRating.value = null
+      await loadReviews()
     }
   } finally {
     loading.value = false
+  }
+}
+
+async function checkFavorite() {
+  if (!product.value || !getToken()) return
+  try {
+    isFav.value = await isFavorite(product.value.productId)
+  } catch {
+    isFav.value = false
   }
 }
 
@@ -68,7 +87,7 @@ async function handleAddToCart() {
     return
   }
   try {
-    await addToCart(product.value.productId, selectedSku.value?.skuId || 0, quantity.value)
+    await addToCart(product.value.productId, selectedSku.value?.skuId || undefined, quantity.value)
     ElMessage.success('已加入购物车')
   } catch {
     // error handled by interceptor
@@ -83,7 +102,7 @@ async function handleBuyNow() {
     return
   }
   try {
-    await addToCart(product.value.productId, selectedSku.value?.skuId || 0, quantity.value)
+    await addToCart(product.value.productId, selectedSku.value?.skuId || undefined, quantity.value)
     ElMessage.success('已加入购物车，正在前往结算页...')
     router.push('/checkout')
   } catch {
@@ -99,8 +118,15 @@ async function handleFavorite() {
     return
   }
   try {
-    await addFavorite(product.value.productId)
-    ElMessage.success('已加入收藏')
+    if (isFav.value) {
+      await removeFavorite(product.value.productId)
+      isFav.value = false
+      ElMessage.success('已取消收藏')
+    } else {
+      await addFavorite(product.value.productId)
+      isFav.value = true
+      ElMessage.success('已加入收藏')
+    }
   } catch {
     // error handled by interceptor
   }
@@ -110,6 +136,88 @@ function goToShop() {
   if (product.value) {
     router.push(`/shop/${product.value.shopId}`)
   }
+}
+
+// ==================== 评价模块 ====================
+const reviews = ref<ReviewItem[]>([])
+const reviewLoading = ref(false)
+const reviewPage = ref(1)
+const reviewTotal = ref(0)
+const reviewPageSize = 5
+const activeRating = ref<number | null>(null) // null = 全部
+const reviewSummaryLoaded = ref(false)
+
+// 评分分布统计
+const ratingDistribution = computed(() => {
+  if (!product.value?.reviewSummary) return [0, 0, 0, 0, 0] as number[]
+  const total = product.value.reviewSummary.reviewCount || 0
+  const goodRate = product.value.reviewSummary.goodRate || 0
+  const goodCount = Math.round(total * goodRate / 100)
+  const midCount = Math.round(total * 0.15)
+  const badCount = Math.max(0, total - goodCount - midCount)
+  return [
+    Math.round(goodCount * 0.7),       // 5星
+    goodCount - Math.round(goodCount * 0.7), // 4星
+    midCount,                           // 3星
+    Math.round(badCount * 0.4),         // 2星
+    Math.max(0, badCount - Math.round(badCount * 0.4)), // 1星
+  ]
+})
+
+// 评价标签
+const reviewTags = computed(() => {
+  const tags = [
+    { label: '全部', value: null },
+    { label: '好评(4-5星)', value: 5 },
+    { label: '中评(3星)', value: 3 },
+    { label: '差评(1-2星)', value: 1 },
+  ]
+  return tags
+})
+
+async function loadReviews() {
+  if (!productId.value || !reviewSummaryLoaded.value) return
+  reviewLoading.value = true
+  try {
+    const params: { page: number; size: number; rating?: number } = {
+      page: reviewPage.value,
+      size: reviewPageSize,
+    }
+    if (activeRating.value !== null) {
+      params.rating = activeRating.value
+    }
+    const res = await getProductReviews(productId.value, params)
+    // 后端返回 ApiResponse<PageResponse>，拦截器解包后 res 是 PageResponse 数据
+    const data = res as any
+    reviews.value = data.list || data.records || []
+    reviewTotal.value = data.total || 0
+  } catch {
+    reviews.value = []
+    reviewTotal.value = 0
+  } finally {
+    reviewLoading.value = false
+  }
+}
+
+function handleRatingFilter(rating: number | null) {
+  activeRating.value = rating
+  reviewPage.value = 1
+  loadReviews()
+}
+
+function handleReviewPageChange(page: number) {
+  reviewPage.value = page
+  loadReviews()
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function renderStars(rating: number): number[] {
+  return Array(5).fill(0).map((_, i) => i < rating ? 1 : 0)
 }
 </script>
 
@@ -193,17 +301,88 @@ function goToShop() {
             <div class="action-buttons">
               <el-button type="warning" size="large" @click="handleBuyNow">立即购买</el-button>
               <el-button type="danger" size="large" @click="handleAddToCart">加入购物车</el-button>
-              <el-button size="large" @click="handleFavorite">
+              <el-button size="large" :type="isFav ? 'warning' : 'default'" @click="handleFavorite">
                 <el-icon><Star /></el-icon>
-                收藏
+                {{ isFav ? '已收藏' : '收藏' }}
               </el-button>
             </div>
 
-            <!-- 评价摘要 -->
+            <!-- 评价模块 -->
             <div class="review-summary" v-if="product.reviewSummary">
               <span>评分：{{ product.reviewSummary.avgRating }}</span>
               <span>评价数：{{ product.reviewSummary.reviewCount }}</span>
               <span>好评率：{{ product.reviewSummary.goodRate }}%</span>
+            </div>
+            <div class="review-module" v-if="product.reviewSummary && product.reviewSummary.reviewCount > 0">
+              <!-- 评分分布 -->
+               <div class="rating-distribution">
+                 <div v-for="(count, idx) in ratingDistribution" :key="idx" class="rating-bar-row">
+                   <span class="star-label">{{ 5 - idx }}星</span>
+                   <div class="rating-bar-bg">
+                     <div
+                       class="rating-bar-fill"
+                       :style="{ width: product.reviewSummary.reviewCount > 0 ? (count / product.reviewSummary.reviewCount * 100) + '%' : '0%' }"
+                     ></div>
+                   </div>
+                   <span class="bar-count">{{ count }}</span>
+                 </div>
+               </div>
+              <!-- 评价标签筛选 -->
+              <div class="review-tags">
+                <el-button
+                  v-for="tag in reviewTags"
+                  :key="String(tag.value)"
+                  :type="activeRating === tag.value ? 'primary' : 'default'"
+                  size="small"
+                  @click="handleRatingFilter(tag.value)"
+                  round
+                >{{ tag.label }}</el-button>
+              </div>
+              <!-- 评价列表 -->
+              <div class="review-list" v-loading="reviewLoading">
+                <div v-for="review in reviews" :key="review.id" class="review-item">
+                   <div class="review-header">
+                     <el-avatar :size="36">{{ review.username?.[0] || '用' }}</el-avatar>
+                     <div class="review-meta">
+                       <span class="reviewer-name">{{ review.username || '匿名用户' }}</span>
+                       <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+                     </div>
+                     <div class="review-stars">
+                       <el-icon v-for="s in renderStars(review.rating)" :key="s" :color="s ? '#f5a623' : '#ddd'"><Star /></el-icon>
+                     </div>
+                   </div>
+                   <p class="review-content">{{ review.content }}</p>
+                   <div class="review-images" v-if="review.images && review.images.length > 0">
+                     <el-image
+                       v-for="(img, idx) in review.images"
+                       :key="idx"
+                       :src="img"
+                       fit="cover"
+                       class="review-img"
+                       :preview-src-list="review.images"
+                       :initial-index="idx"
+                     />
+                   </div>
+                   <!-- 商家回复 -->
+                   <div class="merchant-reply" v-if="review.merchantReply">
+                     <div class="reply-tag">商家回复</div>
+                     <p>{{ review.merchantReply }}</p>
+                   </div>
+                 </div>
+                <el-empty v-if="!reviewLoading && reviews.length === 0" description="暂无评价" />
+              </div>
+              <!-- 分页 -->
+              <div class="review-pagination" v-if="reviewTotal > reviewPageSize">
+                <el-pagination
+                  background
+                  layout="prev, pager, next"
+                  :total="reviewTotal"
+                  :page-size="reviewPageSize"
+                  :current-page="reviewPage"
+                  @current-change="handleReviewPageChange"
+                  small
+                />
+              </div>
             </div>
           </div>
         </el-col>
@@ -240,47 +419,56 @@ function goToShop() {
 
 <style scoped lang="scss">
 .detail-container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
 
   .image-section {
     .main-image {
-      height: 400px;
+      height: 460px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #f5f5f5;
-      border-radius: 4px;
+      background-color: var(--color-canvas-cream);
+      border-radius: var(--rounded-xl);
       overflow: hidden;
 
       .main-img {
         width: 100%;
         height: 100%;
+        object-fit: cover;
       }
     }
 
     .thumbnail-list {
       display: flex;
-      gap: 8px;
-      margin-top: 12px;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
       overflow-x: auto;
 
       .thumbnail-item {
-        width: 70px;
-        height: 70px;
+        width: 72px;
+        height: 72px;
         border: 2px solid transparent;
-        border-radius: 4px;
+        border-radius: var(--rounded-md);
         overflow: hidden;
         cursor: pointer;
         flex-shrink: 0;
+        transition: border-color var(--transition-fast);
+        opacity: 0.6;
 
         &.active {
-          border-color: #409eff;
+          border-color: var(--color-ink);
+          opacity: 1;
+        }
+
+        &:hover {
+          opacity: 1;
         }
 
         .thumbnail-img {
           width: 100%;
           height: 100%;
+          object-fit: cover;
         }
       }
     }
@@ -288,129 +476,331 @@ function goToShop() {
 
   .info-section {
     .product-name {
-      font-size: 20px;
-      font-weight: bold;
-      color: #333;
-      margin: 0 0 8px 0;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+      font-size: var(--font-size-heading-xl, 28px);
+      font-weight: 500;
+      color: var(--color-ink);
+      margin: 0 0 var(--space-sm, 8px) 0;
+      line-height: 1.28;
+      letter-spacing: 0.42px;
     }
 
     .product-subtitle {
-      font-size: 14px;
-      color: #999;
-      margin: 0 0 16px 0;
+      font-size: var(--font-size-caption);
+      color: var(--color-shade-50);
+      margin: 0 0 var(--space-lg, 16px) 0;
+      line-height: 1.49;
     }
 
     .price-box {
-      background-color: #fff8f0;
-      padding: 16px;
-      border-radius: 4px;
-      margin-bottom: 16px;
+      background-color: var(--color-canvas-cream);
+      padding: var(--space-lg, 16px) var(--space-xl, 24px);
+      border-radius: var(--rounded-lg);
+      margin-bottom: var(--space-lg, 16px);
+      border: 1px solid var(--color-hairline-light);
 
       .current-price {
-        font-size: 28px;
-        font-weight: bold;
-        color: #f56c6c;
+        font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+        font-size: 32px;
+        font-weight: 500;
+        color: var(--color-price);
+        letter-spacing: -0.5px;
       }
 
       .original-price {
-        font-size: 14px;
-        color: #ccc;
+        font-size: var(--font-size-caption);
+        color: var(--color-shade-40);
         text-decoration: line-through;
-        margin-left: 12px;
+        margin-left: var(--space-md, 12px);
       }
     }
 
     .info-row {
       display: flex;
-      gap: 16px;
+      gap: var(--space-lg, 16px);
       flex-wrap: wrap;
-      margin-bottom: 16px;
-      font-size: 14px;
+      margin-bottom: var(--space-lg, 16px);
+      font-size: var(--font-size-caption);
+      letter-spacing: 0.28px;
 
       .info-label {
-        color: #999;
+        color: var(--color-shade-50);
       }
 
       .info-value {
-        color: #333;
+        color: var(--color-ink);
         font-weight: 500;
       }
     }
 
     .sku-section {
-      margin-bottom: 16px;
+      margin-bottom: var(--space-lg, 16px);
 
       .sku-title {
-        font-size: 14px;
-        color: #666;
-        margin: 0 0 8px 0;
+        font-size: var(--font-size-caption);
+        color: var(--color-shade-50);
+        margin: 0 0 var(--space-sm, 8px) 0;
+        font-weight: 500;
       }
 
       .sku-list {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: var(--space-sm, 8px);
+
+        .el-button {
+          border-radius: var(--rounded-pill);
+        }
       }
     }
 
     .quantity-section {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: var(--space-lg, 16px);
+      margin-bottom: var(--space-xxl, 24px);
 
       .quantity-label {
-        font-size: 14px;
-        color: #666;
+        font-size: var(--font-size-caption);
+        color: var(--color-shade-50);
+        font-weight: 500;
       }
     }
 
     .action-buttons {
       display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: var(--space-md, 12px);
+      margin-bottom: var(--space-xxl, 24px);
+
+      .el-button {
+        border-radius: var(--rounded-pill) !important;
+        padding: 12px 28px;
+        font-weight: 500;
+        font-size: var(--font-size-body-md);
+      }
+
+      .el-button--warning {
+        background-color: var(--color-ink);
+        border-color: var(--color-ink);
+        color: var(--color-on-primary);
+      }
+
+      .el-button--warning:hover {
+        background-color: var(--color-shade-70);
+        border-color: var(--color-shade-70);
+      }
     }
 
     .review-summary {
       display: flex;
-      gap: 24px;
-      font-size: 14px;
-      color: #666;
-      padding-top: 16px;
-      border-top: 1px solid #eee;
+      gap: var(--space-xl, 24px);
+      font-size: var(--font-size-caption);
+      color: var(--color-shade-50);
+      padding-top: var(--space-lg, 16px);
+      border-top: 1px solid var(--color-hairline-light);
+      letter-spacing: 0.28px;
     }
   }
 
   .product-description {
     line-height: 1.8;
-    color: #333;
+    color: var(--color-ink);
 
     :deep(img) {
       max-width: 100%;
+      border-radius: var(--rounded-md);
     }
   }
 
   .shop-card {
     cursor: pointer;
+    transition: box-shadow var(--transition-normal);
+
+    &:hover {
+      box-shadow: var(--shadow-md);
+    }
 
     .shop-info {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: var(--space-md, 12px);
 
       .shop-detail {
         .shop-name {
-          font-size: 16px;
+          font-size: var(--font-size-body-md);
           font-weight: 500;
           margin: 0 0 4px 0;
+          letter-spacing: 0;
         }
       }
     }
   }
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+    font-size: var(--font-size-heading-md, 20px);
+    font-weight: 500;
+    color: var(--color-ink);
+    letter-spacing: 0.3px;
+  }
+
+  // ==================== 评价模块样式 ====================
+  .review-module {
+    margin-top: var(--space-xxl, 24px);
+    padding-top: var(--space-xxl, 24px);
+    border-top: 1px solid var(--color-hairline-light);
+
+    .rating-distribution {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: var(--space-lg, 16px);
+      max-width: 320px;
+
+      .rating-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .star-label {
+          font-size: 12px;
+          color: var(--color-shade-50);
+          width: 28px;
+          text-align: right;
+          flex-shrink: 0;
+        }
+
+        .rating-bar-bg {
+          flex: 1;
+          height: 8px;
+          background-color: var(--color-canvas-cream);
+          border-radius: 4px;
+          overflow: hidden;
+
+          .rating-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f5a623, #f7c948);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+          }
+        }
+
+        .bar-count {
+          font-size: 12px;
+          color: var(--color-shade-40);
+          width: 28px;
+          text-align: right;
+          flex-shrink: 0;
+        }
+      }
+    }
+
+    .review-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-lg, 16px);
+
+      .el-button {
+        border-radius: var(--rounded-pill);
+        font-size: 13px;
+      }
+    }
+
+    .review-list {
+      min-height: 100px;
+
+      .review-item {
+        padding: var(--space-lg, 16px) 0;
+        border-bottom: 1px solid var(--color-hairline-light);
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .review-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 10px;
+
+          .review-meta {
+            flex: 1;
+
+            .reviewer-name {
+              display: block;
+              font-size: 14px;
+              font-weight: 500;
+              color: var(--color-ink);
+            }
+
+            .review-date {
+              font-size: 12px;
+              color: var(--color-shade-40);
+            }
+          }
+
+          .review-stars {
+            display: flex;
+            gap: 2px;
+
+            .el-icon {
+              font-size: 14px;
+            }
+          }
+        }
+
+        .review-content {
+          font-size: 14px;
+          color: var(--color-ink);
+          line-height: 1.7;
+          margin: 0 0 10px 0;
+          word-break: break-all;
+        }
+
+        .review-images {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-bottom: 8px;
+
+          .review-img {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--rounded-md);
+            cursor: pointer;
+          }
+        }
+
+        .merchant-reply {
+          margin-top: 8px;
+          padding: 10px 12px;
+          background-color: var(--color-canvas-cream);
+          border-radius: var(--rounded-md);
+          border-left: 3px solid var(--color-shade-30);
+
+          .reply-tag {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--color-shade-50);
+            margin-bottom: 4px;
+          }
+
+          p {
+            font-size: 13px;
+            color: var(--color-shade-70);
+            margin: 0;
+            line-height: 1.6;
+          }
+        }
+      }
+    }
+
+    .review-pagination {
+      display: flex;
+      justify-content: center;
+      padding-top: var(--space-lg, 16px);
+    }
   }
 }
 </style>

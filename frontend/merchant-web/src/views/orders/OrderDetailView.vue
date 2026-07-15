@@ -125,87 +125,87 @@ async function openLogisticsDialog() {
 
 <template>
   <div class="order-detail-container" v-loading="loading">
-    <el-page-header @back="router.back()" title="Back" content="Order Detail" />
+    <el-page-header @back="router.back()" title="返回" content="订单详情" />
 
     <div v-if="order" class="detail-content">
       <el-card shadow="never" class="section-card">
         <template #header>
           <div class="card-header">
-            <span class="section-title">Order Info</span>
+            <span class="section-title">订单信息</span>
             <el-tag :type="(statusTagType[order.status] as any) || 'info'" size="large">
               {{ statusTextMap[order.status] || order.status }}
             </el-tag>
           </div>
         </template>
         <el-descriptions :column="2" border>
-          <el-descriptions-item label="Order No">{{ order.orderNo }}</el-descriptions-item>
-          <el-descriptions-item label="Created At">{{ order.createdAt }}</el-descriptions-item>
-          <el-descriptions-item label="Paid At">{{ order.paidAt || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="Shipped At">{{ order.shippedAt || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="Delivered At">{{ order.deliveredAt || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="Completed At">{{ order.completedAt || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="Cancelled At">{{ order.cancelledAt || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="Remark">{{ order.remark || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="订单号">{{ order.orderNo }}</el-descriptions-item>
+          <el-descriptions-item label="下单时间">{{ order.createdAt }}</el-descriptions-item>
+          <el-descriptions-item label="付款时间">{{ order.paidAt || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="发货时间">{{ order.shippedAt || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="送达时间">{{ order.deliveredAt || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="完成时间">{{ order.completedAt || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="取消时间">{{ order.cancelledAt || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="备注">{{ order.remark || '-' }}</el-descriptions-item>
         </el-descriptions>
       </el-card>
 
       <el-card shadow="never" class="section-card">
-        <template #header><span class="section-title">Buyer Info</span></template>
+        <template #header><span class="section-title">买家信息</span></template>
         <el-descriptions :column="2" border>
-          <el-descriptions-item label="Buyer Name">{{ order.buyerName }}</el-descriptions-item>
-          <el-descriptions-item label="Buyer Phone">{{ order.buyerPhone }}</el-descriptions-item>
-          <el-descriptions-item label="Receiver Name">{{ order.receiverName }}</el-descriptions-item>
-          <el-descriptions-item label="Receiver Phone">{{ order.receiverPhone }}</el-descriptions-item>
-          <el-descriptions-item label="Receiver Address" :span="2">{{ order.receiverAddress }}</el-descriptions-item>
+          <el-descriptions-item label="买家姓名">{{ order.buyerName }}</el-descriptions-item>
+          <el-descriptions-item label="买家电话">{{ order.buyerPhone }}</el-descriptions-item>
+          <el-descriptions-item label="收件人姓名">{{ order.receiverName }}</el-descriptions-item>
+          <el-descriptions-item label="收件人电话">{{ order.receiverPhone }}</el-descriptions-item>
+          <el-descriptions-item label="收件地址" :span="2">{{ order.receiverAddress }}</el-descriptions-item>
         </el-descriptions>
       </el-card>
 
       <el-card shadow="never" class="section-card">
-        <template #header><span class="section-title">Order Items</span></template>
+        <template #header><span class="section-title">订单商品</span></template>
         <el-table :data="order.items" style="width: 100%">
-          <el-table-column label="Image" width="80">
+          <el-table-column label="图片" width="80">
             <template #default="{ row }">
               <el-image :src="row.productImage" fit="cover" style="width: 50px; height: 50px; border-radius: 4px;">
                 <template #error><div style="width:50px;height:50px;background:#f5f5f5;border-radius:4px;"></div></template>
               </el-image>
             </template>
           </el-table-column>
-          <el-table-column label="Product" prop="productName" min-width="200" />
-          <el-table-column label="SKU" prop="skuName" width="150" />
-          <el-table-column label="Price" width="100" align="right">
-            <template #default="{ row }">${{ row.price.toFixed(2) }}</template>
+          <el-table-column label="商品" prop="productName" min-width="200" />
+          <el-table-column label="规格" prop="skuName" width="150" />
+          <el-table-column label="单价" width="100" align="right">
+            <template #default="{ row }">¥{{ row.price.toFixed(2) }}</template>
           </el-table-column>
-          <el-table-column label="Qty" prop="quantity" width="80" align="center" />
-          <el-table-column label="Subtotal" width="120" align="right">
+          <el-table-column label="数量" prop="quantity" width="80" align="center" />
+          <el-table-column label="小计" width="120" align="right">
             <template #default="{ row }">
-              <span style="color: #e4393c; font-weight: 600;">${{ row.subtotal.toFixed(2) }}</span>
+              <span style="color: #e4393c; font-weight: 600;">¥{{ row.subtotal.toFixed(2) }}</span>
             </template>
           </el-table-column>
         </el-table>
         <el-divider />
         <div class="amount-summary">
           <div class="summary-row">
-            <span>Items Total:</span>
-            <span>${{ order.totalAmount.toFixed(2) }}</span>
+            <span>商品总计：</span>
+            <span>¥{{ order.totalAmount.toFixed(2) }}</span>
           </div>
           <div class="summary-row">
-            <span>Shipping Fee:</span>
-            <span>${{ order.shippingFee.toFixed(2) }}</span>
+            <span>运费：</span>
+            <span>¥{{ order.shippingFee.toFixed(2) }}</span>
           </div>
           <div class="summary-row total">
-            <span>Total:</span>
-            <span class="pay-amount">${{ order.payAmount.toFixed(2) }}</span>
+            <span>应付总额：</span>
+            <span class="pay-amount">¥{{ order.payAmount.toFixed(2) }}</span>
           </div>
         </div>
       </el-card>
 
       <el-card shadow="never" class="section-card">
-        <template #header><span class="section-title">Payment & Logistics</span></template>
+        <template #header><span class="section-title">支付与物流</span></template>
         <el-descriptions :column="1" border>
-          <el-descriptions-item label="Payment Method">{{ (order as any).payment?.paymentMethod || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="Payment Status">{{ (order as any).payment?.paymentStatus || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="Logistics Company">{{ (order as any).logistics?.company || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="Tracking No">{{ (order as any).logistics?.trackingNo || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="支付方式">{{ (order as any).payment?.paymentMethod || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="支付状态">{{ (order as any).payment?.paymentStatus || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="物流公司">{{ (order as any).logistics?.company || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="运单号">{{ (order as any).logistics?.trackingNo || '-' }}</el-descriptions-item>
         </el-descriptions>
       </el-card>
 
@@ -283,12 +283,14 @@ async function openLogisticsDialog() {
   }
 
   .section-title {
-    font-size: 15px;
-    font-weight: 600;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+    font-weight: 330;
+    font-size: var(--font-size-heading-sm);
+    color: var(--color-ink);
   }
 
   .section-card {
-    margin-top: 16px;
+    margin-top: var(--space-lg);
   }
 
   .amount-summary {
@@ -296,17 +298,17 @@ async function openLogisticsDialog() {
       display: flex;
       justify-content: space-between;
       padding: 6px 0;
-      font-size: 14px;
-      color: #666;
+      font-size: var(--font-size-caption);
+      color: var(--color-shade-50);
 
       &.total {
-        font-size: 16px;
+        font-size: var(--font-size-body-md);
         font-weight: 600;
-        color: #333;
+        color: var(--color-ink);
       }
 
       .pay-amount {
-        color: #e4393c;
+        color: var(--color-price);
         font-size: 22px;
         font-weight: 700;
       }
@@ -314,19 +316,19 @@ async function openLogisticsDialog() {
   }
 
   .action-bar {
-    margin-top: 20px;
+    margin-top: var(--space-xl);
     display: flex;
-    gap: 12px;
+    gap: var(--space-md);
   }
 
   .logistics-traces {
-    margin-top: 16px;
+    margin-top: var(--space-lg);
 
     .trace-title {
-      font-size: 14px;
+      font-size: var(--font-size-caption);
       font-weight: 600;
-      color: #333;
-      margin-bottom: 12px;
+      color: var(--color-ink);
+      margin-bottom: var(--space-md);
     }
   }
 }

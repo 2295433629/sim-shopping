@@ -47,11 +47,13 @@ function formatPrice(price: number): string {
 <style scoped lang="scss">
 .product-card {
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   overflow: hidden;
+  border-radius: var(--rounded-lg);
 
   &:hover {
     transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
   }
 
   :deep(.el-card__body) {
@@ -63,7 +65,7 @@ function formatPrice(price: number): string {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f5f5f5;
+    background-color: var(--color-canvas-cream);
     overflow: hidden;
 
     .image {
@@ -73,22 +75,22 @@ function formatPrice(price: number): string {
   }
 
   .product-info {
-    padding: 12px;
+    padding: var(--space-md);
 
     .product-name {
-      font-size: 14px;
+      font-size: var(--font-size-caption);
       font-weight: 500;
-      color: #333;
-      margin: 0 0 4px 0;
+      color: var(--color-ink);
+      margin: 0 0 var(--space-xs) 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
     .product-subtitle {
-      font-size: 12px;
-      color: #999;
-      margin: 0 0 8px 0;
+      font-size: var(--font-size-eyebrow);
+      color: var(--color-shade-40);
+      margin: 0 0 var(--space-sm) 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -97,32 +99,32 @@ function formatPrice(price: number): string {
     .product-bottom {
       display: flex;
       align-items: baseline;
-      gap: 8px;
+      gap: var(--space-sm);
       flex-wrap: wrap;
 
       .product-price {
-        font-size: 18px;
-        font-weight: bold;
-        color: #f56c6c;
+        font-size: var(--font-size-body-lg);
+        font-weight: 500;
+        color: var(--color-price);
       }
 
       .product-original-price {
-        font-size: 12px;
-        color: #ccc;
+        font-size: var(--font-size-eyebrow);
+        color: var(--color-shade-30);
         text-decoration: line-through;
       }
 
       .product-sales {
-        font-size: 12px;
-        color: #999;
+        font-size: var(--font-size-eyebrow);
+        color: var(--color-shade-40);
         margin-left: auto;
       }
     }
 
     .product-shop {
-      font-size: 12px;
-      color: #666;
-      margin: 4px 0 0 0;
+      font-size: var(--font-size-eyebrow);
+      color: var(--color-shade-50);
+      margin: var(--space-xs) 0 0 0;
     }
   }
 }

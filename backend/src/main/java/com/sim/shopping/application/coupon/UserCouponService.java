@@ -80,6 +80,7 @@ public class UserCouponService {
         int rows = couponMapper.update(null,
                 new LambdaUpdateWrapper<CouponDO>()
                         .eq(CouponDO::getId, coupon.getId())
+                        .apply("total_quantity > claimed_quantity")
                         .setSql("claimed_quantity = claimed_quantity + 1"));
         if (rows == 0) {
             throw new BusinessException(400, "领取优惠券失败，请重试");

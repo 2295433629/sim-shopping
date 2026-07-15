@@ -32,6 +32,7 @@ public class ProductService {
     private final ShopMapper shopMapper;
     private final BrowseHistoryMapper browseHistoryMapper;
     private final SearchHistoryMapper searchHistoryMapper;
+    private final ReviewMapper reviewMapper;
     private final ObjectMapper objectMapper;
 
     public ProductService(ProductMapper productMapper,
@@ -42,6 +43,7 @@ public class ProductService {
                           ShopMapper shopMapper,
                           BrowseHistoryMapper browseHistoryMapper,
                           SearchHistoryMapper searchHistoryMapper,
+                          ReviewMapper reviewMapper,
                           ObjectMapper objectMapper) {
         this.productMapper = productMapper;
         this.productImageMapper = productImageMapper;
@@ -51,6 +53,7 @@ public class ProductService {
         this.shopMapper = shopMapper;
         this.browseHistoryMapper = browseHistoryMapper;
         this.searchHistoryMapper = searchHistoryMapper;
+        this.reviewMapper = reviewMapper;
         this.objectMapper = objectMapper;
     }
 
@@ -245,6 +248,19 @@ public class ProductService {
         return toDetailVO(product);
     }
 
+    private List<Long> resolveCategoryIds(Long categoryId) {
+        if (categoryId == null) return null;
+        List<Long> ids = new ArrayList<>();
+        ids.add(categoryId);
+        LambdaQueryWrapper<CategoryDO> catWrapper = new LambdaQueryWrapper<>();
+        catWrapper.eq(CategoryDO::getParentId, categoryId);
+        List<CategoryDO> children = categoryMapper.selectList(catWrapper);
+        for (CategoryDO child : children) {
+            ids.add(child.getId());
+        }
+        return ids;
+    }
+
     // ==================== Public Operations ====================
 
     public PageResponse<ProductCardVO> getPublicProducts(int page, int size, Long categoryId, String keyword,
@@ -252,8 +268,9 @@ public class ProductService {
         Page<ProductDO> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<ProductDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ProductDO::getStatus, "PUBLISHED");
-        if (categoryId != null) {
-            wrapper.eq(ProductDO::getCategoryId, categoryId);
+        List<Long> categoryIds = resolveCategoryIds(categoryId);
+        if (categoryIds != null) {
+            wrapper.in(ProductDO::getCategoryId, categoryIds);
         }
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.like(ProductDO::getName, keyword);
@@ -327,8 +344,9 @@ public class ProductService {
                     .or().like(ProductDO::getSubtitle, keyword)
                     .or().like(ProductDO::getDescription, keyword));
         }
-        if (categoryId != null) {
-            wrapper.eq(ProductDO::getCategoryId, categoryId);
+        List<Long> categoryIds = resolveCategoryIds(categoryId);
+        if (categoryIds != null) {
+            wrapper.in(ProductDO::getCategoryId, categoryIds);
         }
         if (minPrice != null) {
             wrapper.ge(ProductDO::getPrice, minPrice);
@@ -554,8 +572,21 @@ public class ProductService {
         // review summary
         ReviewSummaryVO rs = new ReviewSummaryVO();
         rs.setAvgRating(p.getAvgReviewScore() != null ? p.getAvgReviewScore() : BigDecimal.ZERO);
-        rs.setReviewCount(p.getReviewCount() != null ? p.getReviewCount() : 0);
-        rs.setGoodRate(BigDecimal.ZERO);
+        int count = p.getReviewCount() != null ? p.getReviewCount() : 0;
+        rs.setReviewCount(count);
+        // 计算好评率（4-5星评价占比）
+        if (count > 0) {
+            LambdaQueryWrapper<ReviewDO> rw = new LambdaQueryWrapper<>();
+            rw.eq(ReviewDO::getProductId, p.getId())
+              .eq(ReviewDO::getStatus, "VISIBLE")
+              .ge(ReviewDO::getRating, 4);
+            long goodCount = reviewMapper.selectCount(rw);
+            rs.setGoodRate(BigDecimal.valueOf(goodCount)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(count), 1, java.math.RoundingMode.HALF_UP));
+        } else {
+            rs.setGoodRate(BigDecimal.ZERO);
+        }
         vo.setReviewSummary(rs);
 
         return vo;

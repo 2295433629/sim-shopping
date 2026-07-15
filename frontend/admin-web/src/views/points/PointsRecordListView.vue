@@ -14,7 +14,7 @@
         <el-card shadow="hover">
           <div class="stat-item">
             <div class="stat-label">总发放积分</div>
-            <div class="stat-value" style="color: #67c23a">{{ statistics.totalEarned }}</div>
+            <div class="stat-value" style="color: var(--color-success)">{{ statistics.totalEarned }}</div>
           </div>
         </el-card>
       </el-col>
@@ -22,7 +22,7 @@
         <el-card shadow="hover">
           <div class="stat-item">
             <div class="stat-label">总消耗积分</div>
-            <div class="stat-value" style="color: #f56c6c">{{ statistics.totalDeducted }}</div>
+            <div class="stat-value" style="color: var(--color-price)">{{ statistics.totalDeducted }}</div>
           </div>
         </el-card>
       </el-col>
@@ -30,7 +30,7 @@
         <el-card shadow="hover">
           <div class="stat-item">
             <div class="stat-label">兑换次数</div>
-            <div class="stat-value" style="color: #409eff">{{ statistics.totalExchanged }}</div>
+            <div class="stat-value" style="color: var(--el-color-primary)">{{ statistics.totalExchanged }}</div>
           </div>
         </el-card>
       </el-col>
@@ -51,7 +51,7 @@
             <el-select v-model="filter.type" placeholder="类型" clearable style="width: 120px" @change="handleSearch">
               <el-option label="全部" value="" />
               <el-option label="获得" value="EARN" />
-              <el-option label="消耗" value="DEDUCT" />
+              <el-option label="消耗" value="SPEND" />
             </el-select>
             <el-input v-model="filter.source" placeholder="来源" clearable style="width: 140px" @keyup.enter="handleSearch" />
             <el-button type="primary" @click="handleSearch">搜索</el-button>
@@ -133,12 +133,12 @@ const statistics = reactive<PointsStatistics>({
 
 const typeTagType: Record<string, string> = {
   EARN: 'success',
-  DEDUCT: 'danger',
+  SPEND: 'danger',
 }
 
 const typeLabelMap: Record<string, string> = {
   EARN: '获得',
-  DEDUCT: '消耗',
+  SPEND: '消耗',
 }
 
 function formatDate(dateStr: string) {
@@ -207,7 +207,7 @@ onMounted(() => {
 
 <style scoped>
 .points-record-manage {
-  padding: 20px;
+  padding: var(--space-xl);
 }
 .card-header {
   display: flex;
@@ -216,28 +216,28 @@ onMounted(() => {
 }
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   align-items: center;
 }
 .stat-item {
   text-align: center;
 }
 .stat-label {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 8px;
+  font-size: var(--font-size-micro);
+  color: var(--color-shade-50);
+  margin-bottom: var(--space-sm);
 }
 .stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+  font-size: var(--font-size-heading-lg);
+  font-weight: 700;
+  color: var(--color-ink);
 }
 .points-earn {
-  color: #67c23a;
-  font-weight: bold;
+  color: var(--color-success);
+  font-weight: 700;
 }
 .points-deduct {
-  color: #f56c6c;
-  font-weight: bold;
+  color: var(--color-price);
+  font-weight: 700;
 }
 </style>

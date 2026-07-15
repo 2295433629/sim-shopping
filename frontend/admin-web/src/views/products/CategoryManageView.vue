@@ -69,6 +69,6 @@ onMounted(loadTree)
 </script>
 
 <style scoped>
-.category-manage { padding: 20px; }
+.category-manage { padding: var(--space-xl); }
 .card-header { display: flex; justify-content: space-between; align-items: center; }
 </style>

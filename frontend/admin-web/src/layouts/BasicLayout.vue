@@ -182,8 +182,8 @@ async function handleLogout() {
 }
 
 .layout-aside {
-  background-color: #001529;
-  transition: width 0.3s;
+  background-color: var(--color-canvas-night);
+  transition: width var(--transition-normal);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -193,18 +193,19 @@ async function handleLogout() {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    border-bottom: 1px solid #1f2d3d;
+    color: var(--color-on-dark);
+    border-bottom: 1px solid var(--color-hairline-dark);
     flex-shrink: 0;
 
     .aside-title {
-      font-size: 18px;
-      font-weight: bold;
+      font-size: var(--font-size-heading-sm);
+      font-weight: 600;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
       white-space: nowrap;
     }
 
     .aside-title-mini {
-      font-size: 24px;
+      font-size: var(--font-size-heading-lg);
     }
   }
 
@@ -221,23 +222,23 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  padding: 0 20px;
+  background-color: var(--color-canvas-light);
+  box-shadow: var(--shadow-sm);
+  padding: 0 var(--space-xl);
   height: 60px;
 
   .header-left {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--space-lg);
 
     .collapse-btn {
-      font-size: 20px;
+      font-size: var(--font-size-heading-sm);
       cursor: pointer;
-      color: #333;
+      color: var(--color-ink);
 
       &:hover {
-        color: #409eff;
+        color: var(--color-shade-50);
       }
     }
   }
@@ -245,25 +246,25 @@ async function handleLogout() {
   .header-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: var(--space-xl);
 
     .user-name {
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
-      color: #333;
+      gap: var(--space-sm);
+      color: var(--color-ink);
 
       .name-text {
-        font-size: 14px;
+        font-size: var(--font-size-caption);
       }
     }
   }
 }
 
 .layout-main {
-  background-color: #f0f2f5;
-  padding: 20px;
+  background-color: var(--color-canvas-cream);
+  padding: var(--space-xl);
   overflow-y: auto;
 }
 </style>

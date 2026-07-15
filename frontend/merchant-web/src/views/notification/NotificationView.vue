@@ -202,18 +202,20 @@ function getNotificationTypeTag(type: string): string {
     justify-content: space-between;
 
     .card-title {
-      font-size: 16px;
-      font-weight: bold;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+      font-weight: 330;
+      font-size: var(--font-size-heading-lg);
+      color: var(--color-ink);
     }
 
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: var(--space-lg);
 
       .unread-text {
-        font-size: 13px;
-        color: #666;
+        font-size: var(--font-size-micro);
+        color: var(--color-shade-50);
       }
     }
   }
@@ -221,35 +223,35 @@ function getNotificationTypeTag(type: string): string {
   .notification-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-md);
   }
 
   .notification-item {
     display: flex;
     align-items: flex-start;
-    padding: 14px 16px;
-    border: 1px solid #ebeef5;
-    border-radius: 8px;
-    background: #fff;
-    transition: box-shadow 0.2s;
+    padding: 14px var(--space-lg);
+    border: 1px solid var(--color-hairline-light);
+    border-radius: var(--rounded-lg);
+    background: var(--color-canvas-light);
+    transition: box-shadow var(--transition-fast);
 
     &:hover {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow-sm);
     }
 
     &.unread {
-      background: #fafbfc;
-      border-left: 3px solid #409eff;
+      background: var(--color-canvas-cream);
+      border-left: 3px solid var(--color-primary);
     }
   }
 
   .notification-dot {
-    width: 8px;
-    height: 8px;
+    width: var(--space-sm);
+    height: var(--space-sm);
     border-radius: 50%;
-    background: #409eff;
+    background: var(--color-primary);
     margin-top: 6px;
-    margin-right: 12px;
+    margin-right: var(--space-md);
     flex-shrink: 0;
   }
 
@@ -267,36 +269,36 @@ function getNotificationTypeTag(type: string): string {
     .notification-title-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--space-sm);
     }
 
     .notification-title {
-      font-size: 14px;
+      font-size: var(--font-size-caption);
       font-weight: 600;
-      color: #333;
+      color: var(--color-ink);
     }
 
     .notification-time {
-      font-size: 12px;
-      color: #999;
+      font-size: var(--font-size-eyebrow);
+      color: var(--color-shade-40);
       flex-shrink: 0;
     }
   }
 
   .notification-content {
-    font-size: 13px;
-    color: #666;
+    font-size: var(--font-size-micro);
+    color: var(--color-shade-50);
     line-height: 1.5;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-sm);
   }
 
   .notification-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--space-sm);
   }
 
   .pagination-wrap {
-    margin-top: 20px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

@@ -16,7 +16,7 @@ const productList = ref<PointsProduct[]>([])
 const userPoints = ref(0)
 
 const sortedProducts = computed(() => {
-  return [...productList.value].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+  return productList.value
 })
 
 onMounted(() => {
@@ -62,7 +62,7 @@ async function handleExchange(product: PointsProduct) {
   }
   try {
     await ElMessageBox.confirm(
-      `确定使用 ${product.pointsRequired} 积分兑换 "${product.name}" 吗？`,
+      `确定使用 ${product.pointsRequired} 积分兑换 "${product.productName}" 吗？`,
       '确认兑换',
       {
         confirmButtonText: '确定',
@@ -70,8 +70,8 @@ async function handleExchange(product: PointsProduct) {
         type: 'warning',
       }
     )
-    exchangingId.value = product.productId
-    await exchangeProduct(product.productId)
+    exchangingId.value = product.id
+    await exchangeProduct(product.id)
     ElMessage.success('兑换成功')
     loadProducts()
     loadUserPoints()
@@ -85,7 +85,7 @@ async function handleExchange(product: PointsProduct) {
 }
 
 function getDefaultImage() {
-  return 'https://via.placeholder.com/240x180?text=No+Image'
+  return 'https://via.placeholder.com/240x180?text=暂无图片'
 }
 </script>
 
@@ -97,7 +97,7 @@ function getDefaultImage() {
           <span class="card-title">积分商城</span>
           <div class="points-display">
             <template v-if="userStore.isLoggedIn">
-              <el-icon color="#ff9900"><Coin /></el-icon>
+              <el-icon color="var(--color-warning)"><Coin /></el-icon>
               <span class="points-value">{{ userPoints }}</span>
               <span class="points-label">当前积分</span>
             </template>
@@ -112,7 +112,7 @@ function getDefaultImage() {
         <el-row :gutter="16">
           <el-col
             v-for="product in sortedProducts"
-            :key="product.productId"
+            :key="product.id"
             :xs="24"
             :sm="12"
             :md="8"
@@ -139,10 +139,10 @@ function getDefaultImage() {
                 </div>
               </div>
               <div class="product-body">
-                <div class="product-name" :title="product.name">{{ product.name }}</div>
+                <div class="product-name" :title="product.productName">{{ product.productName }}</div>
                 <div v-if="product.description" class="product-desc">{{ product.description }}</div>
                 <div class="product-points">
-                  <el-icon color="#ff9900"><Coin /></el-icon>
+                  <el-icon color="var(--color-warning)"><Coin /></el-icon>
                   <span class="points-required">{{ product.pointsRequired }}</span>
                   <span class="points-text">积分</span>
                 </div>
@@ -152,7 +152,7 @@ function getDefaultImage() {
                 <el-button
                   type="primary"
                   size="small"
-                  :loading="exchangingId === product.productId"
+                  :loading="exchangingId === product.id"
                   :disabled="!canExchange(product)"
                   @click="handleExchange(product)"
                 >
@@ -185,41 +185,42 @@ function getDefaultImage() {
   }
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 
   .points-display {
     display: flex;
     align-items: center;
-    gap: 6px;
-    background: #fff7e6;
-    border: 1px solid #ffd591;
-    border-radius: 20px;
-    padding: 4px 16px;
+    gap: var(--space-xs);
+    background: var(--color-canvas-cream);
+    border: 1px solid var(--color-hairline-light);
+    border-radius: var(--rounded-xl);
+    padding: var(--space-xs) var(--space-lg);
 
     .points-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #ff9900;
+      font-size: var(--font-size-body-lg);
+      font-weight: 500;
+      color: var(--color-warning);
     }
 
     .points-label {
-      font-size: 12px;
-      color: #666;
+      font-size: var(--font-size-eyebrow);
+      color: var(--color-shade-50);
     }
   }
 
   .product-card {
-    border: 1px solid #ebeef5;
-    border-radius: 8px;
+    border: 1px solid var(--color-hairline-light);
+    border-radius: var(--rounded-lg);
     overflow: hidden;
-    margin-bottom: 16px;
-    background: #fff;
-    transition: box-shadow 0.3s;
+    margin-bottom: var(--space-lg);
+    background: var(--color-canvas-light);
+    transition: box-shadow var(--transition-normal);
 
     &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-md);
     }
 
     .product-image {
@@ -233,8 +234,8 @@ function getDefaultImage() {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #f5f7fa;
-        color: #909399;
+        background: var(--color-canvas-cream);
+        color: var(--color-shade-40);
       }
 
       .stock-overlay {
@@ -247,19 +248,19 @@ function getDefaultImage() {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
-        font-size: 18px;
-        font-weight: bold;
+        color: var(--color-on-primary);
+        font-size: var(--font-size-body-lg);
+        font-weight: 500;
       }
     }
 
     .product-body {
-      padding: 12px 16px;
+      padding: var(--space-md) var(--space-lg);
 
       .product-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #333;
+        font-size: var(--font-size-caption);
+        font-weight: 500;
+        color: var(--color-ink);
         margin-bottom: 6px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -267,9 +268,9 @@ function getDefaultImage() {
       }
 
       .product-desc {
-        font-size: 12px;
-        color: #666;
-        margin-bottom: 8px;
+        font-size: var(--font-size-eyebrow);
+        color: var(--color-shade-50);
+        margin-bottom: var(--space-sm);
         line-height: 1.4;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -281,30 +282,30 @@ function getDefaultImage() {
       .product-points {
         display: flex;
         align-items: center;
-        gap: 4px;
-        margin-bottom: 4px;
+        gap: var(--space-xs);
+        margin-bottom: var(--space-xs);
 
         .points-required {
-          font-size: 18px;
-          font-weight: bold;
-          color: #ff9900;
+          font-size: var(--font-size-body-lg);
+          font-weight: 500;
+          color: var(--color-warning);
         }
 
         .points-text {
-          font-size: 12px;
-          color: #999;
+          font-size: var(--font-size-eyebrow);
+          color: var(--color-shade-40);
         }
       }
 
       .product-stock {
-        font-size: 12px;
-        color: #999;
+        font-size: var(--font-size-eyebrow);
+        color: var(--color-shade-40);
       }
     }
 
     .product-footer {
-      padding: 10px 16px;
-      border-top: 1px dashed #ebeef5;
+      padding: 10px var(--space-lg);
+      border-top: 1px dashed var(--color-hairline-light);
       text-align: center;
     }
   }

@@ -300,13 +300,13 @@ onMounted(() => {
     align-items: center;
 
     .card-title {
-      font-size: 16px;
-      font-weight: bold;
+      font-size: var(--font-size-body-md);
+      font-weight: 600;
 
       .selected-type {
-        font-size: 13px;
-        font-weight: normal;
-        color: #999;
+        font-size: var(--font-size-micro);
+        font-weight: 400;
+        color: var(--color-shade-40);
       }
     }
   }

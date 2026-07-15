@@ -1,16 +1,15 @@
 import request from '@/api/request'
 import type { PageResponse } from '@/types/common'
 
-/** 积分商品 */
+/** 积分商品 — 对齐后端 PointsProductResponse */
 export interface PointsProduct {
-  productId: number
-  name: string
+  id: number
+  productName: string
   description?: string
   imageUrl?: string
   pointsRequired: number
   stock: number
   status: string
-  sort?: number
   createdAt?: string
   updatedAt?: string
 }
@@ -46,7 +45,7 @@ export function getPointsRecords(params: {
 
 /** 获取积分商品列表（公开，分页） */
 export function getPointsProducts() {
-  return request.get<unknown, { list: PointsProduct[]; total: number }>('/public/points/products')
+  return request.get<unknown, PageResponse<PointsProduct>>('/public/points/products')
 }
 
 /** 兑换积分商品 — quantity 通过 query parameter 传递 */

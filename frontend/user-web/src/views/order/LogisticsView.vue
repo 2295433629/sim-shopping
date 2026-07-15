@@ -93,41 +93,43 @@ function goBack() {
 .page-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
 
   h3 {
     margin: 0;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+    font-weight: 330;
   }
 }
 
 .logistics-info {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-xl);
 }
 
 .status-tag {
-  margin-left: 12px;
+  margin-left: var(--space-md);
 }
 
 .logistics-timeline {
-  padding-left: 8px;
+  padding-left: var(--space-sm);
 }
 
 .track-item {
   .track-status {
-    font-weight: bold;
-    color: #303133;
+    font-weight: 500;
+    color: var(--color-ink);
   }
 
   .track-desc {
-    color: #606266;
-    margin-top: 4px;
+    color: var(--color-shade-50);
+    margin-top: var(--space-xs);
   }
 
   .track-location {
-    color: #909399;
+    color: var(--color-shade-40);
     margin-top: 2px;
-    font-size: 13px;
+    font-size: var(--font-size-micro);
   }
 }
 </style>

@@ -18,6 +18,7 @@ const menuItems = [
   { index: '/orders/shipping', title: '待发货', icon: 'Van' },
   { index: '/reviews', title: '评价管理', icon: 'ChatDotRound' },
   { index: '/notifications', title: '消息中心', icon: 'Bell' },
+  { index: '/finance', title: '财务收入', icon: 'Wallet' },
   { index: '/settings', title: '店铺设置', icon: 'Setting' },
 ]
 
@@ -105,8 +106,8 @@ async function handleLogout() {
 }
 
 .layout-aside {
-  background-color: #304156;
-  transition: width 0.3s;
+  background-color: var(--color-canvas-night);
+  transition: width var(--transition-normal);
   overflow: hidden;
 
   .aside-header {
@@ -114,13 +115,14 @@ async function handleLogout() {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    border-bottom: 1px solid #1f2d3d;
+    color: var(--color-on-dark);
+    border-bottom: 1px solid var(--color-surface-elevated-dark);
 
     .aside-title {
-      font-size: 18px;
-      font-weight: bold;
+      font-size: var(--font-size-heading-sm);
+      font-weight: 500;
       white-space: nowrap;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
     }
 
     .aside-title-mini {
@@ -130,6 +132,23 @@ async function handleLogout() {
 
   :deep(.el-menu) {
     border-right: none;
+    background-color: var(--color-canvas-night) !important;
+  }
+
+  :deep(.el-menu-item) {
+    color: var(--color-link-cool-1) !important;
+
+    &:hover,
+    &:focus {
+      background-color: var(--color-canvas-night-elevated) !important;
+      color: var(--color-on-dark) !important;
+    }
+
+    &.is-active {
+      color: var(--color-on-dark) !important;
+      background-color: var(--color-canvas-night-elevated) !important;
+      border-right: 3px solid var(--color-aloe-10);
+    }
   }
 }
 
@@ -137,30 +156,31 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  padding: 0 20px;
+  background-color: var(--color-canvas-light);
+  box-shadow: var(--shadow-sm);
+  padding: 0 var(--space-xl);
   height: 60px;
 
   .header-left {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--space-lg);
 
     .collapse-btn {
       font-size: 20px;
       cursor: pointer;
-      color: #333;
+      color: var(--color-ink);
+      transition: color var(--transition-fast);
 
       &:hover {
-        color: #409eff;
+        color: var(--color-shade-50);
       }
     }
 
     .merchant-name {
-      font-size: 16px;
+      font-size: var(--font-size-body-md);
       font-weight: 500;
-      color: #333;
+      color: var(--color-ink);
     }
   }
 
@@ -169,19 +189,19 @@ async function handleLogout() {
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
-      color: #333;
+      gap: var(--space-sm);
+      color: var(--color-ink);
 
       .name-text {
-        font-size: 14px;
+        font-size: var(--font-size-caption);
       }
     }
   }
 }
 
 .layout-main {
-  background-color: #f0f2f5;
-  padding: 20px;
+  background-color: var(--color-canvas-cream);
+  padding: var(--space-xl);
   overflow-y: auto;
 }
 </style>

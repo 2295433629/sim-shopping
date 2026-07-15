@@ -17,7 +17,7 @@ async function loadHistory() {
   loading.value = true
   try {
     const data = await getBrowseHistory()
-    historyList.value = (data as any).list || []
+    historyList.value = data || []
   } catch {
     historyList.value = []
   } finally {
@@ -73,7 +73,7 @@ function goToProduct(productId: number) {
           </el-image>
           <div class="history-info">
             <div class="history-name">{{ item.productName }}</div>
-            <div class="history-price">¥{{ item.price.toFixed(2) }}</div>
+            <div class="history-price">¥{{ item.price ? item.price.toFixed(2) : '0.00' }}</div>
             <div class="history-time">{{ item.viewedAt }}</div>
           </div>
         </div>
@@ -96,35 +96,36 @@ function goToProduct(productId: number) {
   }
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 
   .history-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-md);
   }
 
   .history-item {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 12px;
-    border: 1px solid #ebeef5;
-    border-radius: 8px;
+    gap: var(--space-lg);
+    padding: var(--space-md);
+    border: 1px solid var(--color-hairline-light);
+    border-radius: var(--rounded-lg);
     cursor: pointer;
-    transition: box-shadow 0.2s;
+    transition: box-shadow var(--transition-fast);
 
     &:hover {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow-sm);
     }
   }
 
   .history-image {
     width: 80px;
     height: 80px;
-    border-radius: 6px;
+    border-radius: var(--rounded-md);
     flex-shrink: 0;
   }
 
@@ -134,30 +135,30 @@ function goToProduct(productId: number) {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f5f5f5;
-    border-radius: 6px;
-    color: #ccc;
+    background: var(--color-canvas-cream);
+    border-radius: var(--rounded-md);
+    color: var(--color-shade-30);
   }
 
   .history-info {
     flex: 1;
 
     .history-name {
-      font-size: 14px;
-      color: #333;
+      font-size: var(--font-size-caption);
+      color: var(--color-ink);
       margin-bottom: 6px;
     }
 
     .history-price {
-      font-size: 16px;
-      color: #f56c6c;
-      font-weight: 600;
-      margin-bottom: 4px;
+      font-size: var(--font-size-body-md);
+      color: var(--color-price);
+      font-weight: 500;
+      margin-bottom: var(--space-xs);
     }
 
     .history-time {
-      font-size: 12px;
-      color: #999;
+      font-size: var(--font-size-eyebrow);
+      color: var(--color-shade-40);
     }
   }
 }

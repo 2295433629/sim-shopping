@@ -3,41 +3,68 @@ import type { PageResponse } from '@/types/common'
 
 /** Order item */
 export interface OrderItemVO {
-  orderItemId: number
   productId: number
-  skuId: number
   productName: string
   productImage: string
+  skuId: number
   skuName: string
   price: number
   quantity: number
   subtotal: number
 }
 
-/** Order list item */
+/** Order list item — 对齐后端 OrderListItemVO */
 export interface OrderListVO {
   orderNo: string
   status: string
-  statusText: string
   shopId: number
   shopName: string
   items: OrderItemVO[]
   totalAmount: number
-  shippingFee: number
   payAmount: number
   createdAt: string
 }
 
-/** Order detail */
+/** Payment info — 对齐后端 PaymentInfoVO */
+export interface PaymentInfoVO {
+  paymentNo: string
+  paymentMethod: string
+  amount: number
+  status: string
+  paidAt: string
+}
+
+/** Logistics info — 对齐后端 LogisticsInfoVO */
+export interface LogisticsInfoVO {
+  trackingNo: string
+  logisticsCompany: string
+  status: string
+}
+
+/** Refund VO — 对齐后端 RefundVO */
+export interface RefundVO {
+  refundId: number
+  orderNo: string
+  refundType: string
+  status: string
+  reason: string
+  amount: number
+  shopResponse: string | null
+  handledAt: string | null
+  completedAt: string | null
+  createdAt: string
+}
+
+/** Order detail — 对齐后端 OrderDetailVO */
 export interface OrderDetailVO {
   orderNo: string
   status: string
-  statusText: string
   shopId: number
   shopName: string
   items: OrderItemVO[]
   totalAmount: number
   shippingFee: number
+  discountAmount: number
   payAmount: number
   remark: string
   createdAt: string
@@ -49,22 +76,39 @@ export interface OrderDetailVO {
   receiverName: string
   receiverPhone: string
   receiverAddress: string
-  paymentMethod: string | null
-  paymentStatus: string | null
-  logisticsCompany: string | null
-  logisticsNo: string | null
+  payment: PaymentInfoVO | null
+  logistics: LogisticsInfoVO | null
+  refund: RefundVO | null
 }
 
-/** Create order result */
-export interface CreateOrderResult {
+/** 创建订单返回的单个订单 — 对齐后端 OrderResponse */
+export interface CreatedOrderInfo {
+  orderId: number
   orderNo: string
+  status: string
+  totalAmount: number
+  shippingFee: number
+  discountAmount: number
   payAmount: number
+  shopId: number
+  shopName: string
+  items: OrderItemVO[]
+  createdAt: string
+  paidAt: string | null
+  shippedAt: string | null
 }
 
-/** Payment result */
+/** Create order result — 对齐后端 CreateOrderResponse */
+export interface CreateOrderResult {
+  orders: CreatedOrderInfo[]
+}
+
+/** Payment result — 对齐后端 PaymentResponse */
 export interface PaymentResult {
-  paymentId: number
+  paymentNo: string
   orderNo: string
+  amount: number
+  paymentMethod: string
   status: string
   paidAt: string
 }
@@ -109,4 +153,14 @@ export function createPayment(orderNo: string, paymentMethod: string) {
 /** Get payment status */
 export function getPaymentStatus(orderNo: string) {
   return request.get<unknown, PaymentResult>(`/user/payments/${orderNo}`)
+}
+
+/** Apply refund */
+export function applyRefund(orderNo: string, data: { refundType: string; reason: string; amount: number }) {
+  return request.post<unknown, RefundVO>(`/user/orders/${orderNo}/refund`, data)
+}
+
+/** Get refund status */
+export function getRefundStatus(orderNo: string) {
+  return request.get<unknown, RefundVO>(`/user/orders/${orderNo}/refund`)
 }

@@ -160,12 +160,14 @@ async function handleShip() {
 <style scoped lang="scss">
 .shipping-list-container {
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+    font-weight: 330;
+    font-size: var(--font-size-heading-lg);
+    color: var(--color-ink);
   }
 
   .pagination-wrap {
-    margin-top: 20px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

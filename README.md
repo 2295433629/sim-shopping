@@ -274,15 +274,15 @@ mvn spring-boot:run
 ```bash
 # 用户端 — http://localhost:5173
 cd frontend/user-web
-npm install && npm run dev
+npm install && npm run dev:user
 
 # 商家端 — http://localhost:5174
 cd frontend/merchant-web
-npm install && npm run dev
+npm install && npm run dev:merchant
 
 # 管理后台 — http://localhost:5175
 cd frontend/admin-web
-npm install && npm run dev
+npm install && npm run dev:admin
 ```
 
 三个前端项目的 `/api` 请求均通过 Vite proxy 代理到 `http://localhost:8080`。

@@ -37,7 +37,7 @@
         <el-table-column prop="name" label="名称" min-width="160" show-overflow-tooltip />
         <el-table-column prop="pointsRequired" label="所需积分" width="100">
           <template #default="{ row }">
-            <span style="color: #ff9900; font-weight: bold">{{ row.pointsRequired }}</span>
+            <span style="color: var(--el-color-warning); font-weight: bold">{{ row.pointsRequired }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="stock" label="库存" width="80" />
@@ -252,7 +252,7 @@ onMounted(loadList)
 
 <style scoped>
 .points-product-manage {
-  padding: 20px;
+  padding: var(--space-xl);
 }
 .card-header {
   display: flex;
@@ -261,7 +261,7 @@ onMounted(loadList)
 }
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   align-items: center;
 }
 .image-error {
@@ -270,8 +270,8 @@ onMounted(loadList)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f7fa;
-  color: #909399;
-  border-radius: 4px;
+  background: var(--color-canvas-cream);
+  color: var(--color-shade-40);
+  border-radius: var(--rounded-xs);
 }
 </style>

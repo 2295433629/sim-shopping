@@ -49,15 +49,15 @@ onMounted(async () => {
 <template>
   <div class="dashboard-container" v-loading="loading">
     <!-- 欢迎卡片 -->
-    <el-card shadow="never" style="margin-bottom: 20px">
+    <el-card shadow="never" style="margin-bottom: var(--space-lg)">
       <template #header>
         <span>欢迎回来，{{ userStore.userInfo?.nickname || userStore.userInfo?.username || 'Admin' }}</span>
       </template>
-      <p style="color: #666; margin: 0;">以下是平台核心数据概览。</p>
+      <p style="color: var(--color-shade-50); margin: 0;">以下是平台核心数据概览。</p>
     </el-card>
 
     <!-- 第一行统计卡片 -->
-    <el-row :gutter="20" style="margin-bottom: 20px">
+    <el-row :gutter="20" style="margin-bottom: var(--space-lg)">
       <el-col :xs="24" :sm="12" :md="6" v-for="stat in firstRow" :key="stat.key">
         <el-card shadow="hover" class="stat-card">
           <div class="stat-content">
@@ -74,7 +74,7 @@ onMounted(async () => {
     </el-row>
 
     <!-- 第二行统计卡片 -->
-    <el-row :gutter="20" style="margin-bottom: 20px">
+    <el-row :gutter="20" style="margin-bottom: var(--space-lg)">
       <el-col :xs="24" :sm="12" :md="6" v-for="stat in secondRow" :key="stat.key">
         <el-card shadow="hover" class="stat-card">
           <div class="stat-content">
@@ -135,17 +135,17 @@ onMounted(async () => {
 <style scoped lang="scss">
 .dashboard-container {
   .stat-card {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-xl);
 
     .stat-content {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: var(--space-lg);
 
       .stat-icon {
         width: 56px;
         height: 56px;
-        border-radius: 8px;
+        border-radius: var(--rounded-md);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -154,28 +154,28 @@ onMounted(async () => {
 
       .stat-info {
         .stat-value {
-          font-size: 24px;
-          font-weight: bold;
-          color: #333;
+          font-size: var(--font-size-heading-lg);
+          font-weight: 700;
+          color: var(--color-ink);
           margin: 0;
         }
 
         .stat-label {
-          font-size: 14px;
-          color: #999;
-          margin: 4px 0 0 0;
+          font-size: var(--font-size-caption);
+          color: var(--color-shade-40);
+          margin: var(--space-xs) 0 0 0;
         }
       }
     }
   }
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 600;
   }
 
   .amount {
-    color: #e4393c;
+    color: var(--color-price);
     font-weight: 600;
   }
 }

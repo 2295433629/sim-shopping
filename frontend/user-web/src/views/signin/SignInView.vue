@@ -83,7 +83,7 @@ function formatDate(dateStr: string): string {
           </div>
           <div class="points-info">
             <div class="points-number">{{ points }}</div>
-            <div class="points-label">累计积分</div>
+            <div class="points-label">今日积分</div>
           </div>
         </div>
 
@@ -137,18 +137,18 @@ function formatDate(dateStr: string): string {
   margin: 0 auto;
 
   .signin-card {
-    margin-bottom: 16px;
+    margin-bottom: var(--space-lg);
 
     .signin-content {
       text-align: center;
-      padding: 24px 0;
+      padding: var(--space-xl) 0;
     }
 
     .signin-info {
       display: flex;
       justify-content: center;
-      gap: 48px;
-      margin-bottom: 24px;
+      gap: var(--space-huge);
+      margin-bottom: var(--space-xl);
 
       .streak-info,
       .points-info {
@@ -159,64 +159,66 @@ function formatDate(dateStr: string): string {
 
       .streak-number,
       .points-number {
-        font-size: 36px;
-        font-weight: 700;
-        color: #409eff;
+        font-size: var(--font-size-display-lg);
+        font-weight: 330;
+        color: var(--color-ink);
         line-height: 1.2;
+        font-family: var(--font-display, 'Helvetica Neue', sans-serif);
       }
 
       .streak-label,
       .points-label {
-        font-size: 14px;
-        color: #909399;
-        margin-top: 4px;
+        font-size: var(--font-size-caption);
+        color: var(--color-shade-40);
+        margin-top: var(--space-xs);
       }
     }
 
     .signin-btn {
       width: 200px;
       height: 48px;
-      font-size: 16px;
+      font-size: var(--font-size-body-md);
     }
   }
 
   .records-card {
     .card-title {
-      font-size: 16px;
-      font-weight: bold;
+      font-size: var(--font-size-body-md);
+      font-weight: 500;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
     }
 
     .record-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--color-hairline-light);
 
       &:last-child {
         border-bottom: none;
       }
 
       .record-date {
-        font-size: 14px;
-        color: #303133;
+        font-size: var(--font-size-caption);
+        color: var(--color-ink);
         font-weight: 500;
       }
 
       .record-detail {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: var(--space-md);
 
         .record-streak {
-          font-size: 13px;
-          color: #909399;
+          font-size: var(--font-size-micro);
+          color: var(--color-shade-40);
         }
       }
     }
 
     .pagination-wrap {
-      margin-top: 20px;
+      margin-top: var(--space-xl);
       display: flex;
       justify-content: center;
     }

@@ -83,9 +83,14 @@ export function getFavorites(params: { page?: number; size?: number }) {
   return request.get<unknown, PageResponse<ProductCardVO>>('/user/favorites', { params })
 }
 
+/** 检查是否已收藏 */
+export function isFavorite(productId: number) {
+  return request.get<unknown, boolean>(`/user/favorites/check/${productId}`)
+}
+
 /** 搜索历史列表 */
 export function getSearchHistory() {
-  return request.get<unknown, { list: SearchHistoryItem[] }>('/user/search-history')
+  return request.get<unknown, SearchHistoryItem[]>('/user/search-history')
 }
 
 /** 清空搜索历史 */
@@ -95,7 +100,7 @@ export function clearSearchHistory() {
 
 /** 浏览历史列表 */
 export function getBrowseHistory() {
-  return request.get<unknown, { list: BrowseHistoryItem[] }>('/user/history')
+  return request.get<unknown, BrowseHistoryItem[]>('/user/history')
 }
 
 /** 清空浏览历史 */

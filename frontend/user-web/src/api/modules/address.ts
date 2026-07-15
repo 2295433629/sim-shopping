@@ -3,7 +3,7 @@ import type { AddressInfo } from '@/types/common'
 
 /** 获取地址列表 */
 export function getAddressListApi() {
-  return request.get<unknown, { list: AddressInfo[] }>('/user/addresses')
+  return request.get<unknown, AddressInfo[]>('/user/addresses')
 }
 
 /** 新增地址 */

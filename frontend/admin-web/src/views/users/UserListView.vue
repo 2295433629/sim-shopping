@@ -31,7 +31,7 @@ const userList = ref<unknown[]>([])
 
 <style scoped lang="scss">
 .card-title {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: var(--font-size-body-md);
+  font-weight: 600;
 }
 </style>

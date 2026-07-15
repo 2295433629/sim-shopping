@@ -138,7 +138,7 @@ async function handleChangePassword() {
           <el-input v-model="profileForm.nickname" placeholder="请输入昵称" />
         </el-form-item>
         <el-form-item label="头像" prop="avatar">
-          <el-input v-model="profileForm.avatar" placeholder="请输入头像URL" />
+          <el-input v-model="profileForm.avatar" placeholder="请输入头像链接地址" />
         </el-form-item>
         <el-form-item label="性别" prop="gender">
           <el-radio-group v-model="profileForm.gender">
@@ -187,39 +187,42 @@ async function handleChangePassword() {
   margin: 0 auto;
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 
   .profile-card {
     display: flex;
     align-items: center;
-    gap: 32px;
-    padding: 20px 0;
+    gap: var(--space-xxl);
+    padding: var(--space-xl) 0;
 
     .profile-info {
       flex: 1;
 
       h3 {
-        margin: 0 0 12px 0;
-        font-size: 20px;
-        color: #333;
+        margin: 0 0 var(--space-md) 0;
+        font-size: var(--font-size-heading-md);
+        color: var(--color-ink);
+        font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+        font-weight: 330;
       }
 
       .info-item {
         margin: 6px 0;
-        color: #666;
-        font-size: 14px;
+        color: var(--color-shade-50);
+        font-size: var(--font-size-caption);
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: var(--space-xs);
       }
     }
 
     .profile-actions {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: var(--space-md);
     }
   }
 }

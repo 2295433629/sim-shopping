@@ -24,8 +24,8 @@
           <template #default="{ row }">
             <el-image :src="row.bannerImage" fit="cover" style="width: 80px; height: 50px; border-radius: 4px;">
               <template #error>
-                <div style="width: 80px; height: 50px; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                  <el-icon :size="20" color="#ccc"><Picture /></el-icon>
+                <div style="width: 80px; height: 50px; background: var(--color-canvas-cream); display: flex; align-items: center; justify-content: center;">
+                  <el-icon :size="20" color="var(--color-shade-40)"><Picture /></el-icon>
                 </div>
               </template>
             </el-image>
@@ -114,8 +114,8 @@
                 <template #default="{ row }">
                   <el-image :src="row.mainImage" fit="cover" style="width: 50px; height: 40px; border-radius: 4px;">
                     <template #error>
-                      <div style="width: 50px; height: 40px; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                        <el-icon :size="16" color="#ccc"><Picture /></el-icon>
+                      <div style="width: 50px; height: 40px; background: var(--color-canvas-cream); display: flex; align-items: center; justify-content: center;">
+                        <el-icon :size="16" color="var(--color-shade-40)"><Picture /></el-icon>
                       </div>
                     </template>
                   </el-image>
@@ -338,7 +338,7 @@ onMounted(loadList)
 
 <style scoped>
 .activity-manage {
-  padding: 20px;
+  padding: var(--space-xl);
 }
 .card-header {
   display: flex;
@@ -347,18 +347,18 @@ onMounted(loadList)
 }
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   align-items: center;
 }
 .product-select-wrapper {
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 12px;
-  background: #fafafa;
+  border: 1px solid var(--color-hairline-light);
+  border-radius: var(--rounded-md);
+  padding: var(--space-md);
+  background: var(--color-fill-color-light, #fafafa);
 }
 .selected-info {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #409eff;
+  margin-top: var(--space-sm);
+  font-size: var(--font-size-micro);
+  color: var(--color-info);
 }
 </style>

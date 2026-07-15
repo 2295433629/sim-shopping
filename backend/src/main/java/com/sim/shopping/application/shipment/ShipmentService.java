@@ -16,6 +16,8 @@ import com.sim.shopping.interfaces.dto.shipment.LogisticsResponse;
 import com.sim.shopping.interfaces.dto.shipment.LogisticsTrackItem;
 import com.sim.shopping.interfaces.dto.shipment.CreateShipmentRequest;
 import com.sim.shopping.interfaces.dto.shipment.ShipmentResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +27,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
 public class ShipmentService {
+
+    private static final Logger log = LoggerFactory.getLogger(ShipmentService.class);
 
     private final ShipmentMapper shipmentMapper;
     private final LogisticsRecordMapper logisticsRecordMapper;
@@ -40,6 +45,10 @@ public class ShipmentService {
     private static final String ORDER_STATUS_SHIPPED = "SHIPPED";
     private static final String SHIPMENT_STATUS_SHIPPED = "SHIPPED";
     private static final String LOGISTICS_STATUS_CREATED = "CREATED";
+
+    private static final List<String> LOGISTICS_COMPANIES = List.of(
+            "顺丰快递", "圆通快递", "中通快递", "韵达快递", "申通快递", "京东物流"
+    );
 
     public ShipmentService(ShipmentMapper shipmentMapper,
                             LogisticsRecordMapper logisticsRecordMapper,
@@ -120,6 +129,76 @@ public class ShipmentService {
         return convertToShipmentResponse(shipment);
     }
 
+    @Transactional
+    public void autoShipOrder(String orderNo) {
+        OrderDO order = orderByNo(orderNo);
+        if (order == null) {
+            return;
+        }
+        if (!ORDER_STATUS_PAID.equals(order.getStatus())) {
+            return;
+        }
+
+        // 检查是否已有发货单
+        LambdaQueryWrapper<ShipmentDO> existShipmentWrapper = new LambdaQueryWrapper<>();
+        existShipmentWrapper.eq(ShipmentDO::getOrderNo, orderNo);
+        if (shipmentMapper.selectCount(existShipmentWrapper) > 0) {
+            return;
+        }
+
+        // 随机选择物流公司
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        String logisticsCompany = LOGISTICS_COMPANIES.get(random.nextInt(LOGISTICS_COMPANIES.size()));
+
+        // 生成运单号
+        String trackingNo = generateTrackingNo(logisticsCompany);
+
+        // 生成发货单号
+        String shipmentNo = generateShipmentNo();
+
+        // 创建发货单
+        ShipmentDO shipment = new ShipmentDO();
+        shipment.setOrderId(order.getId());
+        shipment.setOrderNo(order.getOrderNo());
+        shipment.setShopId(order.getShopId());
+        shipment.setShipmentNo(shipmentNo);
+        shipment.setLogisticsCompany(logisticsCompany);
+        shipment.setStatus(SHIPMENT_STATUS_SHIPPED);
+        shipment.setShippedAt(LocalDateTime.now());
+        shipmentMapper.insert(shipment);
+
+        // 更新订单状态为SHIPPED
+        order.setStatus(ORDER_STATUS_SHIPPED);
+        order.setShippedAt(LocalDateTime.now());
+        orderMapper.updateById(order);
+
+        // 创建物流记录
+        LogisticsRecordDO logisticsRecord = new LogisticsRecordDO();
+        logisticsRecord.setOrderId(order.getId());
+        logisticsRecord.setOrderNo(order.getOrderNo());
+        logisticsRecord.setShipmentId(shipment.getId());
+        logisticsRecord.setTrackingNo(trackingNo);
+        logisticsRecord.setLogisticsCompany(logisticsCompany);
+        logisticsRecord.setStatus(LOGISTICS_STATUS_CREATED);
+        logisticsRecordMapper.insert(logisticsRecord);
+
+        // 创建初始物流轨迹
+        LogisticsTrackDO track = new LogisticsTrackDO();
+        track.setLogisticsId(logisticsRecord.getId());
+        track.setStatus(LOGISTICS_STATUS_CREATED);
+        track.setDescription("已创建物流单");
+        track.setLocation(null);
+        track.setOccurredAt(LocalDateTime.now());
+        logisticsTrackMapper.insert(track);
+
+        // 发布发货事件
+        eventPublisher.publishEvent(new ShipmentCreatedEvent(
+                order.getOrderNo(), shipment.getId(), trackingNo, logisticsCompany));
+
+        log.info("自动发货完成: orderNo={}, logisticsCompany={}, trackingNo={}",
+                orderNo, logisticsCompany, trackingNo);
+    }
+
     public ShipmentResponse getShipmentByOrderNo(String orderNo) {
         LambdaQueryWrapper<ShipmentDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ShipmentDO::getOrderNo, orderNo);
@@ -171,6 +250,15 @@ public class ShipmentService {
         LambdaQueryWrapper<OrderDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(OrderDO::getOrderNo, orderNo);
         return orderMapper.selectOne(wrapper);
+    }
+
+    private String generateTrackingNo(String logisticsCompany) {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 12; i++) {
+            sb.append(random.nextInt(10));
+        }
+        return sb.toString();
     }
 
     private String generateShipmentNo() {

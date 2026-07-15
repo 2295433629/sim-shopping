@@ -119,36 +119,38 @@ async function loadShopProducts() {
     .shop-header-content {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: var(--space-xl);
 
       .shop-meta {
         .shop-name {
-          font-size: 22px;
-          font-weight: bold;
-          margin: 0 0 8px 0;
+          font-size: var(--font-size-heading-xl);
+          font-weight: 500;
+          margin: 0 0 var(--space-sm) 0;
+          font-family: var(--font-display, 'Helvetica Neue', sans-serif);
         }
 
         .shop-desc {
-          font-size: 14px;
-          color: #999;
-          margin: 0 0 8px 0;
+          font-size: var(--font-size-caption);
+          color: var(--color-shade-40);
+          margin: 0 0 var(--space-sm) 0;
         }
 
         .shop-stats {
-          font-size: 14px;
-          color: #666;
+          font-size: var(--font-size-caption);
+          color: var(--color-shade-50);
         }
       }
     }
   }
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 
   .pagination-wrapper {
-    margin-top: 24px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

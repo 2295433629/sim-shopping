@@ -161,20 +161,21 @@ function soldPercent(item: FlashSale): number {
   .card-header {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-md);
 
     .card-title {
-      font-size: 18px;
-      font-weight: bold;
-      color: #f56c6c;
+      font-size: var(--font-size-heading-sm);
+      font-weight: 500;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+      color: var(--color-danger);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--space-sm);
     }
 
     .card-subtitle {
-      font-size: 13px;
-      color: #999;
+      font-size: var(--font-size-micro);
+      color: var(--color-shade-40);
     }
   }
 
@@ -183,23 +184,23 @@ function soldPercent(item: FlashSale): number {
   }
 
   .flash-sale-card {
-    background: #fff;
-    border-radius: 8px;
+    background: var(--color-canvas-light);
+    border-radius: var(--rounded-lg);
     overflow: hidden;
-    border: 1px solid #ebeef5;
-    margin-bottom: 16px;
+    border: 1px solid var(--color-hairline-light);
+    margin-bottom: var(--space-lg);
     cursor: pointer;
-    transition: box-shadow 0.3s, transform 0.3s;
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal);
 
     &:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      box-shadow: var(--shadow-lg);
       transform: translateY(-2px);
     }
 
     .sale-image {
       position: relative;
       height: 200px;
-      background-color: #f5f5f5;
+      background-color: var(--color-canvas-cream);
 
       .product-img {
         width: 100%;
@@ -216,25 +217,25 @@ function soldPercent(item: FlashSale): number {
 
       .sale-badge {
         position: absolute;
-        top: 8px;
-        left: 8px;
+        top: var(--space-sm);
+        left: var(--space-sm);
         background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
         color: #fff;
-        font-size: 12px;
-        font-weight: bold;
-        padding: 4px 10px;
-        border-radius: 4px;
+        font-size: var(--font-size-eyebrow);
+        font-weight: 500;
+        padding: var(--space-xs) 10px;
+        border-radius: var(--rounded-md);
       }
     }
 
     .sale-body {
-      padding: 12px;
+      padding: var(--space-md);
 
       .product-name {
-        font-size: 14px;
+        font-size: var(--font-size-caption);
         font-weight: 500;
-        color: #333;
-        margin-bottom: 8px;
+        color: var(--color-ink);
+        margin-bottom: var(--space-sm);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -243,41 +244,41 @@ function soldPercent(item: FlashSale): number {
       .price-row {
         display: flex;
         align-items: baseline;
-        gap: 8px;
-        margin-bottom: 8px;
+        gap: var(--space-sm);
+        margin-bottom: var(--space-sm);
 
         .flash-price {
-          font-size: 22px;
-          font-weight: bold;
-          color: #f56c6c;
+          font-size: var(--font-size-heading-xl);
+          font-weight: 500;
+          color: var(--color-danger);
         }
 
         .original-price {
-          font-size: 13px;
-          color: #ccc;
+          font-size: var(--font-size-micro);
+          color: var(--color-shade-30);
           text-decoration: line-through;
         }
       }
 
       .sale-info {
-        margin-bottom: 8px;
+        margin-bottom: var(--space-sm);
 
         .limit-tag {
-          font-size: 12px;
-          color: #e6a23c;
+          font-size: var(--font-size-eyebrow);
+          color: var(--color-warning);
           background-color: #fdf6ec;
-          padding: 2px 8px;
-          border-radius: 4px;
+          padding: 2px var(--space-sm);
+          border-radius: var(--rounded-md);
         }
       }
 
       .stock-info {
-        margin-bottom: 8px;
+        margin-bottom: var(--space-sm);
 
         .stock-text {
-          font-size: 12px;
-          color: #999;
-          margin-top: 4px;
+          font-size: var(--font-size-eyebrow);
+          color: var(--color-shade-40);
+          margin-top: var(--space-xs);
           display: block;
         }
       }
@@ -286,15 +287,15 @@ function soldPercent(item: FlashSale): number {
         display: flex;
         align-items: center;
         gap: 6px;
-        color: #f56c6c;
-        font-size: 13px;
+        color: var(--color-danger);
+        font-size: var(--font-size-micro);
 
         .countdown-text {
-          font-weight: bold;
-          font-family: monospace;
+          font-weight: 500;
+          font-family: var(--font-mono);
 
           &.expired {
-            color: #999;
+            color: var(--color-shade-40);
           }
         }
       }
@@ -302,7 +303,7 @@ function soldPercent(item: FlashSale): number {
   }
 
   .pagination-wrapper {
-    margin-top: 24px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

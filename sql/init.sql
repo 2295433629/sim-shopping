@@ -91,6 +91,10 @@ CREATE TABLE `t_shop` (
   `shop_name` VARCHAR(100) NOT NULL COMMENT '店铺名称',
   `shop_logo` VARCHAR(255) DEFAULT NULL COMMENT '店铺Logo URL',
   `description` TEXT COMMENT '店铺描述',
+  `balance` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '可用余额',
+  `total_income` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '累计总收入',
+  `total_settled` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '已结算金额',
+  `frozen_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '冻结金额（待结算）',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态(ACTIVE/DISABLED)',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -789,6 +793,192 @@ CREATE TABLE `sys_cache` (
   KEY `idx_expired_at` (`expired_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据缓存表（Redis不可用时作为降级缓存）';
 
+DROP TABLE IF EXISTS `t_activity`;
+CREATE TABLE `t_activity` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `activity_name` VARCHAR(100) NOT NULL COMMENT '活动名称',
+  `banner_image` VARCHAR(255) DEFAULT NULL COMMENT 'Banner图片URL',
+  `description` TEXT COMMENT '活动描述',
+  `start_time` DATETIME DEFAULT NULL COMMENT '开始时间',
+  `end_time` DATETIME DEFAULT NULL COMMENT '结束时间',
+  `sort_order` INT NOT NULL DEFAULT 0 COMMENT '排序值',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态(ACTIVE/INACTIVE)',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_start_end_time` (`start_time`, `end_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='活动表';
+
+DROP TABLE IF EXISTS `t_points_product`;
+CREATE TABLE `t_points_product` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `product_name` VARCHAR(200) NOT NULL COMMENT '商品名称',
+  `description` TEXT COMMENT '商品描述',
+  `image_url` VARCHAR(500) DEFAULT NULL COMMENT '商品图片URL',
+  `points_required` INT NOT NULL DEFAULT 0 COMMENT '所需积分',
+  `stock` INT NOT NULL DEFAULT 0 COMMENT '库存',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态(ACTIVE/INACTIVE)',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='积分商品表';
+
+DROP TABLE IF EXISTS `t_coupon`;
+CREATE TABLE `t_coupon` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `coupon_code` VARCHAR(50) DEFAULT NULL COMMENT '优惠券编码',
+  `coupon_name` VARCHAR(100) NOT NULL COMMENT '优惠券名称',
+  `coupon_type` VARCHAR(20) NOT NULL COMMENT '类型(FIXED_AMOUNT/PERCENTAGE)',
+  `discount_value` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '优惠金额/折扣比例',
+  `min_spend` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '最低消费金额',
+  `total_quantity` INT NOT NULL DEFAULT 0 COMMENT '总发行量',
+  `claimed_quantity` INT NOT NULL DEFAULT 0 COMMENT '已领取数量',
+  `used_quantity` INT NOT NULL DEFAULT 0 COMMENT '已使用数量',
+  `valid_start_time` DATETIME DEFAULT NULL COMMENT '有效期开始',
+  `valid_end_time` DATETIME DEFAULT NULL COMMENT '有效期结束',
+  `applicable_scope` VARCHAR(20) DEFAULT 'ALL' COMMENT '适用范围(ALL/SHOP/CATEGORY/PRODUCT)',
+  `applicable_ids` VARCHAR(500) DEFAULT NULL COMMENT '适用对象ID列表',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态(ACTIVE/INACTIVE/EXPIRED)',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_coupon_code` (`coupon_code`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='优惠券表';
+
+DROP TABLE IF EXISTS `t_flash_sale`;
+CREATE TABLE `t_flash_sale` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
+  `original_price` DECIMAL(10,2) NOT NULL COMMENT '原价',
+  `flash_price` DECIMAL(10,2) NOT NULL COMMENT '秒杀价',
+  `stock` INT NOT NULL DEFAULT 0 COMMENT '秒杀库存',
+  `sold_count` INT NOT NULL DEFAULT 0 COMMENT '已售数量',
+  `start_time` DATETIME NOT NULL COMMENT '开始时间',
+  `end_time` DATETIME NOT NULL COMMENT '结束时间',
+  `limit_per_user` INT NOT NULL DEFAULT 1 COMMENT '每人限购',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态(ACTIVE/INACTIVE/ENDED)',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_start_end_time` (`start_time`, `end_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='秒杀活动表';
+
+DROP TABLE IF EXISTS `t_order_refund`;
+CREATE TABLE `t_order_refund` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `order_id` BIGINT UNSIGNED NOT NULL COMMENT '订单ID',
+  `order_no` VARCHAR(32) NOT NULL COMMENT '订单号',
+  `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+  `refund_type` VARCHAR(20) NOT NULL COMMENT '退款类型(REFUND/RETURN_REFUND)',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT '状态(PENDING/APPROVED/REJECTED/COMPLETED)',
+  `reason` VARCHAR(255) DEFAULT NULL COMMENT '退款原因',
+  `amount` DECIMAL(10,2) NOT NULL COMMENT '退款金额',
+  `shop_response` TEXT COMMENT '商家回复',
+  `handled_at` DATETIME DEFAULT NULL COMMENT '处理时间',
+  `completed_at` DATETIME DEFAULT NULL COMMENT '完成时间',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='退款表';
+
+DROP TABLE IF EXISTS `t_user_coupon`;
+CREATE TABLE `t_user_coupon` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+  `coupon_id` BIGINT UNSIGNED NOT NULL COMMENT '优惠券ID',
+  `claimed_at` DATETIME DEFAULT NULL COMMENT '领取时间',
+  `used_at` DATETIME DEFAULT NULL COMMENT '使用时间',
+  `order_no` VARCHAR(32) DEFAULT NULL COMMENT '使用订单号',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'CLAIMED' COMMENT '状态(CLAIMED/USED/EXPIRED)',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_coupon_id` (`coupon_id`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户优惠券表';
+
+DROP TABLE IF EXISTS `t_user_points`;
+CREATE TABLE `t_user_points` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+  `total_points` INT NOT NULL DEFAULT 0 COMMENT '总积分',
+  `available_points` INT NOT NULL DEFAULT 0 COMMENT '可用积分',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户积分账户表';
+
+DROP TABLE IF EXISTS `t_points_record`;
+CREATE TABLE `t_points_record` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+  `points` INT NOT NULL DEFAULT 0 COMMENT '变动积分',
+  `type` VARCHAR(20) NOT NULL COMMENT '类型(EARN/SPEND/REFUND)',
+  `source` VARCHAR(50) DEFAULT NULL COMMENT '来源',
+  `description` VARCHAR(255) DEFAULT NULL COMMENT '描述',
+  `related_id` BIGINT DEFAULT NULL COMMENT '关联ID',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_type` (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='积分变动记录表';
+
+DROP TABLE IF EXISTS `t_settlement_record`;
+CREATE TABLE `t_settlement_record` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `shop_id` BIGINT UNSIGNED NOT NULL COMMENT '店铺ID',
+  `order_id` BIGINT UNSIGNED NOT NULL COMMENT '订单ID',
+  `order_no` VARCHAR(32) NOT NULL COMMENT '订单号',
+  `amount` DECIMAL(10,2) NOT NULL COMMENT '结算金额',
+  `type` VARCHAR(20) NOT NULL COMMENT '类型(ORDER_SETTLEMENT/REFUND_DEDUCTION)',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT '状态(PENDING/SETTLED/CANCELLED)',
+  `description` VARCHAR(255) DEFAULT NULL COMMENT '描述',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_shop_id` (`shop_id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='结算记录表';
+
 -- ============================================================
 -- 初始化数据
 -- ============================================================
@@ -931,3 +1121,50 @@ INSERT INTO `t_sys_config` (`config_key`, `config_value`, `config_name`, `config
 ('recommend.home.size', '10', '首页推荐数量', 'number', 'ai', 1),
 ('search.hot.size', '10', '热门搜索数量', 'number', 'ai', 1),
 ('file.upload.max.image', '5242880', '图片上传最大值(字节)', 'number', 'file', 1);
+
+-- 示例商品（用于秒杀等活动关联）
+INSERT INTO `t_product` (`shop_id`, `category_id`, `brand_id`, `name`, `subtitle`, `price`, `original_price`, `stock`, `sales`, `status`) VALUES
+(1, 2, 1, 'iPhone 15 Pro', '最新款苹果手机，钛金属设计', 7999.00, 8999.00, 100, 50, 'PUBLISHED'),
+(2, 3, 3, '雅诗兰黛小棕瓶精华', '修护肌透精华露', 850.00, 1080.00, 200, 120, 'PUBLISHED'),
+(3, 1, 7, '优衣库纯棉短袖T恤', '舒适透气，多色可选', 99.00, 129.00, 500, 300, 'PUBLISHED'),
+(1, 2, 5, '小米14 5G手机', '徕卡光学镜头', 3999.00, 4299.00, 150, 80, 'PUBLISHED'),
+(6, 6, 8, 'Nike Air Max 跑鞋', '经典气垫，舒适缓震', 699.00, 899.00, 80, 45, 'PUBLISHED');
+
+-- 活动数据
+INSERT INTO `t_activity` (`activity_name`, `banner_image`, `description`, `start_time`, `end_time`, `sort_order`, `status`) VALUES
+('618年中大促', '', '全场商品低至5折，限时抢购，错过再等一年', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 1, 'ACTIVE'),
+('新人专享活动', '', '新注册用户可领取专属大礼包，首单立减', NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 2, 'ACTIVE');
+
+-- 积分商品数据
+INSERT INTO `t_points_product` (`product_name`, `description`, `image_url`, `points_required`, `stock`, `status`) VALUES
+('50元优惠券', '满100减50全场通用优惠券', '', 500, 100, 'ACTIVE'),
+('100元优惠券', '满200减100全场通用优惠券', '', 1000, 50, 'ACTIVE'),
+('定制环保帆布袋', '简约环保定制帆布袋，购物出行两用', '', 300, 200, 'ACTIVE'),
+('品牌限定马克杯', '限量品牌马克杯，陶瓷材质', '', 800, 80, 'ACTIVE'),
+('全场免邮券', '下单即享免邮服务', '', 200, 500, 'ACTIVE');
+
+-- 秒杀活动数据
+INSERT INTO `t_flash_sale` (`product_id`, `original_price`, `flash_price`, `stock`, `sold_count`, `start_time`, `end_time`, `limit_per_user`, `status`) VALUES
+(1, 7999.00, 6999.00, 20, 0, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 1, 'ACTIVE'),
+(2, 850.00, 599.00, 50, 0, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 2, 'ACTIVE'),
+(3, 99.00, 49.00, 100, 0, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 5, 'ACTIVE');
+
+-- 优惠券数据
+INSERT INTO `t_coupon` (`coupon_code`, `coupon_name`, `coupon_type`, `discount_value`, `min_spend`, `total_quantity`, `claimed_quantity`, `used_quantity`, `valid_start_time`, `valid_end_time`, `applicable_scope`, `applicable_ids`, `status`) VALUES
+('WELCOME100', '新用户满减券', 'FIXED_AMOUNT', 100.00, 200.00, 1000, 0, 0, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 'ALL', NULL, 'ACTIVE'),
+('SUMMER50', '夏日清凉券', 'PERCENTAGE', 0.20, 100.00, 500, 0, 0, NOW(), DATE_ADD(NOW(), INTERVAL 15 DAY), 'ALL', NULL, 'ACTIVE'),
+('VIP200', '会员专享券', 'FIXED_AMOUNT', 200.00, 500.00, 200, 0, 0, NOW(), DATE_ADD(NOW(), INTERVAL 60 DAY), 'ALL', NULL, 'ACTIVE');
+
+-- 用户积分账户初始化
+INSERT INTO `t_user_points` (`user_id`, `total_points`, `available_points`) VALUES
+(1, 0, 0),
+(2, 0, 0),
+(3, 0, 0),
+(4, 0, 0),
+(5, 0, 0),
+(6, 0, 0),
+(7, 0, 0),
+(8, 0, 0),
+(9, 0, 0),
+(10, 0, 0),
+(11, 0, 0);

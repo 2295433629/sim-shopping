@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  base: '/merchant/',
   plugins: [vue()],
   resolve: {
     alias: {
@@ -13,6 +14,10 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/uploads': {
         target: 'http://localhost:8080',
         changeOrigin: true,
       },

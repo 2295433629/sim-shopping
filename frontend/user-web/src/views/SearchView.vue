@@ -65,7 +65,7 @@ async function loadHotKeywords() {
 async function loadHistory() {
   try {
     const res = await getSearchHistory()
-    historyList.value = res.list
+    historyList.value = res || []
   } catch {
     // ignore
   }
@@ -264,7 +264,7 @@ async function handleClearHistory() {
   margin: 0 auto;
 
   .search-header {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-xl);
 
     .search-box {
       position: relative;
@@ -276,21 +276,21 @@ async function handleClearHistory() {
         top: 100%;
         left: 0;
         right: 0;
-        background: #fff;
-        border: 1px solid #e4e7ed;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background: var(--color-canvas-light);
+        border: 1px solid var(--color-hairline-light);
+        border-radius: var(--rounded-md);
+        box-shadow: var(--shadow-sm);
         z-index: 100;
 
         .suggest-item {
-          padding: 10px 16px;
+          padding: 10px var(--space-lg);
           cursor: pointer;
-          font-size: 14px;
-          color: #333;
+          font-size: var(--font-size-caption);
+          color: var(--color-ink);
 
           &:hover {
-            background-color: #f5f7fa;
-            color: #409eff;
+            background-color: var(--color-canvas-cream);
+            color: var(--color-shade-60);
           }
         }
       }
@@ -302,8 +302,9 @@ async function handleClearHistory() {
     margin: 0 auto;
 
     .card-title {
-      font-size: 16px;
-      font-weight: bold;
+      font-size: var(--font-size-body-md);
+      font-weight: 500;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
     }
 
     .card-header-with-action {
@@ -315,7 +316,7 @@ async function handleClearHistory() {
     .keyword-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: var(--space-md);
 
       .keyword-tag {
         cursor: pointer;
@@ -327,16 +328,16 @@ async function handleClearHistory() {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-lg);
 
     .result-count {
-      font-size: 14px;
-      color: #666;
+      font-size: var(--font-size-caption);
+      color: var(--color-shade-50);
     }
   }
 
   .pagination-wrapper {
-    margin-top: 24px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

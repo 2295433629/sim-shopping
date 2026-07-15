@@ -79,7 +79,7 @@ async function loadDetail() {
           <el-table-column label="Image" width="80">
             <template #default="{ row }">
               <el-image :src="row.productImage" fit="cover" style="width: 50px; height: 50px; border-radius: 4px;">
-                <template #error><div style="width:50px;height:50px;background:#f5f5f5;border-radius:4px;"></div></template>
+                <template #error><div style="width:50px;height:50px;background:var(--color-canvas-cream);border-radius:4px;"></div></template>
               </el-image>
             </template>
           </el-table-column>
@@ -91,7 +91,7 @@ async function loadDetail() {
           <el-table-column label="Qty" prop="quantity" width="80" align="center" />
           <el-table-column label="Subtotal" width="120" align="right">
             <template #default="{ row }">
-              <span style="color: #e4393c; font-weight: 600;">${{ row.subtotal.toFixed(2) }}</span>
+              <span style="color: var(--color-price); font-weight: 600;">${{ row.subtotal.toFixed(2) }}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -134,31 +134,31 @@ async function loadDetail() {
   }
 
   .section-title {
-    font-size: 15px;
+    font-size: var(--font-size-body-md);
     font-weight: 600;
   }
 
   .section-card {
-    margin-top: 16px;
+    margin-top: var(--space-lg);
   }
 
   .amount-summary {
     .summary-row {
       display: flex;
       justify-content: space-between;
-      padding: 6px 0;
-      font-size: 14px;
-      color: #666;
+      padding: var(--space-sm) 0;
+      font-size: var(--font-size-caption);
+      color: var(--color-shade-50);
 
       &.total {
-        font-size: 16px;
+        font-size: var(--font-size-body-md);
         font-weight: 600;
-        color: #333;
+        color: var(--color-ink);
       }
 
       .pay-amount {
-        color: #e4393c;
-        font-size: 22px;
+        color: var(--color-price);
+        font-size: var(--font-size-heading-lg);
         font-weight: 700;
       }
     }

@@ -93,6 +93,6 @@ onMounted(loadList)
 </script>
 
 <style scoped>
-.merchant-manage { padding: 20px; }
+.merchant-manage { padding: var(--space-xl); }
 .card-header { display: flex; justify-content: space-between; align-items: center; }
 </style>

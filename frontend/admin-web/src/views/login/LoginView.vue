@@ -78,7 +78,7 @@ async function handleLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
+  background-color: var(--color-canvas-night);
 }
 
 .login-card {
@@ -88,8 +88,10 @@ async function handleLogin() {
   .login-title {
     text-align: center;
     margin: 0;
-    font-size: 20px;
-    color: #333;
+    font-size: var(--font-size-heading-md);
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
+    color: var(--color-ink);
+    font-weight: 600;
   }
 }
 </style>

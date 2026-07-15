@@ -197,20 +197,27 @@ watch(() => route.query, (newQuery) => {
 
 <style scoped lang="scss">
 .product-list-container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
 
   .filter-bar {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-xl, 20px);
 
     .filter-label {
-      font-size: 14px;
-      color: #666;
+      font-size: var(--font-size-caption);
+      color: var(--color-shade-50);
+      font-weight: 500;
     }
 
     .price-separator {
-      margin: 0 4px;
-      color: #999;
+      margin: 0 var(--space-xs, 4px);
+      color: var(--color-shade-40);
+    }
+
+    :deep(.el-select) {
+      .el-input__wrapper {
+        border-radius: var(--rounded-pill) !important;
+      }
     }
   }
 
@@ -219,9 +226,15 @@ watch(() => route.query, (newQuery) => {
   }
 
   .pagination-wrapper {
-    margin-top: 24px;
+    margin-top: var(--space-xl, 24px);
     display: flex;
     justify-content: center;
+
+    :deep(.el-pagination) {
+      .el-pager li {
+        border-radius: var(--rounded-md);
+      }
+    }
   }
 }
 </style>

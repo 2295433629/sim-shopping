@@ -62,7 +62,7 @@ function formatValue(item: RankingItem) {
   if (mainTab.value === 'consumption') {
     return `¥${item.value.toFixed(2)}`
   }
-  return `${item.value} 天`
+  return `${item.value} ${item.unit || '次'}`
 }
 </script>
 
@@ -167,33 +167,34 @@ function formatValue(item: RankingItem) {
 }
 
 .card-title {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: var(--font-size-heading-sm);
+  font-weight: 500;
+  font-family: var(--font-display, 'Helvetica Neue', sans-serif);
 }
 
 .main-tabs {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
 
   .main-tab-item {
-    padding: 10px 32px;
-    border-radius: 24px;
-    font-size: 15px;
+    padding: 10px var(--space-xxl);
+    border-radius: var(--rounded-pill);
+    font-size: var(--font-size-heading-sm);
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s;
-    background-color: #f5f5f5;
-    color: #666;
+    transition: all var(--transition-normal);
+    background-color: var(--color-canvas-cream);
+    color: var(--color-shade-50);
 
     &:hover {
-      background-color: #e8e8e8;
+      background-color: var(--color-hairline-light);
     }
 
     &.active {
-      background-color: #409eff;
-      color: #fff;
+      background-color: var(--color-ink);
+      color: var(--color-on-primary);
     }
   }
 }
@@ -201,25 +202,25 @@ function formatValue(item: RankingItem) {
 .sub-tabs {
   display: flex;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-xl);
 }
 
 .top-three {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 16px;
-  margin-bottom: 32px;
-  padding: 20px 0;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xxl);
+  padding: var(--space-xl) 0;
 
   .top-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 16px;
-    border-radius: 16px;
+    padding: var(--space-xl) var(--space-lg);
+    border-radius: var(--rounded-xl);
     min-width: 140px;
-    transition: transform 0.3s;
+    transition: transform var(--transition-normal);
 
     &:hover {
       transform: translateY(-4px);
@@ -243,20 +244,21 @@ function formatValue(item: RankingItem) {
   .top-rank {
     display: flex;
     align-items: center;
-    gap: 4px;
-    margin-bottom: 8px;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
 
     .rank-num {
-      font-size: 18px;
-      font-weight: bold;
+      font-size: var(--font-size-heading-sm);
+      font-weight: 500;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
     }
   }
 
   .top-nickname {
     margin-top: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
+    font-size: var(--font-size-heading-sm);
+    font-weight: 500;
+    color: var(--color-ink);
     max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -265,8 +267,8 @@ function formatValue(item: RankingItem) {
 
   .top-value {
     margin-top: 6px;
-    font-size: 14px;
-    color: #666;
+    font-size: var(--font-size-caption);
+    color: var(--color-shade-50);
     font-weight: 500;
   }
 }
@@ -274,20 +276,20 @@ function formatValue(item: RankingItem) {
 .ranking-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-sm);
 }
 
 .ranking-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px 20px;
+  gap: var(--space-lg);
+  padding: var(--space-md) 20px;
   border-radius: 10px;
-  background-color: #fafafa;
-  transition: background-color 0.2s;
+  background-color: var(--color-canvas-cream);
+  transition: background-color var(--transition-fast);
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: var(--color-hairline-light);
   }
 
   &.top-bg {
@@ -307,15 +309,17 @@ function formatValue(item: RankingItem) {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    color: #fff;
-    font-size: 14px;
-    font-weight: bold;
+    color: var(--color-on-primary);
+    font-size: var(--font-size-caption);
+    font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 
   .rank-text {
-    font-size: 15px;
-    color: #999;
+    font-size: var(--font-size-heading-sm);
+    color: var(--color-shade-40);
     font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 }
 
@@ -324,8 +328,8 @@ function formatValue(item: RankingItem) {
   min-width: 0;
 
   .nickname {
-    font-size: 14px;
-    color: #333;
+    font-size: var(--font-size-caption);
+    color: var(--color-ink);
     font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -334,9 +338,9 @@ function formatValue(item: RankingItem) {
 }
 
 .value {
-  font-size: 15px;
-  font-weight: bold;
-  color: #f56c6c;
+  font-size: var(--font-size-heading-sm);
+  font-weight: 500;
+  color: var(--color-price);
   flex-shrink: 0;
 }
 </style>

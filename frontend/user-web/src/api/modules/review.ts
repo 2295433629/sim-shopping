@@ -41,6 +41,6 @@ export function deleteReview(reviewId: number) {
 }
 
 /** 商品评价列表 */
-export function getProductReviews(productId: number, params: { page: number; size: number }) {
+export function getProductReviews(productId: number, params: { page: number; size: number; rating?: number }) {
   return request.get(`/public/products/${productId}/reviews`, { params })
 }

@@ -43,7 +43,7 @@ async function fetchAddresses() {
   loading.value = true
   try {
     const res = await getAddressListApi()
-    addressList.value = res.list || []
+    addressList.value = res || []
   } catch {
     // 错误已在拦截器中处理
   } finally {
@@ -210,8 +210,9 @@ onMounted(() => {
     align-items: center;
 
     .card-title {
-      font-size: 16px;
-      font-weight: bold;
+      font-size: var(--font-size-body-md);
+      font-weight: 500;
+      font-family: var(--font-display, 'Helvetica Neue', sans-serif);
     }
   }
 }

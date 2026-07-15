@@ -27,6 +27,7 @@ public class OrderDetailVO {
     private String remark;
     private PaymentInfoVO payment;
     private LogisticsInfoVO logistics;
+    private com.sim.shopping.interfaces.dto.refund.RefundVO refund;
 
     public Long getOrderId() { return orderId; }
     public void setOrderId(Long orderId) { this.orderId = orderId; }
@@ -72,4 +73,6 @@ public class OrderDetailVO {
     public void setPayment(PaymentInfoVO payment) { this.payment = payment; }
     public LogisticsInfoVO getLogistics() { return logistics; }
     public void setLogistics(LogisticsInfoVO logistics) { this.logistics = logistics; }
+    public com.sim.shopping.interfaces.dto.refund.RefundVO getRefund() { return refund; }
+    public void setRefund(com.sim.shopping.interfaces.dto.refund.RefundVO refund) { this.refund = refund; }
 }

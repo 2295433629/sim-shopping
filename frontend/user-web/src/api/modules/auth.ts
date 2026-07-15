@@ -23,7 +23,7 @@ export function getUserInfoApi() {
 
 /** 更新个人信息 */
 export function updateProfileApi(data: Partial<UserInfo>) {
-  return request.put<unknown, UserInfo>('/user/profile', data)
+  return request.put<unknown, void>('/user/profile', data)
 }
 
 /** 修改密码 */

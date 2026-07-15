@@ -113,93 +113,94 @@ function handlePageChange(p: number) {
   margin: 0 auto;
 
   .card-title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: var(--font-size-body-md);
+    font-weight: 500;
+    font-family: var(--font-display, 'Helvetica Neue', sans-serif);
   }
 
   .review-card {
-    border: 1px solid #ebeef5;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 16px;
+    border: 1px solid var(--color-hairline-light);
+    border-radius: var(--rounded-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
 
     .review-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: var(--space-md);
 
       .product-name {
-        font-size: 15px;
-        font-weight: 600;
-        color: #303133;
+        font-size: var(--font-size-heading-sm);
+        font-weight: 500;
+        color: var(--color-ink);
       }
 
       .review-time {
-        font-size: 12px;
-        color: #909399;
+        font-size: var(--font-size-eyebrow);
+        color: var(--color-shade-40);
       }
     }
 
     .review-body {
       .review-content {
-        margin-top: 8px;
-        font-size: 14px;
-        color: #606266;
+        margin-top: var(--space-sm);
+        font-size: var(--font-size-caption);
+        color: var(--color-shade-50);
         line-height: 1.6;
       }
 
       .review-images {
         display: flex;
-        gap: 8px;
-        margin-top: 12px;
+        gap: var(--space-sm);
+        margin-top: var(--space-md);
         flex-wrap: wrap;
 
         .review-image {
           width: 80px;
           height: 80px;
-          border-radius: 4px;
+          border-radius: var(--rounded-md);
           flex-shrink: 0;
         }
       }
     }
 
     .merchant-reply {
-      background: #f5f7fa;
-      border-radius: 6px;
-      padding: 12px;
-      margin-top: 12px;
+      background: var(--color-canvas-cream);
+      border-radius: var(--rounded-md);
+      padding: var(--space-md);
+      margin-top: var(--space-md);
 
       .reply-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #409eff;
-        margin-bottom: 4px;
+        font-size: var(--font-size-micro);
+        font-weight: 500;
+        color: var(--color-info);
+        margin-bottom: var(--space-xs);
       }
 
       .reply-content {
-        font-size: 13px;
-        color: #606266;
+        font-size: var(--font-size-micro);
+        color: var(--color-shade-50);
         line-height: 1.5;
       }
 
       .reply-time {
-        font-size: 12px;
-        color: #909399;
-        margin-top: 4px;
+        font-size: var(--font-size-eyebrow);
+        color: var(--color-shade-40);
+        margin-top: var(--space-xs);
         text-align: right;
       }
     }
 
     .review-actions {
-      margin-top: 12px;
+      margin-top: var(--space-md);
       display: flex;
       justify-content: flex-end;
     }
   }
 
   .pagination-wrap {
-    margin-top: 20px;
+    margin-top: var(--space-xl);
     display: flex;
     justify-content: center;
   }

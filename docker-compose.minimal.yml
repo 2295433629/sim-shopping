@@ -1,0 +1,114 @@
+version: '3.8'
+
+# 精简版：仅部署后端 + 用户端（节省内存）
+# 适用场景：1GiB 内存服务器
+#
+# 使用方式：
+#   docker-compose -f docker-compose.minimal.yml up -d --build
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: shopping-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: sim_shopping
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./sql/init_products.sql:/docker-entrypoint-initdb.d/02-init-products.sql:ro
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+      --innodb-buffer-pool-size=128M
+      --max-connections=50
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - shopping-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: shopping-redis
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 64mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - shopping-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: shopping-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-root}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - JWT_SECRET=${JWT_SECRET:-ShoppingDreamDockerSecretKey2026ForJwtTokenGeneration}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    networks:
+      - shopping-net
+
+  user-web:
+    build:
+      context: ./frontend/user-web
+      dockerfile: Dockerfile
+    container_name: shopping-user-web
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - shopping-net
+
+  nginx:
+    image: nginx:alpine
+    container_name: shopping-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/nginx.minimal.conf:/etc/nginx/nginx.conf:ro
+      - ./uploads:/usr/share/nginx/html/uploads:ro
+    depends_on:
+      - backend
+      - user-web
+    restart: unless-stopped
+    networks:
+      - shopping-net
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  shopping-net:
+    driver: bridge

@@ -10,20 +10,21 @@ export type CouponScope = 'ALL' | 'CATEGORY' | 'PRODUCT'
 /** 用户优惠券状态 */
 export type UserCouponStatus = 'UNUSED' | 'USED' | 'EXPIRED'
 
-/** 可领取的优惠券 */
+/** 可领取的优惠券 — 对齐后端 CouponResponse */
 export interface AvailableCoupon {
-  couponId: number
-  name: string
-  description?: string
-  type: CouponType
-  value: number
-  minOrderAmount: number
-  scope: CouponScope
-  scopeName?: string
-  remainCount: number
-  limitPerUser: number
-  startTime: string
-  endTime: string
+  id: number
+  couponCode?: string
+  couponName: string
+  couponType: CouponType
+  discountValue: number
+  minSpend: number
+  applicableScope: CouponScope
+  remainingQuantity: number
+  validStartTime: string
+  validEndTime: string
+  status: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 /** 我的优惠券 — 对齐后端 UserCouponResponse */
