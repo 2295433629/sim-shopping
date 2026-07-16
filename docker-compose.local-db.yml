@@ -6,7 +6,7 @@ version: '3.8'
 # 前置要求：
 #   1. 宿主机已安装 MySQL 并创建数据库 sim_shopping
 #   2. MySQL 允许远程连接（bind-address = 0.0.0.0 或至少允许 Docker 网段）
-#   3. 已执行 sql/init.sql 和 sql/init_products.sql 建表和初始化数据
+#   3. 已执行 sql/init.sql、sql/init_products_full.sql 和 sql/init_other_data.sql 建表和初始化数据
 #
 # 使用方式：
 #   docker-compose -f docker-compose.local-db.yml up -d --build
