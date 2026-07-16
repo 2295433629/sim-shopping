@@ -979,6 +979,22 @@ CREATE TABLE `t_settlement_record` (
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='结算记录表';
 
+DROP TABLE IF EXISTS `t_activity_product`;
+CREATE TABLE `t_activity_product` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `activity_id` BIGINT UNSIGNED NOT NULL COMMENT '活动ID',
+  `product_id` BIGINT UNSIGNED NOT NULL COMMENT '商品ID',
+  `sort_order` INT NOT NULL DEFAULT 0 COMMENT '排序值',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` BIGINT DEFAULT NULL,
+  `updated_by` BIGINT DEFAULT NULL,
+  `deleted` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_activity_id` (`activity_id`),
+  KEY `idx_product_id` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='活动商品关联表';
+
 -- ============================================================
 -- 初始化数据
 -- ============================================================
@@ -1122,49 +1138,29 @@ INSERT INTO `t_sys_config` (`config_key`, `config_value`, `config_name`, `config
 ('search.hot.size', '10', '热门搜索数量', 'number', 'ai', 1),
 ('file.upload.max.image', '5242880', '图片上传最大值(字节)', 'number', 'file', 1);
 
--- 示例商品（用于秒杀等活动关联）
-INSERT INTO `t_product` (`shop_id`, `category_id`, `brand_id`, `name`, `subtitle`, `price`, `original_price`, `stock`, `sales`, `status`) VALUES
-(1, 2, 1, 'iPhone 15 Pro', '最新款苹果手机，钛金属设计', 7999.00, 8999.00, 100, 50, 'PUBLISHED'),
-(2, 3, 3, '雅诗兰黛小棕瓶精华', '修护肌透精华露', 850.00, 1080.00, 200, 120, 'PUBLISHED'),
-(3, 1, 7, '优衣库纯棉短袖T恤', '舒适透气，多色可选', 99.00, 129.00, 500, 300, 'PUBLISHED'),
-(1, 2, 5, '小米14 5G手机', '徕卡光学镜头', 3999.00, 4299.00, 150, 80, 'PUBLISHED'),
-(6, 6, 8, 'Nike Air Max 跑鞋', '经典气垫，舒适缓震', 699.00, 899.00, 80, 45, 'PUBLISHED');
+-- 管理员账户
+INSERT INTO `t_sys_admin` (`user_id`, `admin_name`, `role`) VALUES
+(1, '超级管理员', 'SUPER_ADMIN');
 
--- 活动数据
-INSERT INTO `t_activity` (`activity_name`, `banner_image`, `description`, `start_time`, `end_time`, `sort_order`, `status`) VALUES
-('618年中大促', '', '全场商品低至5折，限时抢购，错过再等一年', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 1, 'ACTIVE'),
-('新人专享活动', '', '新注册用户可领取专属大礼包，首单立减', NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 2, 'ACTIVE');
-
--- 积分商品数据
-INSERT INTO `t_points_product` (`product_name`, `description`, `image_url`, `points_required`, `stock`, `status`) VALUES
-('50元优惠券', '满100减50全场通用优惠券', '', 500, 100, 'ACTIVE'),
-('100元优惠券', '满200减100全场通用优惠券', '', 1000, 50, 'ACTIVE'),
-('定制环保帆布袋', '简约环保定制帆布袋，购物出行两用', '', 300, 200, 'ACTIVE'),
-('品牌限定马克杯', '限量品牌马克杯，陶瓷材质', '', 800, 80, 'ACTIVE'),
-('全场免邮券', '下单即享免邮服务', '', 200, 500, 'ACTIVE');
-
--- 秒杀活动数据
-INSERT INTO `t_flash_sale` (`product_id`, `original_price`, `flash_price`, `stock`, `sold_count`, `start_time`, `end_time`, `limit_per_user`, `status`) VALUES
-(1, 7999.00, 6999.00, 20, 0, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 1, 'ACTIVE'),
-(2, 850.00, 599.00, 50, 0, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 2, 'ACTIVE'),
-(3, 99.00, 49.00, 100, 0, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 5, 'ACTIVE');
-
--- 优惠券数据
-INSERT INTO `t_coupon` (`coupon_code`, `coupon_name`, `coupon_type`, `discount_value`, `min_spend`, `total_quantity`, `claimed_quantity`, `used_quantity`, `valid_start_time`, `valid_end_time`, `applicable_scope`, `applicable_ids`, `status`) VALUES
-('WELCOME100', '新用户满减券', 'FIXED_AMOUNT', 100.00, 200.00, 1000, 0, 0, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 'ALL', NULL, 'ACTIVE'),
-('SUMMER50', '夏日清凉券', 'PERCENTAGE', 0.20, 100.00, 500, 0, 0, NOW(), DATE_ADD(NOW(), INTERVAL 15 DAY), 'ALL', NULL, 'ACTIVE'),
-('VIP200', '会员专享券', 'FIXED_AMOUNT', 200.00, 500.00, 200, 0, 0, NOW(), DATE_ADD(NOW(), INTERVAL 60 DAY), 'ALL', NULL, 'ACTIVE');
-
--- 用户积分账户初始化
-INSERT INTO `t_user_points` (`user_id`, `total_points`, `available_points`) VALUES
-(1, 0, 0),
-(2, 0, 0),
-(3, 0, 0),
-(4, 0, 0),
-(5, 0, 0),
-(6, 0, 0),
-(7, 0, 0),
-(8, 0, 0),
-(9, 0, 0),
-(10, 0, 0),
-(11, 0, 0);
+-- 默认字典项
+INSERT INTO `t_sys_dict_item` (`dict_type_id`, `label`, `value`, `sort_order`, `status`) VALUES
+-- 订单状态字典
+(1, '待支付', 'CREATED', 1, 'ACTIVE'),
+(1, '已支付', 'PAID', 2, 'ACTIVE'),
+(1, '已发货', 'SHIPPED', 3, 'ACTIVE'),
+(1, '运输中', 'IN_TRANSIT', 4, 'ACTIVE'),
+(1, '已签收', 'DELIVERED', 5, 'ACTIVE'),
+(1, '已完成', 'COMPLETED', 6, 'ACTIVE'),
+(1, '已取消', 'CANCELLED', 7, 'ACTIVE'),
+-- 支付方式字典
+(2, '模拟支付宝', 'MOCK_ALIPAY', 1, 'ACTIVE'),
+(2, '模拟微信支付', 'MOCK_WECHAT', 2, 'ACTIVE'),
+-- 商品状态字典
+(3, '草稿', 'DRAFT', 1, 'ACTIVE'),
+(3, '已发布', 'PUBLISHED', 2, 'ACTIVE'),
+(3, '已下架', 'OFFLINE', 3, 'ACTIVE'),
+(3, '已删除', 'DELETED', 4, 'ACTIVE'),
+-- 用户角色字典
+(4, '管理员', 'ADMIN', 1, 'ACTIVE'),
+(4, '商家', 'MERCHANT', 2, 'ACTIVE'),
+(4, '普通用户', 'USER', 3, 'ACTIVE');

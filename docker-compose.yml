@@ -13,7 +13,8 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
-      - ./sql/init_products.sql:/docker-entrypoint-initdb.d/02-init-products.sql:ro
+      - ./sql/init_products_full.sql:/docker-entrypoint-initdb.d/02-init-products.sql:ro
+      - ./sql/init_other_data.sql:/docker-entrypoint-initdb.d/03-init-other.sql:ro
     command: >
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
