@@ -18,10 +18,11 @@ const newList = ref<ProductCardVO[]>([])
 const banners = ref<BannerItem[]>([])
 
 // 默认 banner 图片列表（本地静态资源）
+const base = import.meta.env.BASE_URL
 const defaultBannerImages = [
-  '/banners/banner-festival.jpg',
-  '/banners/banner-tech.jpg',
-  '/banners/banner-lifestyle.jpg',
+  `${base}banners/banner-festival.jpg`,
+  `${base}banners/banner-tech.jpg`,
+  `${base}banners/banner-lifestyle.jpg`,
 ]
 
 // 为无图片的 banner 分配默认图片

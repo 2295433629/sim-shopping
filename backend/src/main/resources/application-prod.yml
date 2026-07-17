@@ -9,28 +9,28 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_HOST:mysql}:${DB_PORT:3306}/sim_shopping?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/sim_shopping?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root123}
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      database: ${REDIS_DB}
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DB:0}
       timeout: 5000ms
-      password: ${REDIS_PASSWORD}
+      password: ${REDIS_PASSWORD:}
 
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
-
 app:
   jwt:
-    secret: ${JWT_SECRET}
+    secret: ${JWT_SECRET:ShoppingDreamSecretKey2026ForJwtTokenGenerationMustBeLongEnough}
   upload:
-    path: /app/uploads
+    path: /usr/bear/uploads
   cache:
-    type: redis
+# database 或者 redis
+    type: database
 
 logging:
   level:

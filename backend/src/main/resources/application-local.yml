@@ -9,8 +9,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/sim_shopping?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME:shop}
-    password: ${DB_PASSWORD:shop@2026}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root123}
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -24,8 +24,8 @@ mybatis-plus:
 
 app:
   upload:
-#    path: D:/workspace/shopping/sim-shopping/uploads
-    path: /usr/bear/uploads
+    path: D:/workspace/shopping/sim-shopping/uploads
+#    path: /usr/bear/uploads
   cache:
     type: database
 
