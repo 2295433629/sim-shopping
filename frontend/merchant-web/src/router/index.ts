@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/common/NotFoundView.vue'), meta: { title: '页面不存在' } },
 ]
 
-const router = createRouter({ history: createWebHistory('/merchant/'), routes })
+const router = createRouter({ history: createWebHistory(import.meta.env.BASE_URL), routes })
 
 router.beforeEach((to, _from, next) => {
   const token = getToken()

@@ -2,8 +2,11 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
+// 开发环境 base 为 /，生产构建 base 为 /user-web/
+const base = process.env.NODE_ENV === 'production' ? '/user-web/' : '/'
+
 export default defineConfig({
-  base: '/user-web/',
+  base,
   plugins: [vue()],
   resolve: {
     alias: {
