@@ -10,6 +10,12 @@ import com.sim.shopping.interfaces.dto.points.PointsBalanceVO;
 import com.sim.shopping.interfaces.dto.points.PointsRecordResponse;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 积分管理控制器，处理积分兑换商品和积分流水查询
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/user/points")
 public class PointsController {
@@ -20,6 +26,10 @@ public class PointsController {
         this.pointsService = pointsService;
     }
 
+    /**
+     * 查询积分余额
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PointsBalanceVO> getPointsBalance() {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -27,6 +37,10 @@ public class PointsController {
         return ApiResponse.success(balance);
     }
 
+    /**
+     * 查询积分流水
+     * @return 返回结果
+     */
     @GetMapping("/records")
     public ApiResponse<PageResponse<PointsRecordResponse>> getPointsRecords(
             @RequestParam(defaultValue = "1") int page,
@@ -43,6 +57,10 @@ public class PointsController {
         return ApiResponse.success(pageResponse);
     }
 
+    /**
+     * exchange Product
+     * @return 返回结果
+     */
     @PostMapping("/products/{productId}/exchange")
     public ApiResponse<ExchangeResponse> exchangeProduct(
             @PathVariable Long productId,

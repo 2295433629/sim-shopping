@@ -22,6 +22,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 店铺服务，处理店铺信息的增删改查
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class ShopService {
 
@@ -52,12 +58,23 @@ public class ShopService {
         this.settlementRecordMapper = settlementRecordMapper;
     }
 
+    /**
+     * 获取Shop Info
+     * @param userId userId
+     * @return 返回结果
+     */
     public ShopResponse getShopInfo(Long userId) {
         ShopDO shop = getShopByUserId(userId);
         Integer productCount = countProductsByShopId(shop.getId());
         return toShopResponse(shop, productCount);
     }
 
+    /**
+     * 更新Shop Info
+     * @param userId userId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public ShopResponse updateShopInfo(Long userId, ShopUpdateRequest req) {
         ShopDO shop = getShopByUserId(userId);
@@ -75,6 +92,11 @@ public class ShopService {
         return toShopResponse(shop, productCount);
     }
 
+    /**
+     * 获取Public Shop
+     * @param shopId shopId
+     * @return 返回结果
+     */
     public ShopResponse getPublicShop(Long shopId) {
         ShopDO shop = shopMapper.selectById(shopId);
         if (shop == null) {
@@ -84,6 +106,13 @@ public class ShopService {
         return toShopResponse(shop, productCount);
     }
 
+    /**
+     * 获取Shop Products
+     * @param shopId shopId
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<ProductDO> getShopProducts(Long shopId, int page, int size) {
         ShopDO shop = shopMapper.selectById(shopId);
         if (shop == null) {
@@ -98,6 +127,11 @@ public class ShopService {
         return PageResponse.of(result.getRecords(), result.getTotal(), page, size);
     }
 
+    /**
+     * 获取Dashboard
+     * @param userId userId
+     * @return 返回结果
+     */
     public DashboardResponse getDashboard(Long userId) {
         ShopDO shop = getShopByUserId(userId);
         Long shopId = shop.getId();
@@ -155,6 +189,12 @@ public class ShopService {
         return resp;
     }
 
+    /**
+     * 添加Banner
+     * @param userId userId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public ShopBannerResponse addBanner(Long userId, ShopBannerRequest req) {
         ShopDO shop = getShopByUserId(userId);
@@ -170,6 +210,11 @@ public class ShopService {
         return toShopBannerResponse(banner, shop.getId());
     }
 
+    /**
+     * 移除Banner
+     * @param userId userId
+     * @param bannerId bannerId
+     */
     @Transactional
     public void removeBanner(Long userId, Long bannerId) {
         ShopDO shop = getShopByUserId(userId);

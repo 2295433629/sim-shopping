@@ -14,6 +14,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Payment服务，处理相关业务逻辑
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class PaymentService {
 
@@ -25,6 +31,13 @@ public class PaymentService {
         this.orderMapper = orderMapper;
     }
 
+    /**
+     * 创建Payment
+     * @param userId userId
+     * @param orderNo orderNo
+     * @param paymentMethod paymentMethod
+     * @return 返回结果
+     */
     @Transactional
     public PaymentResponse createPayment(Long userId, String orderNo, String paymentMethod) {
         // Find the order
@@ -72,6 +85,11 @@ public class PaymentService {
         return toPaymentResponse(payment);
     }
 
+    /**
+     * 获取Payment Status
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     public PaymentResponse getPaymentStatus(String orderNo) {
         LambdaQueryWrapper<PaymentDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(PaymentDO::getOrderNo, orderNo);

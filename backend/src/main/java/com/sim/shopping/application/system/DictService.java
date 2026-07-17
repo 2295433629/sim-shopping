@@ -17,6 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 字典服务，处理数据字典类型和字典项的管理
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class DictService {
 
@@ -29,6 +35,10 @@ public class DictService {
         this.sysDictItemMapper = sysDictItemMapper;
     }
 
+    /**
+     * 查询字典类型列表
+     * @return 返回结果
+     */
     public List<DictTypeResponse> getDictTypes() {
         LambdaQueryWrapper<SysDictTypeDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByDesc(SysDictTypeDO::getCreatedAt);
@@ -36,6 +46,11 @@ public class DictService {
         return list.stream().map(this::toTypeResponse).collect(Collectors.toList());
     }
 
+    /**
+     * 创建Dict Type
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public DictTypeResponse createDictType(DictTypeRequest req) {
         SysDictTypeDO dictType = new SysDictTypeDO();
@@ -46,6 +61,11 @@ public class DictService {
         return toTypeResponse(dictType);
     }
 
+    /**
+     * 查询字典项列表
+     * @param dictTypeId dictTypeId
+     * @return 返回结果
+     */
     public List<DictItemResponse> getDictItems(Long dictTypeId) {
         // Verify dict type exists
         SysDictTypeDO dictType = sysDictTypeMapper.selectById(dictTypeId);
@@ -59,6 +79,12 @@ public class DictService {
         return list.stream().map(this::toItemResponse).collect(Collectors.toList());
     }
 
+    /**
+     * 创建Dict Item
+     * @param dictTypeId dictTypeId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public DictItemResponse createDictItem(Long dictTypeId, DictItemCreateRequest req) {
         // Verify dict type exists
@@ -76,6 +102,13 @@ public class DictService {
         return toItemResponse(dictItem);
     }
 
+    /**
+     * 更新Dict Item
+     * @param dictTypeId dictTypeId
+     * @param itemId itemId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional(rollbackFor = Exception.class)
     public DictItemResponse updateDictItem(Long dictTypeId, Long itemId, DictItemCreateRequest req) {
         SysDictItemDO dictItem = sysDictItemMapper.selectById(itemId);
@@ -90,6 +123,11 @@ public class DictService {
         return toItemResponse(dictItem);
     }
 
+    /**
+     * 删除Dict Item
+     * @param dictTypeId dictTypeId
+     * @param itemId itemId
+     */
     @Transactional(rollbackFor = Exception.class)
     public void deleteDictItem(Long dictTypeId, Long itemId) {
         SysDictItemDO dictItem = sysDictItemMapper.selectById(itemId);

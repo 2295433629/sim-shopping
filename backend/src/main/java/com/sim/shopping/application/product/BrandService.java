@@ -9,6 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * 品牌服务，处理品牌信息的增删改查
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class BrandService {
 
@@ -18,12 +24,21 @@ public class BrandService {
         this.brandMapper = brandMapper;
     }
 
+    /**
+     * 查询品牌列表
+     * @return 返回结果
+     */
     public List<BrandDO> getBrands() {
         LambdaQueryWrapper<BrandDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByDesc(BrandDO::getCreatedAt);
         return brandMapper.selectList(wrapper);
     }
 
+    /**
+     * 创建品牌
+     * @param brand brand
+     * @return 返回结果
+     */
     @Transactional
     public BrandDO createBrand(BrandDO brand) {
         if (brand.getStatus() == null) {
@@ -33,6 +48,12 @@ public class BrandService {
         return brand;
     }
 
+    /**
+     * 更新品牌
+     * @param id id
+     * @param brand brand
+     * @return 返回结果
+     */
     @Transactional
     public BrandDO updateBrand(Long id, BrandDO brand) {
         BrandDO existing = brandMapper.selectById(id);
@@ -55,6 +76,10 @@ public class BrandService {
         return existing;
     }
 
+    /**
+     * 删除品牌
+     * @param id id
+     */
     @Transactional
     public void deleteBrand(Long id) {
         BrandDO existing = brandMapper.selectById(id);

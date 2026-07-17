@@ -18,6 +18,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * ActivityAdmin服务，处理相关业务逻辑
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class ActivityAdminService {
 
@@ -29,12 +35,26 @@ public class ActivityAdminService {
         this.activityProductMapper = activityProductMapper;
     }
 
+    /**
+     * 获取Activity List
+     * @param page page
+     * @param size size
+     * @param status status
+     * @param keyword keyword
+     * @return 返回结果
+     */
     public PageResponse<ActivityResponse> getActivityList(int page, int size, String status, String keyword) {
         Page<ActivityResponse> pageParam = new Page<>(page, size);
         Page<ActivityResponse> result = activityMapper.selectActivityPage(pageParam, status, keyword);
         return PageResponse.of(result.getRecords(), result.getTotal(), (int) result.getCurrent(), (int) result.getSize());
     }
 
+    /**
+     * 创建专题活动
+     * @param activity activity
+     * @param productIds productIds
+     * @return 返回结果
+     */
     @Transactional
     public ActivityDO createActivity(ActivityDO activity, List<Long> productIds) {
         LocalDateTime now = LocalDateTime.now();
@@ -54,6 +74,13 @@ public class ActivityAdminService {
         return activity;
     }
 
+    /**
+     * 更新专题活动
+     * @param id id
+     * @param activity activity
+     * @param productIds productIds
+     * @return 返回结果
+     */
     @Transactional
     public ActivityDO updateActivity(Long id, ActivityDO activity, List<Long> productIds) {
         ActivityDO existing = activityMapper.selectById(id);
@@ -79,6 +106,10 @@ public class ActivityAdminService {
         return activityMapper.selectById(id);
     }
 
+    /**
+     * 删除专题活动
+     * @param id id
+     */
     @Transactional
     public void deleteActivity(Long id) {
         ActivityDO existing = activityMapper.selectById(id);

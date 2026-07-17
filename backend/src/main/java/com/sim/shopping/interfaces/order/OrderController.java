@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 用户订单管理控制器，处理用户下单、查询、取消、确认收货等操作
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/user/orders")
 public class OrderController {
@@ -19,6 +25,11 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    /**
+     * 创建订单（按购物车选中商品结算）
+     * @param request request
+     * @return 返回结果
+     */
     @PostMapping
     public ApiResponse<CreateOrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -26,6 +37,10 @@ public class OrderController {
         return ApiResponse.success(new CreateOrderResponse(orders));
     }
 
+    /**
+     * 查询用户订单列表（支持分页和按状态筛选）
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PageResponse<OrderListItemVO>> getUserOrders(
             @RequestParam(defaultValue = "1") int page,
@@ -35,12 +50,22 @@ public class OrderController {
         return ApiResponse.success(orderService.getUserOrders(userId, page, size, status));
     }
 
+    /**
+     * 查询订单详情
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     @GetMapping("/{orderNo}")
     public ApiResponse<OrderDetailVO> getOrderDetail(@PathVariable String orderNo) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(orderService.getOrderDetailForUser(orderNo, userId));
     }
 
+    /**
+     * 取消订单
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     @PatchMapping("/{orderNo}/cancel")
     public ApiResponse<Void> cancelOrder(@PathVariable String orderNo) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -48,6 +73,11 @@ public class OrderController {
         return ApiResponse.success();
     }
 
+    /**
+     * 确认收货
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     @PatchMapping("/{orderNo}/confirm")
     public ApiResponse<Void> confirmReceive(@PathVariable String orderNo) {
         Long userId = SecurityUtils.getCurrentUserId();

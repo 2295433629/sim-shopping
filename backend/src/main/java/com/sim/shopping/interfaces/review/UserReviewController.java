@@ -8,6 +8,12 @@ import com.sim.shopping.interfaces.dto.review.CreateReviewRequest;
 import com.sim.shopping.interfaces.dto.review.ReviewResponse;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * UserReview控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/user/reviews")
 public class UserReviewController {
@@ -18,12 +24,21 @@ public class UserReviewController {
         this.reviewService = reviewService;
     }
 
+    /**
+     * 提交商品评价
+     * @param request request
+     * @return 返回结果
+     */
     @PostMapping
     public ApiResponse<ReviewResponse> submitReview(@RequestBody CreateReviewRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(reviewService.submitReview(userId, request));
     }
 
+    /**
+     * 查询我的评价
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PageResponse<ReviewResponse>> getMyReviews(
             @RequestParam(defaultValue = "1") int page,
@@ -32,6 +47,11 @@ public class UserReviewController {
         return ApiResponse.success(reviewService.getMyReviews(userId, page, size));
     }
 
+    /**
+     * 删除Review
+     * @param reviewId reviewId
+     * @return 返回结果
+     */
     @DeleteMapping("/{reviewId}")
     public ApiResponse<Void> deleteReview(@PathVariable Long reviewId) {
         Long userId = SecurityUtils.getCurrentUserId();

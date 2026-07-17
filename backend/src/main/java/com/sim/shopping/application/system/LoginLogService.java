@@ -11,6 +11,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 登录日志服务，处理登录日志的记录和查询
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class LoginLogService {
 
@@ -20,6 +26,16 @@ public class LoginLogService {
         this.sysLoginLogMapper = sysLoginLogMapper;
     }
 
+    /**
+     * record Login Log
+     * @param userId userId
+     * @param username username
+     * @param userType userType
+     * @param status status
+     * @param ip ip
+     * @param userAgent userAgent
+     * @param errorMsg errorMsg
+     */
     public void recordLoginLog(Long userId, String username, String userType, Integer status, String ip, String userAgent, String errorMsg) {
         SysLoginLogDO log = new SysLoginLogDO();
         log.setUserId(userId);
@@ -33,6 +49,15 @@ public class LoginLogService {
         sysLoginLogMapper.insert(log);
     }
 
+    /**
+     * 查询登录日志
+     * @param page page
+     * @param size size
+     * @param username username
+     * @param status status
+     * @param userType userType
+     * @return 返回结果
+     */
     public PageResponse<LoginLogItem> getLoginLogs(int page, int size, String username, Integer status, String userType) {
         Page<SysLoginLogDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<SysLoginLogDO> wrapper = new LambdaQueryWrapper<>();

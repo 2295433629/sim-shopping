@@ -20,6 +20,12 @@ import com.sim.shopping.interfaces.dto.shipment.ShipmentResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 物流管理控制器，处理物流信息查询和轨迹追踪
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/merchant")
 @PreAuthorize("hasRole('MERCHANT')")
@@ -40,12 +46,21 @@ public class ShipmentController {
         this.orderMapper = orderMapper;
     }
 
+    /**
+     * 创建Shipment
+     * @param req req
+     * @return 返回结果
+     */
     @PostMapping("/shipments")
     public ApiResponse<ShipmentResponse> createShipment(@RequestBody CreateShipmentRequest req) {
         Long shopId = resolveShopId();
         return ApiResponse.success(shipmentService.createShipment(shopId, req));
     }
 
+    /**
+     * 获取Pending Shipment Orders
+     * @return 返回结果
+     */
     @GetMapping("/orders/shipping")
     public ApiResponse<PageResponse<OrderListItemVO>> getPendingShipmentOrders(
             @RequestParam(defaultValue = "1") int page,

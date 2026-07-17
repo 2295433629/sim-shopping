@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 菜单管理控制器，处理系统菜单树的配置
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/admin/menus")
 @PreAuthorize("hasRole('ADMIN')")
@@ -21,22 +27,40 @@ public class MenuController {
         this.menuService = menuService;
     }
 
+    /**
+     * 获取Menu Tree
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<List<MenuResponse>> getMenuTree() {
         return ApiResponse.success(menuService.getMenuTree());
     }
 
+    /**
+     * 创建菜单
+     * @param req req
+     * @return 返回结果
+     */
     @PostMapping
     public ApiResponse<MenuResponse> createMenu(@Valid @RequestBody MenuRequest req) {
         return ApiResponse.success(menuService.createMenu(req));
     }
 
+    /**
+     * 更新菜单
+     * @return 返回结果
+     */
     @PutMapping("/{menuId}")
     public ApiResponse<MenuResponse> updateMenu(@PathVariable Long menuId,
                                                  @Valid @RequestBody MenuRequest req) {
         return ApiResponse.success(menuService.updateMenu(menuId, req));
     }
 
+    /**
+     * 删除菜单
+     * @param menuId menuId
+     * @return 返回结果
+     */
     @DeleteMapping("/{menuId}")
     public ApiResponse<Void> deleteMenu(@PathVariable Long menuId) {
         menuService.deleteMenu(menuId);

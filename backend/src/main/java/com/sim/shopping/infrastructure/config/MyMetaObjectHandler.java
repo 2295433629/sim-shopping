@@ -8,9 +8,19 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+/**
+ * MyMetaObject处理器
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
+    /**
+     * 插入Fill
+     * @param metaObject metaObject
+     */
     @Override
     public void insertFill(MetaObject metaObject) {
         this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, LocalDateTime.now());
@@ -21,6 +31,10 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         this.strictInsertFill(metaObject, "updatedBy", Long.class, currentUserId);
     }
 
+    /**
+     * 更新Fill
+     * @param metaObject metaObject
+     */
     @Override
     public void updateFill(MetaObject metaObject) {
         this.strictUpdateFill(metaObject, "updatedAt", LocalDateTime.class, LocalDateTime.now());

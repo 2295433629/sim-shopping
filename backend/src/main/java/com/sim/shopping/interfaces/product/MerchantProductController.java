@@ -15,6 +15,12 @@ import java.math.BigDecimal;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+/**
+ * MerchantProduct控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/merchant/products")
 @PreAuthorize("hasRole('MERCHANT')")
@@ -28,12 +34,21 @@ public class MerchantProductController {
         this.merchantMapper = merchantMapper;
     }
 
+    /**
+     * 发布商品
+     * @param req req
+     * @return 返回结果
+     */
     @PostMapping
     public ApiResponse<Long> createProduct(@Valid @RequestBody ProductCreateRequest req) {
         Long merchantId = resolveMerchantId();
         return ApiResponse.success(productService.createProduct(merchantId, req));
     }
 
+    /**
+     * 编辑商品
+     * @return 返回结果
+     */
     @PutMapping("/{productId}")
     public ApiResponse<Void> updateProduct(@PathVariable Long productId,
                                             @Valid @RequestBody ProductUpdateRequest req) {
@@ -42,6 +57,11 @@ public class MerchantProductController {
         return ApiResponse.success();
     }
 
+    /**
+     * publish Product
+     * @param productId productId
+     * @return 返回结果
+     */
     @PatchMapping("/{productId}/publish")
     public ApiResponse<Void> publishProduct(@PathVariable Long productId) {
         Long merchantId = resolveMerchantId();
@@ -49,6 +69,11 @@ public class MerchantProductController {
         return ApiResponse.success();
     }
 
+    /**
+     * offline Product
+     * @param productId productId
+     * @return 返回结果
+     */
     @PatchMapping("/{productId}/offline")
     public ApiResponse<Void> offlineProduct(@PathVariable Long productId) {
         Long merchantId = resolveMerchantId();
@@ -56,6 +81,11 @@ public class MerchantProductController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除商品
+     * @param productId productId
+     * @return 返回结果
+     */
     @DeleteMapping("/{productId}")
     public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
         Long merchantId = resolveMerchantId();
@@ -63,6 +93,10 @@ public class MerchantProductController {
         return ApiResponse.success();
     }
 
+    /**
+     * 查询商家商品列表
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PageResponse<ProductDetailVO>> getMerchantProducts(
             @RequestParam(defaultValue = "1") int page,
@@ -73,6 +107,11 @@ public class MerchantProductController {
         return ApiResponse.success(productService.getMerchantProducts(merchantId, page, size, status, keyword));
     }
 
+    /**
+     * 获取Merchant Product Detail
+     * @param productId productId
+     * @return 返回结果
+     */
     @GetMapping("/{productId}")
     public ApiResponse<ProductDetailVO> getMerchantProductDetail(@PathVariable Long productId) {
         Long merchantId = resolveMerchantId();

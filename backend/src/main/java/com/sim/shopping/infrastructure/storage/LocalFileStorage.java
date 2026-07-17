@@ -14,6 +14,12 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+/**
+ * LocalFileStorage
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Component
 public class LocalFileStorage {
 
@@ -30,6 +36,11 @@ public class LocalFileStorage {
         this.urlPrefix = urlPrefix;
     }
 
+    /**
+     * 保存
+     * @param file file
+     * @return 返回结果
+     */
     public String save(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new IOException("文件不能为空");

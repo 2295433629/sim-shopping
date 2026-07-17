@@ -9,6 +9,12 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
+/**
+ * 活动商品数据访问层，提供活动商品关联的CRUD操作
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Mapper
 public interface ActivityProductMapper extends BaseMapper<ActivityProductDO> {
 

@@ -14,6 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 分类服务，处理商品分类的增删改查和层级关系维护
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class CategoryService {
 
@@ -25,6 +31,10 @@ public class CategoryService {
         this.productMapper = productMapper;
     }
 
+    /**
+     * 查询分类树
+     * @return 返回结果
+     */
     public List<CategoryNode> getCategoryTree() {
         LambdaQueryWrapper<CategoryDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByAsc(CategoryDO::getSortOrder);
@@ -32,6 +42,11 @@ public class CategoryService {
         return buildTree(all, 0L);
     }
 
+    /**
+     * 创建分类
+     * @param category category
+     * @return 返回结果
+     */
     @Transactional
     public CategoryDO createCategory(CategoryDO category) {
         if (category.getParentId() == null) {
@@ -47,6 +62,12 @@ public class CategoryService {
         return category;
     }
 
+    /**
+     * 更新分类
+     * @param id id
+     * @param category category
+     * @return 返回结果
+     */
     @Transactional
     public CategoryDO updateCategory(Long id, CategoryDO category) {
         CategoryDO existing = categoryMapper.selectById(id);
@@ -72,6 +93,10 @@ public class CategoryService {
         return existing;
     }
 
+    /**
+     * 删除分类
+     * @param id id
+     */
     @Transactional
     public void deleteCategory(Long id) {
         CategoryDO existing = categoryMapper.selectById(id);
@@ -121,19 +146,63 @@ public class CategoryService {
         private String status;
         private List<CategoryNode> children = new ArrayList<>();
 
+        /** 获取Id */
         public Long getId() { return this.id; }
+        /** set Id */
         public void setId(Long id) { this.id = id; }
+        /**
+         * 获取Parent Id
+         * @return 返回结果
+         */
         public Long getParentId() { return this.parentId; }
+        /**
+         * set Parent Id
+         * @param parentId parentId
+         */
         public void setParentId(Long parentId) { this.parentId = parentId; }
+        /** 获取Name */
         public String getName() { return this.name; }
+        /** set Name */
         public void setName(String name) { this.name = name; }
+        /**
+         * 获取Icon
+         * @return 返回结果
+         */
         public String getIcon() { return this.icon; }
+        /**
+         * set Icon
+         * @param icon icon
+         */
         public void setIcon(String icon) { this.icon = icon; }
+        /**
+         * 获取Sort Order
+         * @return 返回结果
+         */
         public Integer getSortOrder() { return this.sortOrder; }
+        /**
+         * set Sort Order
+         * @param sortOrder sortOrder
+         */
         public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
+        /**
+         * 获取Status
+         * @return 返回结果
+         */
         public String getStatus() { return this.status; }
+        /**
+         * set Status
+         * @param status status
+         */
         public void setStatus(String status) { this.status = status; }
+        /**
+         * 获取Children
+         * @return 返回结果
+         */
         public List<CategoryNode> getChildren() { return this.children; }
+        /**
+         * set Children
+         * @param children children
+         */
         public void setChildren(List<CategoryNode> children) { this.children = children; }
     }
 }

@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 管理员认证服务，处理管理员登录和权限验证
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class AdminAuthService {
 
@@ -33,6 +39,11 @@ public class AdminAuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    /**
+     * 管理员登录
+     * @param req req
+     * @return 返回结果
+     */
     public Map<String, Object> adminLogin(AdminLoginRequest req) {
         // Find user by username
         LambdaQueryWrapper<UserDO> userWrapper = new LambdaQueryWrapper<>();

@@ -1,5 +1,11 @@
 package com.sim.shopping.domain.common.exception;
 
+/**
+ * Payment异常
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 public class PaymentException {
 
     public static class PaymentNotFoundException extends BusinessException {

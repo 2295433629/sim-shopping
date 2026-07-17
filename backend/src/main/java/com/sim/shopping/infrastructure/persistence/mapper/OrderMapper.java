@@ -10,6 +10,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 订单数据访问层，提供订单表的CRUD操作
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Mapper
 public interface OrderMapper extends BaseMapper<OrderDO> {
 

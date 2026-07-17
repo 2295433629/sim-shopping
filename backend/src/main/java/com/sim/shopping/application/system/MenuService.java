@@ -14,6 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 菜单服务，处理系统菜单树的配置和管理
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class MenuService {
 
@@ -23,6 +29,10 @@ public class MenuService {
         this.sysMenuMapper = sysMenuMapper;
     }
 
+    /**
+     * 获取Menu Tree
+     * @return 返回结果
+     */
     public List<MenuResponse> getMenuTree() {
         LambdaQueryWrapper<SysMenuDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByAsc(SysMenuDO::getSortOrder);
@@ -30,6 +40,11 @@ public class MenuService {
         return buildTree(allMenus);
     }
 
+    /**
+     * 创建菜单
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public MenuResponse createMenu(MenuRequest req) {
         SysMenuDO menu = new SysMenuDO();
@@ -45,6 +60,12 @@ public class MenuService {
         return toResponse(menu);
     }
 
+    /**
+     * 更新菜单
+     * @param menuId menuId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public MenuResponse updateMenu(Long menuId, MenuRequest req) {
         SysMenuDO menu = sysMenuMapper.selectById(menuId);
@@ -69,6 +90,10 @@ public class MenuService {
         return toResponse(menu);
     }
 
+    /**
+     * 删除菜单
+     * @param menuId menuId
+     */
     @Transactional
     public void deleteMenu(Long menuId) {
         SysMenuDO menu = sysMenuMapper.selectById(menuId);

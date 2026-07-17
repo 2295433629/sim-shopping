@@ -8,6 +8,12 @@ import org.apache.ibatis.annotations.Update;
 
 import java.math.BigDecimal;
 
+/**
+ * 店铺数据访问层，提供店铺信息的CRUD操作
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Mapper
 public interface ShopMapper extends BaseMapper<ShopDO> {
 

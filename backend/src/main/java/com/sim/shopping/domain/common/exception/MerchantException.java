@@ -1,5 +1,11 @@
 package com.sim.shopping.domain.common.exception;
 
+/**
+ * Merchant异常
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 public class MerchantException {
 
     public static class MerchantNotFoundException extends BusinessException {

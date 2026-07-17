@@ -7,6 +7,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * UserDetailsServiceImpl
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -16,6 +22,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.userMapper = userMapper;
     }
 
+    /**
+     * 加载User By Username
+     * @param username username
+     * @return 返回结果
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDO user = userMapper.selectOne(

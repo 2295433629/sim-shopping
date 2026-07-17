@@ -21,6 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 商品服务，处理商品发布、编辑、上下架、库存管理和查询
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class ProductService {
 
@@ -59,6 +65,12 @@ public class ProductService {
 
     // ==================== Merchant Operations ====================
 
+    /**
+     * 发布商品
+     * @param merchantId merchantId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public Long createProduct(Long merchantId, ProductCreateRequest req) {
         Long shopId = getShopIdByMerchant(merchantId);
@@ -122,6 +134,12 @@ public class ProductService {
         return product.getId();
     }
 
+    /**
+     * 编辑商品
+     * @param merchantId merchantId
+     * @param productId productId
+     * @param req req
+     */
     @Transactional
     public void updateProduct(Long merchantId, Long productId, ProductUpdateRequest req) {
         Long shopId = getShopIdByMerchant(merchantId);
@@ -179,6 +197,11 @@ public class ProductService {
         }
     }
 
+    /**
+     * publish Product
+     * @param merchantId merchantId
+     * @param productId productId
+     */
     @Transactional
     public void publishProduct(Long merchantId, Long productId) {
         Long shopId = getShopIdByMerchant(merchantId);
@@ -191,6 +214,11 @@ public class ProductService {
         productMapper.updateById(product);
     }
 
+    /**
+     * offline Product
+     * @param merchantId merchantId
+     * @param productId productId
+     */
     @Transactional
     public void offlineProduct(Long merchantId, Long productId) {
         Long shopId = getShopIdByMerchant(merchantId);
@@ -202,6 +230,11 @@ public class ProductService {
         productMapper.updateById(product);
     }
 
+    /**
+     * 删除商品
+     * @param merchantId merchantId
+     * @param productId productId
+     */
     @Transactional
     public void deleteProduct(Long merchantId, Long productId) {
         Long shopId = getShopIdByMerchant(merchantId);
@@ -221,6 +254,15 @@ public class ProductService {
         productMapper.deleteById(productId);
     }
 
+    /**
+     * 查询商家商品列表
+     * @param merchantId merchantId
+     * @param page page
+     * @param size size
+     * @param status status
+     * @param keyword keyword
+     * @return 返回结果
+     */
     public PageResponse<ProductDetailVO> getMerchantProducts(Long merchantId, int page, int size, String status, String keyword) {
         Long shopId = getShopIdByMerchant(merchantId);
         Page<ProductDO> pageParam = new Page<>(page, size);
@@ -242,6 +284,12 @@ public class ProductService {
         return PageResponse.of(list, productPage.getTotal(), page, size);
     }
 
+    /**
+     * 获取Merchant Product Detail
+     * @param merchantId merchantId
+     * @param productId productId
+     * @return 返回结果
+     */
     public ProductDetailVO getMerchantProductDetail(Long merchantId, Long productId) {
         Long shopId = getShopIdByMerchant(merchantId);
         ProductDO product = getProductAndCheckOwnership(productId, shopId);
@@ -263,6 +311,10 @@ public class ProductService {
 
     // ==================== Public Operations ====================
 
+    /**
+     * 查询公开商品列表
+     * @return 返回结果
+     */
     public PageResponse<ProductCardVO> getPublicProducts(int page, int size, Long categoryId, String keyword,
                                                           BigDecimal minPrice, BigDecimal maxPrice, String sort) {
         Page<ProductDO> pageParam = new Page<>(page, size);
@@ -291,6 +343,11 @@ public class ProductService {
         return PageResponse.of(list, productPage.getTotal(), page, size);
     }
 
+    /**
+     * 获取Public Product Detail
+     * @param productId productId
+     * @return 返回结果
+     */
     @Transactional
     public ProductDetailVO getPublicProductDetail(Long productId) {
         ProductDO product = productMapper.selectById(productId);
@@ -321,6 +378,10 @@ public class ProductService {
         return toDetailVO(product);
     }
 
+    /**
+     * 搜索商品（关键词匹配）
+     * @return 返回结果
+     */
     @Transactional
     public PageResponse<ProductCardVO> searchProducts(String keyword, int page, int size, Long categoryId,
                                                        BigDecimal minPrice, BigDecimal maxPrice, String sort) {
@@ -364,6 +425,11 @@ public class ProductService {
         return PageResponse.of(list, productPage.getTotal(), page, size);
     }
 
+    /**
+     * 获取Recommend Products
+     * @param size size
+     * @return 返回结果
+     */
     public List<ProductCardVO> getRecommendProducts(int size) {
         LambdaQueryWrapper<ProductDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ProductDO::getStatus, "PUBLISHED")
@@ -373,6 +439,11 @@ public class ProductService {
         return products.stream().map(this::toCardVO).collect(Collectors.toList());
     }
 
+    /**
+     * 获取Hot Products
+     * @param size size
+     * @return 返回结果
+     */
     public List<ProductCardVO> getHotProducts(int size) {
         LambdaQueryWrapper<ProductDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ProductDO::getStatus, "PUBLISHED")
@@ -382,6 +453,11 @@ public class ProductService {
         return products.stream().map(this::toCardVO).collect(Collectors.toList());
     }
 
+    /**
+     * 获取New Products
+     * @param size size
+     * @return 返回结果
+     */
     public List<ProductCardVO> getNewProducts(int size) {
         LambdaQueryWrapper<ProductDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ProductDO::getStatus, "PUBLISHED")
@@ -391,6 +467,14 @@ public class ProductService {
         return products.stream().map(this::toCardVO).collect(Collectors.toList());
     }
 
+    /**
+     * 获取Products By Shop
+     * @param shopId shopId
+     * @param page page
+     * @param size size
+     * @param sort sort
+     * @return 返回结果
+     */
     public PageResponse<ProductCardVO> getProductsByShop(Long shopId, int page, int size, String sort) {
         Page<ProductDO> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<ProductDO> wrapper = new LambdaQueryWrapper<>();
@@ -408,6 +492,15 @@ public class ProductService {
 
     // ==================== Admin Operations ====================
 
+    /**
+     * 查询全平台商品列表（管理员）
+     * @param page page
+     * @param size size
+     * @param status status
+     * @param shopId shopId
+     * @param keyword keyword
+     * @return 返回结果
+     */
     public PageResponse<ProductDetailVO> getAdminProducts(int page, int size, String status, Long shopId, String keyword) {
         Page<ProductDO> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<ProductDO> wrapper = new LambdaQueryWrapper<>();
@@ -430,6 +523,11 @@ public class ProductService {
         return PageResponse.of(list, productPage.getTotal(), page, size);
     }
 
+    /**
+     * 获取Admin Product Detail
+     * @param productId productId
+     * @return 返回结果
+     */
     public ProductDetailVO getAdminProductDetail(Long productId) {
         ProductDO product = productMapper.selectById(productId);
         if (product == null) {
@@ -438,6 +536,10 @@ public class ProductService {
         return toDetailVO(product);
     }
 
+    /**
+     * force Offline
+     * @param productId productId
+     */
     @Transactional
     public void forceOffline(Long productId) {
         ProductDO product = productMapper.selectById(productId);

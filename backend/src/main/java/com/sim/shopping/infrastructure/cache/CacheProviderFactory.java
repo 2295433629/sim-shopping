@@ -4,6 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * CacheProvider工厂
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Component
 public class CacheProviderFactory {
 
@@ -22,6 +28,10 @@ public class CacheProviderFactory {
         log.info("CacheProviderFactory initialized, cache.type={}", cacheProperties.getType());
     }
 
+    /**
+     * 获取Cache Provider
+     * @return 返回结果
+     */
     public CacheProvider getCacheProvider() {
         if ("database".equalsIgnoreCase(cacheProperties.getType())) {
             return databaseCacheProvider;

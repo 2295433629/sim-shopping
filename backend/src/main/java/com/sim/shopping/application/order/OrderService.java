@@ -25,6 +25,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 订单服务，处理订单创建、支付、发货、取消、完成等完整生命周期
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class OrderService {
 
@@ -76,6 +82,14 @@ public class OrderService {
         this.settlementService = settlementService;
     }
 
+    /**
+     * 创建订单（按购物车选中商品结算）
+     * @param userId userId
+     * @param addressId addressId
+     * @param remark remark
+     * @param cartItemIds cartItemIds
+     * @return 返回结果
+     */
     @Transactional
     public List<OrderResponse> createOrder(Long userId, Long addressId, String remark, List<Long> cartItemIds) {
         if (cartItemIds == null || cartItemIds.isEmpty()) {
@@ -194,6 +208,14 @@ public class OrderService {
         return createdOrders;
     }
 
+    /**
+     * 查询用户订单列表（支持分页和按状态筛选）
+     * @param userId userId
+     * @param page page
+     * @param size size
+     * @param status status
+     * @return 返回结果
+     */
     public PageResponse<OrderListItemVO> getUserOrders(Long userId, int page, int size, String status) {
         Page<OrderDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<OrderDO> wrapper = new LambdaQueryWrapper<>();
@@ -212,6 +234,11 @@ public class OrderService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 查询订单详情
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     public OrderDetailVO getOrderDetail(String orderNo) {
         OrderDO order = orderByNo(orderNo);
         if (order == null) {
@@ -220,6 +247,12 @@ public class OrderService {
         return convertToOrderDetailVO(order);
     }
 
+    /**
+     * 查询用户订单详情（含权限校验）
+     * @param orderNo orderNo
+     * @param userId userId
+     * @return 返回结果
+     */
     public OrderDetailVO getOrderDetailForUser(String orderNo, Long userId) {
         OrderDO order = orderByNo(orderNo);
         if (order == null) {
@@ -231,6 +264,12 @@ public class OrderService {
         return convertToOrderDetailVO(order);
     }
 
+    /**
+     * 查询商家订单详情（含权限校验）
+     * @param orderNo orderNo
+     * @param shopId shopId
+     * @return 返回结果
+     */
     public OrderDetailVO getOrderDetailForShop(String orderNo, Long shopId) {
         OrderDO order = orderByNo(orderNo);
         if (order == null) {
@@ -242,6 +281,11 @@ public class OrderService {
         return convertToOrderDetailVO(order);
     }
 
+    /**
+     * 取消订单
+     * @param userId userId
+     * @param orderNo orderNo
+     */
     @Transactional
     public void cancelOrder(Long userId, String orderNo) {
         OrderDO order = orderByNo(orderNo);
@@ -277,6 +321,11 @@ public class OrderService {
         eventPublisher.publishEvent(new OrderCancelledEvent(orderNo, userId, order.getShopId()));
     }
 
+    /**
+     * 确认收货
+     * @param userId userId
+     * @param orderNo orderNo
+     */
     @Transactional
     public void confirmReceive(Long userId, String orderNo) {
         OrderDO order = orderByNo(orderNo);
@@ -305,6 +354,15 @@ public class OrderService {
         settlementService.settleOrder(order.getId(), orderNo, order.getShopId(), payAmount);
     }
 
+    /**
+     * 查询商家订单列表
+     * @param shopId shopId
+     * @param page page
+     * @param size size
+     * @param status status
+     * @param keyword keyword
+     * @return 返回结果
+     */
     public PageResponse<OrderListItemVO> getMerchantOrders(Long shopId, int page, int size, String status, String keyword) {
         Page<OrderDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<OrderDO> wrapper = new LambdaQueryWrapper<>();
@@ -327,6 +385,15 @@ public class OrderService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 查询全平台订单列表（管理员）
+     * @param page page
+     * @param size size
+     * @param status status
+     * @param shopId shopId
+     * @param keyword keyword
+     * @return 返回结果
+     */
     public PageResponse<OrderListItemVO> getAdminOrders(int page, int size, String status, Long shopId, String keyword) {
         Page<OrderDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<OrderDO> wrapper = new LambdaQueryWrapper<>();

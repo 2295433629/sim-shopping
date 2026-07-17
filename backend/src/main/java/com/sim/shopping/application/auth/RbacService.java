@@ -13,6 +13,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Rbac服务，处理相关业务逻辑
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class RbacService {
 

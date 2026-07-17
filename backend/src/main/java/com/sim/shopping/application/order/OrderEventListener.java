@@ -19,6 +19,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * OrderEvent事件监听器
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Component
 public class OrderEventListener {
 
@@ -39,6 +45,10 @@ public class OrderEventListener {
         this.orderMapper = orderMapper;
     }
 
+    /**
+     * 处理Order Created
+     * @param event event
+     */
     @EventListener
     public void handleOrderCreated(OrderCreatedEvent event) {
         log.info("订单创建事件: orderNo={}, userId={}, shopId={}, totalAmount={}",
@@ -56,6 +66,10 @@ public class OrderEventListener {
         }
     }
 
+    /**
+     * 处理Order Cancelled
+     * @param event event
+     */
     @EventListener
     public void handleOrderCancelled(OrderCancelledEvent event) {
         log.info("订单取消事件: orderNo={}, userId={}, shopId={}",
@@ -73,6 +87,10 @@ public class OrderEventListener {
         }
     }
 
+    /**
+     * 处理Shipment Created
+     * @param event event
+     */
     @EventListener
     public void handleShipmentCreated(ShipmentCreatedEvent event) {
         log.info("发货事件: orderNo={}, shipmentId={}, trackingNo={}, logisticsCompany={}",
@@ -90,6 +108,10 @@ public class OrderEventListener {
         }
     }
 
+    /**
+     * 处理Logistics Delivered
+     * @param event event
+     */
     @EventListener
     public void handleLogisticsDelivered(LogisticsDeliveredEvent event) {
         log.info("物流送达事件: orderNo={}, orderId={}",
@@ -107,6 +129,10 @@ public class OrderEventListener {
         }
     }
 
+    /**
+     * 处理Review Created
+     * @param event event
+     */
     @EventListener
     public void handleReviewCreated(ReviewCreatedEvent event) {
         log.info("评价创建事件: orderNo={}, productId={}, rating={}",

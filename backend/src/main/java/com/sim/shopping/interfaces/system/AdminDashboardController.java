@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * AdminDashboard控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
@@ -19,6 +25,10 @@ public class AdminDashboardController {
         this.adminDashboardService = adminDashboardService;
     }
 
+    /**
+     * 获取Dashboard
+     * @return 返回结果
+     */
     @GetMapping("/dashboard")
     public ApiResponse<DashboardVO> getDashboard() {
         return ApiResponse.success(adminDashboardService.getDashboard());

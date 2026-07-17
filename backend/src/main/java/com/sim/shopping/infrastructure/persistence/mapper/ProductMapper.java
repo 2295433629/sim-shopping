@@ -6,6 +6,12 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
+/**
+ * 商品数据访问层，提供商品表的CRUD操作
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Mapper
 public interface ProductMapper extends BaseMapper<ProductDO> {
 

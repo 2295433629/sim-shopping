@@ -8,9 +8,19 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 
+/**
+ * 跨域配置类，配置跨域访问策略
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Configuration
 public class CorsConfig {
 
+    /**
+     * cors Filter
+     * @return 返回结果
+     */
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();

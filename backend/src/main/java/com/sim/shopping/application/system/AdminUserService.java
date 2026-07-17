@@ -13,6 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * AdminUser服务，处理相关业务逻辑
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class AdminUserService {
 
@@ -22,6 +28,14 @@ public class AdminUserService {
         this.userMapper = userMapper;
     }
 
+    /**
+     * 获取User List
+     * @param page page
+     * @param size size
+     * @param keyword keyword
+     * @param status status
+     * @return 返回结果
+     */
     public PageResponse<AdminUserItem> getUserList(int page, int size, String keyword, Integer status) {
         Page<UserDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<UserDO> wrapper = new LambdaQueryWrapper<>();
@@ -45,6 +59,11 @@ public class AdminUserService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 获取User Detail
+     * @param userId userId
+     * @return 返回结果
+     */
     public AdminUserItem getUserDetail(Long userId) {
         UserDO user = userMapper.selectById(userId);
         if (user == null) {
@@ -53,6 +72,10 @@ public class AdminUserService {
         return toAdminUserItem(user);
     }
 
+    /**
+     * 禁用User
+     * @param userId userId
+     */
     @Transactional
     public void disableUser(Long userId) {
         UserDO user = userMapper.selectById(userId);
@@ -63,6 +86,10 @@ public class AdminUserService {
         userMapper.updateById(user);
     }
 
+    /**
+     * 启用User
+     * @param userId userId
+     */
     @Transactional
     public void enableUser(Long userId) {
         UserDO user = userMapper.selectById(userId);

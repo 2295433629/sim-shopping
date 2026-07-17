@@ -15,6 +15,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 结算服务，处理商家结算计算和收入统计
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class SettlementService {
 

@@ -16,6 +16,12 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 购物车服务，处理购物车商品的添加、删除、数量修改和查询
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class CartService {
 
@@ -43,6 +49,11 @@ public class CartService {
         this.cacheProvider = cacheProviderFactory.getCacheProvider();
     }
 
+    /**
+     * 查询用户购物车
+     * @param userId userId
+     * @return 返回结果
+     */
     public CartResponse getCart(Long userId) {
         ShoppingCartDO cart = getOrCreateCart(userId);
         List<CartItemDO> cartItems = getCartItems(cart.getId());
@@ -52,6 +63,14 @@ public class CartService {
         return response;
     }
 
+    /**
+     * 添加商品到购物车
+     * @param userId userId
+     * @param productId productId
+     * @param skuId skuId
+     * @param quantity quantity
+     * @return 返回结果
+     */
     @Transactional
     public CartResponse addToCart(Long userId, Long productId, Long skuId, Integer quantity) {
         if (quantity == null || quantity <= 0) {
@@ -106,6 +125,14 @@ public class CartService {
         return getCart(userId);
     }
 
+    /**
+     * 更新购物车商品数量
+     * @param userId userId
+     * @param cartItemId cartItemId
+     * @param quantity quantity
+     * @param selected selected
+     * @return 返回结果
+     */
     @Transactional
     public CartResponse updateCartItem(Long userId, Long cartItemId, Integer quantity, Integer selected) {
         ShoppingCartDO cart = getOrCreateCart(userId);
@@ -127,6 +154,12 @@ public class CartService {
         return getCart(userId);
     }
 
+    /**
+     * 移除Cart Item
+     * @param userId userId
+     * @param cartItemId cartItemId
+     * @return 返回结果
+     */
     @Transactional
     public CartResponse removeCartItem(Long userId, Long cartItemId) {
         ShoppingCartDO cart = getOrCreateCart(userId);
@@ -138,6 +171,10 @@ public class CartService {
         return getCart(userId);
     }
 
+    /**
+     * 清空购物车
+     * @param userId userId
+     */
     @Transactional
     public void clearCart(Long userId) {
         ShoppingCartDO cart = getOrCreateCart(userId);
@@ -147,6 +184,12 @@ public class CartService {
         evictCache(userId);
     }
 
+    /**
+     * 查询All
+     * @param userId userId
+     * @param selected selected
+     * @return 返回结果
+     */
     @Transactional
     public CartResponse selectAll(Long userId, Integer selected) {
         ShoppingCartDO cart = getOrCreateCart(userId);

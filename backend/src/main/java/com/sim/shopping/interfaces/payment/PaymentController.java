@@ -7,6 +7,12 @@ import com.sim.shopping.interfaces.dto.payment.PaymentRequest;
 import com.sim.shopping.interfaces.dto.payment.PaymentResponse;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Payment控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/user/payments")
 public class PaymentController {
@@ -17,6 +23,10 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
+    /**
+     * 创建Payment
+     * @return 返回结果
+     */
     @PostMapping("/{orderNo}")
     public ApiResponse<PaymentResponse> createPayment(@PathVariable String orderNo,
                                                        @RequestBody PaymentRequest request) {
@@ -24,6 +34,11 @@ public class PaymentController {
         return ApiResponse.success(paymentService.createPayment(userId, orderNo, request.getPaymentMethod()));
     }
 
+    /**
+     * 获取Payment Status
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     @GetMapping("/{orderNo}")
     public ApiResponse<PaymentResponse> getPaymentStatus(@PathVariable String orderNo) {
         return ApiResponse.success(paymentService.getPaymentStatus(orderNo));

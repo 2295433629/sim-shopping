@@ -16,6 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 认证控制器，处理用户登录、注册、登出、Token刷新
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/common")
 public class AuthController {
@@ -28,12 +34,21 @@ public class AuthController {
         this.loginLogService = loginLogService;
     }
 
+    /**
+     * 用户注册
+     * @param request request
+     * @return 返回结果
+     */
     @PostMapping("/register")
     public ApiResponse<TokenResponse> register(@Valid @RequestBody RegisterRequest request) {
         TokenResponse tokenResponse = authService.register(request);
         return ApiResponse.success(tokenResponse);
     }
 
+    /**
+     * 用户登录
+     * @return 返回结果
+     */
     @PostMapping("/login")
     public ApiResponse<TokenResponse> login(@Valid @RequestBody LoginRequest request,
                                             HttpServletRequest httpRequest) {
@@ -52,18 +67,31 @@ public class AuthController {
         }
     }
 
+    /**
+     * 用户登出
+     * @return 返回结果
+     */
     @PostMapping("/logout")
     public ApiResponse<Void> logout() {
         authService.logout();
         return ApiResponse.success();
     }
 
+    /**
+     * 刷新Token
+     * @param request request
+     * @return 返回结果
+     */
     @PostMapping("/refresh-token")
     public ApiResponse<TokenResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         TokenResponse tokenResponse = authService.refreshToken(request.getRefreshToken());
         return ApiResponse.success(tokenResponse);
     }
 
+    /**
+     * 获取用户信息
+     * @return 返回结果
+     */
     @GetMapping("/userinfo")
     public ApiResponse<UserInfoResponse> getUserInfo() {
         UserInfoResponse userInfo = authService.getUserInfo();

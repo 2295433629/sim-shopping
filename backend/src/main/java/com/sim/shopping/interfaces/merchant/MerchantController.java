@@ -12,6 +12,12 @@ import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Merchant控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @PreAuthorize("hasRole('MERCHANT')")
 public class MerchantController {
@@ -24,6 +30,11 @@ public class MerchantController {
 
     // ===== Merchant endpoints (requires login) =====
 
+    /**
+     * apply
+     * @param req req
+     * @return 返回结果
+     */
     @PostMapping("/api/merchant/apply")
     public ApiResponse<MerchantInfoResponse> apply(@Valid @RequestBody MerchantApplyRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -41,12 +52,21 @@ public class MerchantController {
         return ApiResponse.success(merchantService.apply(userId, req));
     }
 
+    /**
+     * 获取Merchant Info
+     * @return 返回结果
+     */
     @GetMapping("/api/merchant/info")
     public ApiResponse<MerchantInfoResponse> getMerchantInfo() {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(merchantService.getMerchantInfo(userId));
     }
 
+    /**
+     * 更新Merchant Info
+     * @param req req
+     * @return 返回结果
+     */
     @PutMapping("/api/merchant/info")
     public ApiResponse<MerchantInfoResponse> updateMerchantInfo(@Valid @RequestBody MerchantApplyRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -55,6 +75,10 @@ public class MerchantController {
 
     // ===== Admin endpoints (requires admin login) =====
 
+    /**
+     * 获取Merchant List
+     * @return 返回结果
+     */
     @GetMapping("/api/admin/merchants")
     public ApiResponse<PageResponse<MerchantListResponse>> getMerchantList(
             @RequestParam(defaultValue = "1") int page,
@@ -64,6 +88,10 @@ public class MerchantController {
         return ApiResponse.success(merchantService.getMerchantList(page, size, status, keyword));
     }
 
+    /**
+     * 获取Pending Merchants
+     * @return 返回结果
+     */
     @GetMapping("/api/admin/merchants/pending")
     public ApiResponse<PageResponse<MerchantListResponse>> getPendingMerchants(
             @RequestParam(defaultValue = "1") int page,
@@ -71,11 +99,21 @@ public class MerchantController {
         return ApiResponse.success(merchantService.getPendingMerchants(page, size));
     }
 
+    /**
+     * 获取Merchant Detail
+     * @param merchantId merchantId
+     * @return 返回结果
+     */
     @GetMapping("/api/admin/merchants/{merchantId}")
     public ApiResponse<MerchantInfoResponse> getMerchantDetail(@PathVariable Long merchantId) {
         return ApiResponse.success(merchantService.getMerchantDetail(merchantId));
     }
 
+    /**
+     * approve Merchant
+     * @param merchantId merchantId
+     * @return 返回结果
+     */
     @PatchMapping("/api/admin/merchants/{merchantId}/approve")
     public ApiResponse<Void> approveMerchant(@PathVariable Long merchantId) {
         Long adminId = SecurityUtils.getCurrentUserId();
@@ -83,6 +121,10 @@ public class MerchantController {
         return ApiResponse.success();
     }
 
+    /**
+     * reject Merchant
+     * @return 返回结果
+     */
     @PatchMapping("/api/admin/merchants/{merchantId}/reject")
     public ApiResponse<Void> rejectMerchant(@PathVariable Long merchantId,
                                              @Valid @RequestBody AuditRequest req) {
@@ -91,12 +133,22 @@ public class MerchantController {
         return ApiResponse.success();
     }
 
+    /**
+     * 禁用Merchant
+     * @param merchantId merchantId
+     * @return 返回结果
+     */
     @PatchMapping("/api/admin/merchants/{merchantId}/disable")
     public ApiResponse<Void> disableMerchant(@PathVariable Long merchantId) {
         merchantService.disableMerchant(merchantId);
         return ApiResponse.success();
     }
 
+    /**
+     * 启用Merchant
+     * @param merchantId merchantId
+     * @return 返回结果
+     */
     @PatchMapping("/api/admin/merchants/{merchantId}/enable")
     public ApiResponse<Void> enableMerchant(@PathVariable Long merchantId) {
         merchantService.enableMerchant(merchantId);

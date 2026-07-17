@@ -18,6 +18,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 优惠券服务，处理优惠券的创建、发放、领取和使用
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class CouponService {
 
@@ -30,6 +36,11 @@ public class CouponService {
         this.couponMapper = couponMapper;
     }
 
+    /**
+     * 创建优惠券
+     * @param coupon coupon
+     * @return 返回结果
+     */
     @Transactional(rollbackFor = Exception.class)
     public CouponResponse createCoupon(CouponDO coupon) {
         // 校验券码唯一性
@@ -49,6 +60,12 @@ public class CouponService {
         return convertToResponse(coupon);
     }
 
+    /**
+     * 更新优惠券
+     * @param id id
+     * @param coupon coupon
+     * @return 返回结果
+     */
     @Transactional
     public CouponResponse updateCoupon(Long id, CouponDO coupon) {
         CouponDO existing = couponMapper.selectById(id);
@@ -75,6 +92,10 @@ public class CouponService {
         return convertToResponse(couponMapper.selectById(id));
     }
 
+    /**
+     * 删除优惠券
+     * @param id id
+     */
     @Transactional(rollbackFor = Exception.class)
     public void deleteCoupon(Long id) {
         CouponDO existing = couponMapper.selectById(id);
@@ -84,6 +105,11 @@ public class CouponService {
         couponMapper.deleteById(id);
     }
 
+    /**
+     * 获取Coupon Detail
+     * @param id id
+     * @return 返回结果
+     */
     public CouponResponse getCouponDetail(Long id) {
         CouponDO coupon = couponMapper.selectById(id);
         if (coupon == null) {
@@ -92,6 +118,14 @@ public class CouponService {
         return convertToResponse(coupon);
     }
 
+    /**
+     * 获取Coupon List
+     * @param page page
+     * @param size size
+     * @param keyword keyword
+     * @param status status
+     * @return 返回结果
+     */
     public PageResponse<CouponResponse> getCouponList(int page, int size, String keyword, String status) {
         Page<CouponDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<CouponDO> wrapper = new LambdaQueryWrapper<>();
@@ -112,6 +146,10 @@ public class CouponService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 获取Public Available Coupons
+     * @return 返回结果
+     */
     public List<CouponResponse> getPublicAvailableCoupons() {
         LocalDateTime now = LocalDateTime.now();
         LambdaQueryWrapper<CouponDO> wrapper = new LambdaQueryWrapper<>();
@@ -129,6 +167,10 @@ public class CouponService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取Coupon Statistics
+     * @return 返回结果
+     */
     public CouponStatisticsVO getCouponStatistics() {
         LocalDateTime now = LocalDateTime.now();
         CouponStatisticsVO vo = new CouponStatisticsVO();

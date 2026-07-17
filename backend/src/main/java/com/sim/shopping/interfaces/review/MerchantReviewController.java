@@ -17,6 +17,12 @@ import java.util.Map;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+/**
+ * MerchantReview控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/merchant/reviews")
 @PreAuthorize("hasRole('MERCHANT')")
@@ -34,6 +40,10 @@ public class MerchantReviewController {
         this.shopMapper = shopMapper;
     }
 
+    /**
+     * 查询商家商品评价
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PageResponse<MerchantReviewResponse>> getMerchantReviews(
             @RequestParam(defaultValue = "1") int page,
@@ -42,6 +52,12 @@ public class MerchantReviewController {
         return ApiResponse.success(reviewService.getMerchantReviews(shopId, page, size));
     }
 
+    /**
+     * 回复评价
+     * @param reviewId reviewId
+     * @param body body
+     * @return 返回结果
+     */
     @PostMapping("/{reviewId}/reply")
     public ApiResponse<Void> replyReview(@PathVariable Long reviewId, @RequestBody Map<String, String> body) {
         Long shopId = resolveShopId();

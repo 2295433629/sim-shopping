@@ -23,6 +23,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * 排行榜服务，处理各类排行数据的统计和查询
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class RankingService {
 
@@ -42,6 +48,11 @@ public class RankingService {
         this.userMapper = userMapper;
     }
 
+    /**
+     * 查询消费排行榜
+     * @param period period
+     * @return 返回结果
+     */
     public RankingListResponse getConsumptionRanking(String period) {
         LambdaQueryWrapper<OrderDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.in(OrderDO::getStatus, VALID_ORDER_STATUSES);
@@ -72,6 +83,11 @@ public class RankingService {
         return response;
     }
 
+    /**
+     * 查询签到排行榜
+     * @param period period
+     * @return 返回结果
+     */
     public RankingListResponse getSignInRanking(String period) {
         LambdaQueryWrapper<SignInRecordDO> wrapper = new LambdaQueryWrapper<>();
 

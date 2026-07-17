@@ -19,6 +19,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Spring Security配置类，配置JWT认证、权限控制和过滤器链
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -32,6 +38,11 @@ public class SecurityConfig {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * security Filter Chain
+     * @param http http
+     * @return 返回结果
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -70,11 +81,20 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * password Encoder
+     * @return 返回结果
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * authentication Manager
+     * @param config config
+     * @return 返回结果
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

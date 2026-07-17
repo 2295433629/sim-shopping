@@ -11,6 +11,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 文件上传控制器，处理图片等文件的上传
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/common")
 public class FileController {
@@ -26,6 +32,10 @@ public class FileController {
         this.localFileStorage = localFileStorage;
     }
 
+    /**
+     * 上传文件
+     * @return 返回结果
+     */
     @PostMapping("/upload")
     public ApiResponse<Map<String, Object>> upload(
             @RequestParam("file") MultipartFile file,

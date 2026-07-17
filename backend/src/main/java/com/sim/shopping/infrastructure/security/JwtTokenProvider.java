@@ -12,6 +12,12 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+/**
+ * JWT Token提供者，负责Token的生成、解析和验证
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Component
 public class JwtTokenProvider {
 
@@ -31,6 +37,13 @@ public class JwtTokenProvider {
         this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
+    /**
+     * 生成Access Token
+     * @param userId userId
+     * @param username username
+     * @param userType userType
+     * @return 返回结果
+     */
     public String generateAccessToken(Long userId, String username, String userType) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessTokenExpiration);
@@ -45,6 +58,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * 生成Refresh Token
+     * @param userId userId
+     * @param username username
+     * @return 返回结果
+     */
     public String generateRefreshToken(Long userId, String username) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshTokenExpiration);
@@ -58,6 +77,11 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * 解析Token
+     * @param token token
+     * @return 返回结果
+     */
     public Claims parseToken(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
@@ -66,6 +90,11 @@ public class JwtTokenProvider {
                 .getPayload();
     }
 
+    /**
+     * 校验Token
+     * @param token token
+     * @return 返回结果
+     */
     public boolean validateToken(String token) {
         try {
             parseToken(token);
@@ -76,25 +105,48 @@ public class JwtTokenProvider {
         }
     }
 
+    /**
+     * 获取User Id From Token
+     * @param token token
+     * @return 返回结果
+     */
     public Long getUserIdFromToken(String token) {
         Claims claims = parseToken(token);
         return Long.parseLong(claims.getSubject());
     }
 
+    /**
+     * 获取Username From Token
+     * @param token token
+     * @return 返回结果
+     */
     public String getUsernameFromToken(String token) {
         Claims claims = parseToken(token);
         return claims.get("username", String.class);
     }
 
+    /**
+     * 获取User Type From Token
+     * @param token token
+     * @return 返回结果
+     */
     public String getUserTypeFromToken(String token) {
         Claims claims = parseToken(token);
         return claims.get("userType", String.class);
     }
 
+    /**
+     * 获取Access Token Expiration
+     * @return 返回结果
+     */
     public long getAccessTokenExpiration() {
         return accessTokenExpiration;
     }
 
+    /**
+     * 获取Refresh Token Expiration
+     * @return 返回结果
+     */
     public long getRefreshTokenExpiration() {
         return refreshTokenExpiration;
     }

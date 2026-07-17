@@ -10,6 +10,12 @@ import org.apache.ibatis.annotations.Update;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 秒杀活动数据访问层，提供秒杀活动的CRUD操作
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Mapper
 public interface FlashSaleMapper extends BaseMapper<FlashSaleDO> {
 

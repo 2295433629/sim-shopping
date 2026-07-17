@@ -29,6 +29,12 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+/**
+ * 秒杀服务，处理秒杀活动的创建、商品管理和库存扣减
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class FlashSaleService {
 
@@ -57,6 +63,12 @@ public class FlashSaleService {
         this.userAddressMapper = userAddressMapper;
     }
 
+    /**
+     * 获取Active Flash Sales
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<FlashSaleResponse> getActiveFlashSales(int page, int size) {
         if (page < 1) {
             page = 1;
@@ -86,6 +98,11 @@ public class FlashSaleService {
         return PageResponse.of(responses, total, page, size);
     }
 
+    /**
+     * 获取Flash Sale Detail
+     * @param saleId saleId
+     * @return 返回结果
+     */
     public FlashSaleDetailResponse getFlashSaleDetail(Long saleId) {
         if (saleId == null) {
             throw new BusinessException(400, "秒杀活动ID不能为空");
@@ -97,6 +114,14 @@ public class FlashSaleService {
         return convertToFlashSaleDetailResponse(flashSale);
     }
 
+    /**
+     * 创建Flash Sale Order
+     * @param userId userId
+     * @param saleId saleId
+     * @param addressId addressId
+     * @param quantity quantity
+     * @return 返回结果
+     */
     @Transactional(rollbackFor = Exception.class)
     public FlashSaleOrderResponse createFlashSaleOrder(Long userId, Long saleId, Long addressId, Integer quantity) {
         if (userId == null) {

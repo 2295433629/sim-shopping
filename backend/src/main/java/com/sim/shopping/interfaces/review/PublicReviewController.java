@@ -6,6 +6,12 @@ import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.review.ReviewResponse;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * PublicReview控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/public/products")
 public class PublicReviewController {
@@ -16,6 +22,10 @@ public class PublicReviewController {
         this.reviewService = reviewService;
     }
 
+    /**
+     * 查询商品评价列表
+     * @return 返回结果
+     */
     @GetMapping("/{productId}/reviews")
     public ApiResponse<PageResponse<ReviewResponse>> getProductReviews(
             @PathVariable Long productId,

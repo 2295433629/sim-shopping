@@ -17,6 +17,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * 商家结算控制器，处理商家结算记录查询
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/merchant/settlement")
 public class MerchantSettlementController {

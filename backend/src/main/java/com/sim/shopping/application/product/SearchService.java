@@ -12,6 +12,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * 搜索服务，处理商品关键词搜索和搜索建议
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class SearchService {
 
@@ -23,6 +29,11 @@ public class SearchService {
         this.searchHistoryMapper = searchHistoryMapper;
     }
 
+    /**
+     * suggest
+     * @param keyword keyword
+     * @return 返回结果
+     */
     public Map<String, Object> suggest(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return Map.of("suggestions", List.of());
@@ -40,6 +51,10 @@ public class SearchService {
         return Map.of("suggestions", suggestions);
     }
 
+    /**
+     * hot Keywords
+     * @return 返回结果
+     */
     public Map<String, Object> hotKeywords() {
         LambdaQueryWrapper<SearchHistoryDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByDesc(SearchHistoryDO::getSearchedAt)

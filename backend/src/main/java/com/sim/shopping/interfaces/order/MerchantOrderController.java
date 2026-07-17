@@ -15,6 +15,12 @@ import com.sim.shopping.interfaces.dto.order.OrderListItemVO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 商家订单控制器，处理商家对订单的发货和管理
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/merchant/orders")
 @PreAuthorize("hasRole('MERCHANT')")
@@ -32,6 +38,10 @@ public class MerchantOrderController {
         this.shopMapper = shopMapper;
     }
 
+    /**
+     * 查询商家订单列表
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PageResponse<OrderListItemVO>> getMerchantOrders(
             @RequestParam(defaultValue = "1") int page,
@@ -42,6 +52,11 @@ public class MerchantOrderController {
         return ApiResponse.success(orderService.getMerchantOrders(shopId, page, size, status, keyword));
     }
 
+    /**
+     * 查询订单详情
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     @GetMapping("/{orderNo}")
     public ApiResponse<OrderDetailVO> getOrderDetail(@PathVariable String orderNo) {
         Long shopId = resolveShopId();

@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * PublicCoupon控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/public/coupons")
 public class PublicCouponController {
@@ -19,6 +25,10 @@ public class PublicCouponController {
         this.couponService = couponService;
     }
 
+    /**
+     * 获取Available Coupons
+     * @return 返回结果
+     */
     @GetMapping("/available")
     public ApiResponse<List<CouponResponse>> getAvailableCoupons() {
         return ApiResponse.success(couponService.getPublicAvailableCoupons());

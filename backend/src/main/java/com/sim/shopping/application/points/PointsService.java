@@ -21,6 +21,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 积分服务，处理积分增减、积分兑换和积分流水记录
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class PointsService {
 
@@ -68,6 +74,11 @@ public class PointsService {
         pointsRecordMapper.insert(record);
     }
 
+    /**
+     * 查询积分余额
+     * @param userId userId
+     * @return 返回结果
+     */
     public PointsBalanceVO getPointsBalance(Long userId) {
         if (userId == null) {
             throw new BusinessException(400, "用户ID不能为空");
@@ -105,6 +116,14 @@ public class PointsService {
         return new PointsBalanceVO(currentPoints, totalEarned, totalSpent);
     }
 
+    /**
+     * 查询积分流水
+     * @param userId userId
+     * @param page page
+     * @param size size
+     * @param type type
+     * @return 返回结果
+     */
     public IPage<PointsRecordResponse> getPointsRecords(Long userId, int page, int size, String type) {
         if (userId == null) {
             throw new BusinessException(400, "用户ID不能为空");
@@ -125,6 +144,13 @@ public class PointsService {
         return resultPage;
     }
 
+    /**
+     * exchange Product
+     * @param userId userId
+     * @param productId productId
+     * @param quantity quantity
+     * @return 返回结果
+     */
     @Transactional(rollbackFor = Exception.class)
     public ExchangeResponse exchangeProduct(Long userId, Long productId, Integer quantity) {
         if (userId == null) {

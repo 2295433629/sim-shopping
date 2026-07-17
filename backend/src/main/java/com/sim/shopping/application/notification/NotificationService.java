@@ -15,6 +15,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 通知服务，处理系统消息推送和用户通知管理
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class NotificationService {
 
@@ -24,6 +30,15 @@ public class NotificationService {
         this.sysNotificationMapper = sysNotificationMapper;
     }
 
+    /**
+     * 查询通知列表
+     * @param userId userId
+     * @param type type
+     * @param isRead isRead
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<NotificationResponse> getNotifications(Long userId, String type, Integer isRead, int page, int size) {
         LambdaQueryWrapper<SysNotificationDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysNotificationDO::getUserId, userId);
@@ -42,6 +57,11 @@ public class NotificationService {
         return PageResponse.of(list, pageResult.getTotal(), page, size);
     }
 
+    /**
+     * 查询未读通知数量
+     * @param userId userId
+     * @return 返回结果
+     */
     public long getUnreadCount(Long userId) {
         LambdaQueryWrapper<SysNotificationDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysNotificationDO::getUserId, userId)
@@ -49,6 +69,11 @@ public class NotificationService {
         return sysNotificationMapper.selectCount(wrapper);
     }
 
+    /**
+     * mark Read
+     * @param userId userId
+     * @param notificationId notificationId
+     */
     @Transactional
     public void markRead(Long userId, Long notificationId) {
         SysNotificationDO notification = sysNotificationMapper.selectById(notificationId);
@@ -60,6 +85,10 @@ public class NotificationService {
         sysNotificationMapper.updateById(notification);
     }
 
+    /**
+     * mark All Read
+     * @param userId userId
+     */
     @Transactional
     public void markAllRead(Long userId) {
         LambdaUpdateWrapper<SysNotificationDO> updateWrapper = new LambdaUpdateWrapper<>();
@@ -70,6 +99,11 @@ public class NotificationService {
         sysNotificationMapper.update(null, updateWrapper);
     }
 
+    /**
+     * 删除通知
+     * @param userId userId
+     * @param notificationId notificationId
+     */
     @Transactional
     public void deleteNotification(Long userId, Long notificationId) {
         SysNotificationDO notification = sysNotificationMapper.selectById(notificationId);

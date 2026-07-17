@@ -30,6 +30,12 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+/**
+ * 物流服务，处理物流信息查询、自动发货和状态推进
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class ShipmentService {
 
@@ -62,6 +68,12 @@ public class ShipmentService {
         this.eventPublisher = eventPublisher;
     }
 
+    /**
+     * 创建Shipment
+     * @param shopId shopId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public ShipmentResponse createShipment(Long shopId, CreateShipmentRequest req) {
         // 查找订单并验证
@@ -129,6 +141,10 @@ public class ShipmentService {
         return convertToShipmentResponse(shipment);
     }
 
+    /**
+     * auto Ship Order
+     * @param orderNo orderNo
+     */
     @Transactional
     public void autoShipOrder(String orderNo) {
         OrderDO order = orderByNo(orderNo);
@@ -199,6 +215,11 @@ public class ShipmentService {
                 orderNo, logisticsCompany, trackingNo);
     }
 
+    /**
+     * 获取Shipment By Order No
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     public ShipmentResponse getShipmentByOrderNo(String orderNo) {
         LambdaQueryWrapper<ShipmentDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ShipmentDO::getOrderNo, orderNo);
@@ -209,6 +230,11 @@ public class ShipmentService {
         return convertToShipmentResponse(shipment);
     }
 
+    /**
+     * 获取Logistics By Order No
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     public LogisticsResponse getLogisticsByOrderNo(String orderNo) {
         LambdaQueryWrapper<LogisticsRecordDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(LogisticsRecordDO::getOrderNo, orderNo);

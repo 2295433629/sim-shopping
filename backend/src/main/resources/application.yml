@@ -7,7 +7,7 @@ spring:
   application:
     name: SimShopping
   profiles:
-    active: local
+    active: prod
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai

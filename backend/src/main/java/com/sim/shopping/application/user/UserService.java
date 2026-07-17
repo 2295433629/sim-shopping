@@ -25,6 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 用户服务，处理用户信息管理、收货地址、账户设置
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class UserService {
 
@@ -49,6 +55,11 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * 更新Profile
+     * @param userId userId
+     * @param req req
+     */
     @Transactional
     public void updateProfile(Long userId, UpdateProfileRequest req) {
         UserDO user = userMapper.selectById(userId);
@@ -63,6 +74,11 @@ public class UserService {
         userMapper.updateById(user);
     }
 
+    /**
+     * change Password
+     * @param userId userId
+     * @param req req
+     */
     @Transactional
     public void changePassword(Long userId, ChangePasswordRequest req) {
         UserDO user = userMapper.selectById(userId);
@@ -76,6 +92,11 @@ public class UserService {
         userMapper.updateById(user);
     }
 
+    /**
+     * 获取Address List
+     * @param userId userId
+     * @return 返回结果
+     */
     public List<AddressResponse> getAddressList(Long userId) {
         LambdaQueryWrapper<UserAddressDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserAddressDO::getUserId, userId)
@@ -85,6 +106,12 @@ public class UserService {
         return list.stream().map(this::toAddressResponse).collect(Collectors.toList());
     }
 
+    /**
+     * 添加收货地址
+     * @param userId userId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public AddressResponse createAddress(Long userId, AddressRequest req) {
         if (req.getIsDefault() != null && req.getIsDefault() == 1) {
@@ -103,6 +130,13 @@ public class UserService {
         return toAddressResponse(address);
     }
 
+    /**
+     * 更新收货地址
+     * @param userId userId
+     * @param addressId addressId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public AddressResponse updateAddress(Long userId, Long addressId, AddressRequest req) {
         UserAddressDO address = userAddressMapper.selectById(addressId);
@@ -125,6 +159,11 @@ public class UserService {
         return toAddressResponse(address);
     }
 
+    /**
+     * 删除收货地址
+     * @param userId userId
+     * @param addressId addressId
+     */
     @Transactional
     public void deleteAddress(Long userId, Long addressId) {
         UserAddressDO address = userAddressMapper.selectById(addressId);
@@ -134,6 +173,11 @@ public class UserService {
         userAddressMapper.deleteById(addressId);
     }
 
+    /**
+     * 设置默认地址
+     * @param userId userId
+     * @param addressId addressId
+     */
     @Transactional
     public void setDefaultAddress(Long userId, Long addressId) {
         UserAddressDO address = userAddressMapper.selectById(addressId);
@@ -145,6 +189,11 @@ public class UserService {
         userAddressMapper.updateById(address);
     }
 
+    /**
+     * 获取Search History
+     * @param userId userId
+     * @return 返回结果
+     */
     public List<SearchHistoryResponse> getSearchHistory(Long userId) {
         LambdaQueryWrapper<SearchHistoryDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SearchHistoryDO::getUserId, userId)
@@ -154,6 +203,10 @@ public class UserService {
         return list.stream().map(this::toSearchHistoryResponse).collect(Collectors.toList());
     }
 
+    /**
+     * 清空Search History
+     * @param userId userId
+     */
     @Transactional
     public void clearSearchHistory(Long userId) {
         LambdaQueryWrapper<SearchHistoryDO> wrapper = new LambdaQueryWrapper<>();
@@ -161,6 +214,11 @@ public class UserService {
         searchHistoryMapper.delete(wrapper);
     }
 
+    /**
+     * 获取Browse History
+     * @param userId userId
+     * @return 返回结果
+     */
     public List<BrowseHistoryResponse> getBrowseHistory(Long userId) {
         LambdaQueryWrapper<BrowseHistoryDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(BrowseHistoryDO::getUserId, userId)
@@ -170,6 +228,10 @@ public class UserService {
         return list.stream().map(this::toBrowseHistoryResponse).collect(Collectors.toList());
     }
 
+    /**
+     * 清空Browse History
+     * @param userId userId
+     */
     @Transactional
     public void clearBrowseHistory(Long userId) {
         LambdaQueryWrapper<BrowseHistoryDO> wrapper = new LambdaQueryWrapper<>();

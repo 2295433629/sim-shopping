@@ -15,6 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+/**
+ * JWT认证过滤器，拦截请求并验证JWT Token
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

@@ -24,6 +24,12 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+/**
+ * 退款服务，处理退款申请、审核和退款处理
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class RefundService {
 
@@ -45,6 +51,13 @@ public class RefundService {
         this.settlementService = settlementService;
     }
 
+    /**
+     * 申请退款
+     * @param userId userId
+     * @param orderNo orderNo
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public RefundVO applyRefund(Long userId, String orderNo, RefundRequest req) {
         OrderDO order = orderByNo(orderNo);
@@ -97,6 +110,11 @@ public class RefundService {
         return toVO(refund);
     }
 
+    /**
+     * 获取Refund By Order No
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     public RefundVO getRefundByOrderNo(String orderNo) {
         RefundDO refund = refundMapper.selectByOrderNo(orderNo);
         if (refund == null) {
@@ -105,6 +123,11 @@ public class RefundService {
         return toVO(refund);
     }
 
+    /**
+     * auto Approve Refund
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     @Transactional
     public RefundVO autoApproveRefund(String orderNo) {
         RefundDO refund = refundMapper.selectByOrderNo(orderNo);

@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 消息通知控制器，处理系统消息和用户通知
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {
@@ -20,6 +26,10 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
+    /**
+     * 查询通知列表
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PageResponse<NotificationResponse>> getNotifications(
             @RequestParam(required = false) String type,
@@ -30,6 +40,10 @@ public class NotificationController {
         return ApiResponse.success(notificationService.getNotifications(userId, type, isRead, pageNum, pageSize));
     }
 
+    /**
+     * 查询未读通知数量
+     * @return 返回结果
+     */
     @GetMapping("/unread-count")
     public ApiResponse<Map<String, Long>> getUnreadCount() {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -39,6 +53,11 @@ public class NotificationController {
         return ApiResponse.success(result);
     }
 
+    /**
+     * mark Read
+     * @param notificationId notificationId
+     * @return 返回结果
+     */
     @PutMapping("/{notificationId}/read")
     public ApiResponse<Void> markRead(@PathVariable Long notificationId) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -46,6 +65,10 @@ public class NotificationController {
         return ApiResponse.success();
     }
 
+    /**
+     * mark All Read
+     * @return 返回结果
+     */
     @PutMapping("/read-all")
     public ApiResponse<Void> markAllRead() {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -53,6 +76,11 @@ public class NotificationController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除通知
+     * @param notificationId notificationId
+     * @return 返回结果
+     */
     @DeleteMapping("/{notificationId}")
     public ApiResponse<Void> deleteNotification(@PathVariable Long notificationId) {
         Long userId = SecurityUtils.getCurrentUserId();

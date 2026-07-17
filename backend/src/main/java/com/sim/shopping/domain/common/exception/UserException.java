@@ -1,5 +1,11 @@
 package com.sim.shopping.domain.common.exception;
 
+/**
+ * User异常
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 public class UserException {
 
     public static class UserNotFoundException extends BusinessException {

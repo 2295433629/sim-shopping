@@ -6,6 +6,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+/**
+ * SecurityUser
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 public class SecurityUser implements UserDetails {
 
     private final Long userId;
@@ -28,48 +34,88 @@ public class SecurityUser implements UserDetails {
                 : Collections.emptyList();
     }
 
+    /**
+     * 获取User Id
+     * @return 返回结果
+     */
     public Long getUserId() {
         return userId;
     }
 
+    /**
+     * 获取User Type
+     * @return 返回结果
+     */
     public String getUserType() {
         return userType;
     }
 
+    /**
+     * 获取Role
+     * @return 返回结果
+     */
     public String getRole() {
         return role;
     }
 
+    /**
+     * 获取Authorities
+     * @return 返回结果
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
+    /**
+     * 获取Password
+     * @return 返回结果
+     */
     @Override
     public String getPassword() {
         return password;
     }
 
+    /**
+     * 获取Username
+     * @return 返回结果
+     */
     @Override
     public String getUsername() {
         return username;
     }
 
+    /**
+     * is Account Non Expired
+     * @return 返回结果
+     */
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    /**
+     * is Account Non Locked
+     * @return 返回结果
+     */
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    /**
+     * is Credentials Non Expired
+     * @return 返回结果
+     */
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    /**
+     * is Enabled
+     * @return 返回结果
+     */
     @Override
     public boolean isEnabled() {
         return enabled;

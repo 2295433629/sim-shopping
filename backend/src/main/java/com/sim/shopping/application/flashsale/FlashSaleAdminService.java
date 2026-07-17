@@ -14,6 +14,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * FlashSaleAdmin服务，处理相关业务逻辑
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class FlashSaleAdminService {
 
@@ -27,6 +33,14 @@ public class FlashSaleAdminService {
         this.flashSaleMapper = flashSaleMapper;
     }
 
+    /**
+     * 获取Flash Sale List
+     * @param page page
+     * @param size size
+     * @param status status
+     * @param keyword keyword
+     * @return 返回结果
+     */
     public PageResponse<FlashSaleResponse> getFlashSaleList(int page, int size, String status, String keyword) {
         if (page < 1) {
             page = 1;
@@ -56,6 +70,10 @@ public class FlashSaleAdminService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 创建秒杀活动
+     * @param sale sale
+     */
     public void createFlashSale(FlashSaleDO sale) {
         if (sale == null) {
             throw new BusinessException(400, "秒杀活动信息不能为空");
@@ -93,6 +111,11 @@ public class FlashSaleAdminService {
         flashSaleMapper.insert(sale);
     }
 
+    /**
+     * 更新秒杀活动
+     * @param id id
+     * @param sale sale
+     */
     public void updateFlashSale(Long id, FlashSaleDO sale) {
         if (id == null) {
             throw new BusinessException(400, "秒杀活动ID不能为空");
@@ -147,6 +170,10 @@ public class FlashSaleAdminService {
         flashSaleMapper.updateById(existing);
     }
 
+    /**
+     * 删除秒杀活动
+     * @param id id
+     */
     public void deleteFlashSale(Long id) {
         if (id == null) {
             throw new BusinessException(400, "秒杀活动ID不能为空");

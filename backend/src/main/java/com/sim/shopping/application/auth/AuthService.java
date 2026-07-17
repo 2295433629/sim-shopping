@@ -18,6 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * 认证服务，处理用户注册、登录、Token生成和刷新
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class AuthService {
 
@@ -36,6 +42,11 @@ public class AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    /**
+     * 用户注册
+     * @param request request
+     * @return 返回结果
+     */
     public TokenResponse register(RegisterRequest request) {
         // Check username uniqueness
         Long existingCount = userMapper.selectCount(
@@ -72,6 +83,11 @@ public class AuthService {
         );
     }
 
+    /**
+     * 用户登录
+     * @param request request
+     * @return 返回结果
+     */
     public TokenResponse login(LoginRequest request) {
         UserDO user = userMapper.selectOne(
                 Wrappers.<UserDO>lambdaQuery()
@@ -105,12 +121,20 @@ public class AuthService {
         );
     }
 
+    /**
+     * 用户登出
+     */
     public void logout() {
         // Stateless JWT — client discards token
         // Could add token blacklist via Redis in the future
         SecurityContextHolder.clearContext();
     }
 
+    /**
+     * 刷新Token
+     * @param refreshToken refreshToken
+     * @return 返回结果
+     */
     public TokenResponse refreshToken(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new UserException.TokenInvalidException("refreshToken无效");
@@ -149,6 +173,10 @@ public class AuthService {
         );
     }
 
+    /**
+     * 获取用户信息
+     * @return 返回结果
+     */
     public UserInfoResponse getUserInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof SecurityUser)) {

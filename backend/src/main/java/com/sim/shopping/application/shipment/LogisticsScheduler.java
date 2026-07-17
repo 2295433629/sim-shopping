@@ -25,6 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 物流定时调度器，定时推进物流状态和自动发货
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Component
 public class LogisticsScheduler {
 
@@ -90,6 +96,9 @@ public class LogisticsScheduler {
         this.eventPublisher = eventPublisher;
     }
 
+    /**
+     * 推进物流状态（定时任务）
+     */
     @Scheduled(fixedDelay = 30000)
     @Transactional
     public void advanceLogisticsStatus() {

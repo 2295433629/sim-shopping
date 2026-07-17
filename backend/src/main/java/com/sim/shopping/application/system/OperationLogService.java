@@ -14,6 +14,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 操作日志服务，处理操作日志的记录和查询
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class OperationLogService {
 
@@ -23,6 +29,10 @@ public class OperationLogService {
         this.sysOperationLogMapper = sysOperationLogMapper;
     }
 
+    /**
+     * 查询操作日志
+     * @return 返回结果
+     */
     public PageResponse<OperationLogItem> getOperationLogs(int page, int size, String module, String operationType,
                                                             String keyword, Long operatorId, String startDate, String endDate) {
         Page<SysOperationLogDO> pageObj = new Page<>(page, size);

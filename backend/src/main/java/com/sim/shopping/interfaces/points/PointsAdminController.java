@@ -12,6 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * PointsAdmin控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/admin/points")
 @PreAuthorize("hasRole('ADMIN')")
@@ -20,6 +26,10 @@ public class PointsAdminController {
     @Autowired
     private PointsAdminService pointsAdminService;
 
+    /**
+     * 获取All Records
+     * @return 返回结果
+     */
     @GetMapping("/records")
     public ApiResponse<PageResponse<PointsRecordResponse>> getAllRecords(
             @RequestParam(defaultValue = "1") int page,
@@ -37,6 +47,10 @@ public class PointsAdminController {
         return ApiResponse.success(pageResponse);
     }
 
+    /**
+     * 获取Product List
+     * @return 返回结果
+     */
     @GetMapping("/products")
     public ApiResponse<PageResponse<PointsProductResponse>> getProductList(
             @RequestParam(defaultValue = "1") int page,
@@ -53,12 +67,21 @@ public class PointsAdminController {
         return ApiResponse.success(pageResponse);
     }
 
+    /**
+     * 发布商品
+     * @param product product
+     * @return 返回结果
+     */
     @PostMapping("/products")
     public ApiResponse<Void> createProduct(@RequestBody PointsProductDO product) {
         pointsAdminService.createProduct(product);
         return ApiResponse.success();
     }
 
+    /**
+     * 编辑商品
+     * @return 返回结果
+     */
     @PutMapping("/products/{productId}")
     public ApiResponse<Void> updateProduct(
             @PathVariable Long productId,
@@ -67,12 +90,21 @@ public class PointsAdminController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除商品
+     * @param productId productId
+     * @return 返回结果
+     */
     @DeleteMapping("/products/{productId}")
     public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
         pointsAdminService.deleteProduct(productId);
         return ApiResponse.success();
     }
 
+    /**
+     * 获取Statistics
+     * @return 返回结果
+     */
     @GetMapping("/statistics")
     public ApiResponse<PointsStatisticsVO> getStatistics() {
         PointsStatisticsVO statistics = pointsAdminService.getStatistics();

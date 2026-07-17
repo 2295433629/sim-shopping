@@ -11,6 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * PublicPoints控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/public/points")
 public class PublicPointsController {
@@ -18,6 +24,10 @@ public class PublicPointsController {
     @Autowired
     private PointsAdminService pointsAdminService;
 
+    /**
+     * 获取Product List
+     * @return 返回结果
+     */
     @GetMapping("/products")
     public ApiResponse<PageResponse<PointsProductResponse>> getProductList(
             @RequestParam(defaultValue = "1") int page,

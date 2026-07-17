@@ -16,6 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 收藏服务，处理用户商品收藏的添加、取消和查询
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class FavoriteService {
 
@@ -27,6 +33,11 @@ public class FavoriteService {
         this.productMapper = productMapper;
     }
 
+    /**
+     * 收藏商品
+     * @param userId userId
+     * @param productId productId
+     */
     @Transactional
     public void addFavorite(Long userId, Long productId) {
         ProductDO product = productMapper.selectById(productId);
@@ -46,6 +57,11 @@ public class FavoriteService {
         favoriteMapper.insert(fav);
     }
 
+    /**
+     * 取消收藏
+     * @param userId userId
+     * @param productId productId
+     */
     @Transactional
     public void removeFavorite(Long userId, Long productId) {
         LambdaQueryWrapper<FavoriteDO> wrapper = new LambdaQueryWrapper<>();
@@ -54,6 +70,13 @@ public class FavoriteService {
         favoriteMapper.delete(wrapper);
     }
 
+    /**
+     * 获取Favorite List
+     * @param userId userId
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<ProductCardVO> getFavoriteList(Long userId, int page, int size) {
         Page<FavoriteDO> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<FavoriteDO> wrapper = new LambdaQueryWrapper<>();
@@ -75,6 +98,12 @@ public class FavoriteService {
         return PageResponse.of(list, favPage.getTotal(), page, size);
     }
 
+    /**
+     * is Favorite
+     * @param userId userId
+     * @param productId productId
+     * @return 返回结果
+     */
     public boolean isFavorite(Long userId, Long productId) {
         LambdaQueryWrapper<FavoriteDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(FavoriteDO::getUserId, userId)

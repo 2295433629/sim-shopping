@@ -19,6 +19,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 签到服务，处理用户每日签到、连续签到奖励和签到记录
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class SignInService {
 
@@ -34,6 +40,11 @@ public class SignInService {
         this.userMapper = userMapper;
     }
 
+    /**
+     * 每日签到
+     * @param userId userId
+     * @return 返回结果
+     */
     @Transactional
     public SignInResult signIn(Long userId) {
         LocalDate today = LocalDate.now();
@@ -84,6 +95,11 @@ public class SignInService {
         return new SignInResult(earnedPoints, consecutiveDays, true);
     }
 
+    /**
+     * 获取Today Status
+     * @param userId userId
+     * @return 返回结果
+     */
     public SignInResult getTodayStatus(Long userId) {
         LocalDate today = LocalDate.now();
 
@@ -110,6 +126,13 @@ public class SignInService {
         return new SignInResult(0, consecutiveDays, false);
     }
 
+    /**
+     * 查询签到记录
+     * @param userId userId
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<SignInRecordResponse> getSignInRecords(Long userId, int page, int size) {
         Page<SignInRecordDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<SignInRecordDO> wrapper = new LambdaQueryWrapper<>();

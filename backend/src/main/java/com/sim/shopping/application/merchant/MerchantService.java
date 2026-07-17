@@ -20,6 +20,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Merchant服务，处理相关业务逻辑
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class MerchantService {
 
@@ -31,6 +37,12 @@ public class MerchantService {
         this.shopMapper = shopMapper;
     }
 
+    /**
+     * apply
+     * @param userId userId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public MerchantInfoResponse apply(Long userId, MerchantApplyRequest req) {
         // Check if user already has a merchant record
@@ -65,12 +77,23 @@ public class MerchantService {
         return toMerchantInfoResponse(merchant, null);
     }
 
+    /**
+     * 获取Merchant Info
+     * @param userId userId
+     * @return 返回结果
+     */
     public MerchantInfoResponse getMerchantInfo(Long userId) {
         MerchantDO merchant = getByUserId(userId);
         ShopDO shop = getShopByMerchantId(merchant.getId());
         return toMerchantInfoResponse(merchant, shop);
     }
 
+    /**
+     * 更新Merchant Info
+     * @param userId userId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public MerchantInfoResponse updateMerchantInfo(Long userId, MerchantApplyRequest req) {
         MerchantDO merchant = getByUserId(userId);
@@ -84,6 +107,12 @@ public class MerchantService {
         return toMerchantInfoResponse(merchant, shop);
     }
 
+    /**
+     * 获取Pending Merchants
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<MerchantListResponse> getPendingMerchants(int page, int size) {
         LambdaQueryWrapper<MerchantDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MerchantDO::getStatus, "PENDING")
@@ -91,6 +120,14 @@ public class MerchantService {
         return queryMerchantPage(page, size, wrapper);
     }
 
+    /**
+     * 获取Merchant List
+     * @param page page
+     * @param size size
+     * @param status status
+     * @param keyword keyword
+     * @return 返回结果
+     */
     public PageResponse<MerchantListResponse> getMerchantList(int page, int size, String status, String keyword) {
         LambdaQueryWrapper<MerchantDO> wrapper = new LambdaQueryWrapper<>();
         if (status != null && !status.isEmpty()) {
@@ -104,6 +141,11 @@ public class MerchantService {
         return queryMerchantPage(page, size, wrapper);
     }
 
+    /**
+     * 获取Merchant Detail
+     * @param merchantId merchantId
+     * @return 返回结果
+     */
     public MerchantInfoResponse getMerchantDetail(Long merchantId) {
         MerchantDO merchant = merchantMapper.selectById(merchantId);
         if (merchant == null) {
@@ -113,6 +155,11 @@ public class MerchantService {
         return toMerchantInfoResponse(merchant, shop);
     }
 
+    /**
+     * approve Merchant
+     * @param merchantId merchantId
+     * @param adminId adminId
+     */
     @Transactional
     public void approveMerchant(Long merchantId, Long adminId) {
         MerchantDO merchant = merchantMapper.selectById(merchantId);
@@ -135,6 +182,12 @@ public class MerchantService {
         shopMapper.insert(shop);
     }
 
+    /**
+     * reject Merchant
+     * @param merchantId merchantId
+     * @param adminId adminId
+     * @param reason reason
+     */
     @Transactional
     public void rejectMerchant(Long merchantId, Long adminId, String reason) {
         MerchantDO merchant = merchantMapper.selectById(merchantId);
@@ -150,6 +203,10 @@ public class MerchantService {
         merchantMapper.updateById(merchant);
     }
 
+    /**
+     * 禁用Merchant
+     * @param merchantId merchantId
+     */
     @Transactional
     public void disableMerchant(Long merchantId) {
         MerchantDO merchant = merchantMapper.selectById(merchantId);
@@ -172,6 +229,10 @@ public class MerchantService {
         }
     }
 
+    /**
+     * 启用Merchant
+     * @param merchantId merchantId
+     */
     @Transactional
     public void enableMerchant(Long merchantId) {
         MerchantDO merchant = merchantMapper.selectById(merchantId);
@@ -196,6 +257,11 @@ public class MerchantService {
 
     // ===== Helper methods =====
 
+    /**
+     * 获取By User Id
+     * @param userId userId
+     * @return 返回结果
+     */
     public MerchantDO getByUserId(Long userId) {
         LambdaQueryWrapper<MerchantDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MerchantDO::getUserId, userId);

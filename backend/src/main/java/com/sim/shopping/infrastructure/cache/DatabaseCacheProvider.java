@@ -12,6 +12,12 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+/**
+ * DatabaseCache提供者
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Component
 public class DatabaseCacheProvider implements CacheProvider {
 
@@ -26,6 +32,12 @@ public class DatabaseCacheProvider implements CacheProvider {
         this.objectMapper.findAndRegisterModules();
     }
 
+    /**
+     * set
+     * @param key key
+     * @param value value
+     * @param ttl ttl
+     */
     @Override
     public void set(String key, Object value, Duration ttl) {
         try {
@@ -55,6 +67,11 @@ public class DatabaseCacheProvider implements CacheProvider {
         }
     }
 
+    /**
+     * get
+     * @param key key
+     * @return 返回结果
+     */
     @Override
     public Object get(String key) {
         try {
@@ -72,6 +89,10 @@ public class DatabaseCacheProvider implements CacheProvider {
         return null;
     }
 
+    /**
+     * 删除
+     * @param key key
+     */
     @Override
     public void delete(String key) {
         try {
@@ -83,6 +104,11 @@ public class DatabaseCacheProvider implements CacheProvider {
         }
     }
 
+    /**
+     * has Key
+     * @param key key
+     * @return 返回结果
+     */
     @Override
     public boolean hasKey(String key) {
         try {

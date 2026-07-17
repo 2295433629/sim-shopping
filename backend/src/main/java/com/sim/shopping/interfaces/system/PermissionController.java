@@ -10,6 +10,12 @@ import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+/**
+ * 权限管理控制器，处理权限的增删改查
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/admin/permissions")
 @PreAuthorize("hasRole('ADMIN')")
@@ -21,6 +27,10 @@ public class PermissionController {
         this.permissionService = permissionService;
     }
 
+    /**
+     * 查询权限列表
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PageResponse<SysPermissionDO>> getPermissions(
             @RequestParam(defaultValue = "1") int page,
@@ -28,16 +38,32 @@ public class PermissionController {
         return ApiResponse.success(permissionService.getPermissions(page, size));
     }
 
+    /**
+     * 创建Permission
+     * @param permission permission
+     * @return 返回结果
+     */
     @PostMapping
     public ApiResponse<SysPermissionDO> createPermission(@RequestBody SysPermissionDO permission) {
         return ApiResponse.success(permissionService.createPermission(permission));
     }
 
+    /**
+     * 更新Permission
+     * @param permissionId permissionId
+     * @param permission permission
+     * @return 返回结果
+     */
     @PutMapping("/{permissionId}")
     public ApiResponse<SysPermissionDO> updatePermission(@PathVariable Long permissionId, @RequestBody SysPermissionDO permission) {
         return ApiResponse.success(permissionService.updatePermission(permissionId, permission));
     }
 
+    /**
+     * 删除Permission
+     * @param permissionId permissionId
+     * @return 返回结果
+     */
     @DeleteMapping("/{permissionId}")
     public ApiResponse<Void> deletePermission(@PathVariable Long permissionId) {
         permissionService.deletePermission(permissionId);

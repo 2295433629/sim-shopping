@@ -10,6 +10,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * 权限服务，处理权限的增删改查
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class PermissionService {
 
@@ -19,6 +25,12 @@ public class PermissionService {
         this.sysPermissionMapper = sysPermissionMapper;
     }
 
+    /**
+     * 查询权限列表
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<SysPermissionDO> getPermissions(int page, int size) {
         Page<SysPermissionDO> pageResult = sysPermissionMapper.selectPage(
                 new Page<>(page, size),
@@ -27,6 +39,11 @@ public class PermissionService {
         return PageResponse.of(pageResult.getRecords(), pageResult.getTotal(), page, size);
     }
 
+    /**
+     * 获取Permission By Id
+     * @param id id
+     * @return 返回结果
+     */
     public SysPermissionDO getPermissionById(Long id) {
         SysPermissionDO permission = sysPermissionMapper.selectById(id);
         if (permission == null) {
@@ -35,16 +52,30 @@ public class PermissionService {
         return permission;
     }
 
+    /**
+     * 获取All Permissions
+     * @return 返回结果
+     */
     public List<SysPermissionDO> getAllPermissions() {
         return sysPermissionMapper.selectList(null);
     }
 
+    /**
+     * 获取Permissions By Module
+     * @param module module
+     * @return 返回结果
+     */
     public List<SysPermissionDO> getPermissionsByModule(String module) {
         return sysPermissionMapper.selectList(
                 Wrappers.<SysPermissionDO>lambdaQuery().eq(SysPermissionDO::getModule, module)
         );
     }
 
+    /**
+     * 创建Permission
+     * @param permission permission
+     * @return 返回结果
+     */
     public SysPermissionDO createPermission(SysPermissionDO permission) {
         // Check permission code uniqueness
         Long count = sysPermissionMapper.selectCount(
@@ -57,6 +88,12 @@ public class PermissionService {
         return permission;
     }
 
+    /**
+     * 更新Permission
+     * @param id id
+     * @param permission permission
+     * @return 返回结果
+     */
     public SysPermissionDO updatePermission(Long id, SysPermissionDO permission) {
         SysPermissionDO existing = getPermissionById(id);
         existing.setPermissionName(permission.getPermissionName());
@@ -67,6 +104,10 @@ public class PermissionService {
         return existing;
     }
 
+    /**
+     * 删除Permission
+     * @param id id
+     */
     public void deletePermission(Long id) {
         getPermissionById(id);
         sysPermissionMapper.deleteById(id);

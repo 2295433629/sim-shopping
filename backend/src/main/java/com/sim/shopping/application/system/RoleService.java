@@ -21,6 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 角色服务，处理角色的增删改查和权限分配
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class RoleService {
 
@@ -42,6 +48,12 @@ public class RoleService {
         this.sysMenuMapper = sysMenuMapper;
     }
 
+    /**
+     * 查询角色列表
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<SysRoleDO> getRoles(int page, int size) {
         Page<SysRoleDO> pageResult = sysRoleMapper.selectPage(
                 new Page<>(page, size),
@@ -50,6 +62,11 @@ public class RoleService {
         return PageResponse.of(pageResult.getRecords(), pageResult.getTotal(), page, size);
     }
 
+    /**
+     * 获取Role By Id
+     * @param id id
+     * @return 返回结果
+     */
     public SysRoleDO getRoleById(Long id) {
         SysRoleDO role = sysRoleMapper.selectById(id);
         if (role == null) {
@@ -58,6 +75,11 @@ public class RoleService {
         return role;
     }
 
+    /**
+     * 创建角色
+     * @param role role
+     * @return 返回结果
+     */
     @Transactional
     public SysRoleDO createRole(SysRoleDO role) {
         // Check role code uniqueness
@@ -74,6 +96,12 @@ public class RoleService {
         return role;
     }
 
+    /**
+     * 更新角色
+     * @param id id
+     * @param role role
+     * @return 返回结果
+     */
     @Transactional
     public SysRoleDO updateRole(Long id, SysRoleDO role) {
         SysRoleDO existing = getRoleById(id);
@@ -84,6 +112,10 @@ public class RoleService {
         return existing;
     }
 
+    /**
+     * 删除角色
+     * @param id id
+     */
     @Transactional
     public void deleteRole(Long id) {
         getRoleById(id);
@@ -97,6 +129,11 @@ public class RoleService {
         sysRoleMapper.deleteById(id);
     }
 
+    /**
+     * assign Permissions
+     * @param roleId roleId
+     * @param permissionIds permissionIds
+     */
     @Transactional
     public void assignPermissions(Long roleId, List<Long> permissionIds) {
         getRoleById(roleId);
@@ -115,6 +152,11 @@ public class RoleService {
         }
     }
 
+    /**
+     * assign Menus
+     * @param roleId roleId
+     * @param menuIds menuIds
+     */
     @Transactional
     public void assignMenus(Long roleId, List<Long> menuIds) {
         getRoleById(roleId);
@@ -133,6 +175,11 @@ public class RoleService {
         }
     }
 
+    /**
+     * 获取Role Permissions
+     * @param roleId roleId
+     * @return 返回结果
+     */
     public List<SysPermissionDO> getRolePermissions(Long roleId) {
         getRoleById(roleId);
         List<Long> permissionIds = sysRolePermissionMapper.selectList(
@@ -145,6 +192,11 @@ public class RoleService {
         return sysPermissionMapper.selectBatchIds(permissionIds);
     }
 
+    /**
+     * 获取Role Menus
+     * @param roleId roleId
+     * @return 返回结果
+     */
     public List<SysMenuDO> getRoleMenus(Long roleId) {
         getRoleById(roleId);
         List<Long> menuIds = sysRoleMenuMapper.selectList(

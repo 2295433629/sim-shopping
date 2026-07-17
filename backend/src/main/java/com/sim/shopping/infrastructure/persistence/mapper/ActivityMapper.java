@@ -10,6 +10,12 @@ import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
 
+/**
+ * 专题活动数据访问层，提供专题活动的CRUD操作
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Mapper
 public interface ActivityMapper extends BaseMapper<ActivityDO> {
 

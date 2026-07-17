@@ -19,6 +19,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 用户优惠券服务，处理用户优惠券的领取、查询和使用
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class UserCouponService {
 
@@ -35,6 +41,12 @@ public class UserCouponService {
         this.couponMapper = couponMapper;
     }
 
+    /**
+     * claim Coupon
+     * @param userId userId
+     * @param couponId couponId
+     * @return 返回结果
+     */
     @Transactional
     public UserCouponResponse claimCoupon(Long userId, Long couponId) {
         if (couponId == null) {
@@ -97,6 +109,14 @@ public class UserCouponService {
         return convertToResponse(userCoupon, coupon);
     }
 
+    /**
+     * 查询我的优惠券
+     * @param userId userId
+     * @param page page
+     * @param size size
+     * @param status status
+     * @return 返回结果
+     */
     public PageResponse<UserCouponResponse> getMyCoupons(Long userId, int page, int size, String status) {
         Page<UserCouponDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<UserCouponDO> wrapper = new LambdaQueryWrapper<>();
@@ -114,6 +134,11 @@ public class UserCouponService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 获取My Available Coupons
+     * @param userId userId
+     * @return 返回结果
+     */
     public List<UserCouponResponse> getMyAvailableCoupons(Long userId) {
         LambdaQueryWrapper<UserCouponDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserCouponDO::getUserId, userId)
@@ -134,6 +159,13 @@ public class UserCouponService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 使用优惠券
+     * @param userId userId
+     * @param userCouponId userCouponId
+     * @param orderNo orderNo
+     * @return 返回结果
+     */
     @Transactional
     public UserCouponResponse useCoupon(Long userId, Long userCouponId, String orderNo) {
         if (!StringUtils.hasText(orderNo)) {

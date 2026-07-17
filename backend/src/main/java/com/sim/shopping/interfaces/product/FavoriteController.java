@@ -7,6 +7,12 @@ import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.product.ProductCardVO;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 商品收藏控制器，处理用户收藏/取消收藏商品
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/user/favorites")
 public class FavoriteController {
@@ -17,6 +23,11 @@ public class FavoriteController {
         this.favoriteService = favoriteService;
     }
 
+    /**
+     * 收藏商品
+     * @param productId productId
+     * @return 返回结果
+     */
     @PostMapping("/{productId}")
     public ApiResponse<Void> addFavorite(@PathVariable Long productId) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -24,6 +35,11 @@ public class FavoriteController {
         return ApiResponse.success();
     }
 
+    /**
+     * 取消收藏
+     * @param productId productId
+     * @return 返回结果
+     */
     @DeleteMapping("/{productId}")
     public ApiResponse<Void> removeFavorite(@PathVariable Long productId) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -31,6 +47,10 @@ public class FavoriteController {
         return ApiResponse.success();
     }
 
+    /**
+     * 获取Favorite List
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PageResponse<ProductCardVO>> getFavoriteList(
             @RequestParam(defaultValue = "1") int page,
@@ -39,6 +59,11 @@ public class FavoriteController {
         return ApiResponse.success(favoriteService.getFavoriteList(userId, page, size));
     }
 
+    /**
+     * is Favorite
+     * @param productId productId
+     * @return 返回结果
+     */
     @GetMapping("/check/{productId}")
     public ApiResponse<Boolean> isFavorite(@PathVariable Long productId) {
         Long userId = SecurityUtils.getCurrentUserId();

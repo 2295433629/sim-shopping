@@ -23,6 +23,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * AdminDashboard服务，处理相关业务逻辑
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class AdminDashboardService {
 
@@ -51,6 +57,10 @@ public class AdminDashboardService {
         this.orderItemMapper = orderItemMapper;
     }
 
+    /**
+     * 获取Dashboard
+     * @return 返回结果
+     */
     public DashboardVO getDashboard() {
         DashboardVO vo = new DashboardVO();
 

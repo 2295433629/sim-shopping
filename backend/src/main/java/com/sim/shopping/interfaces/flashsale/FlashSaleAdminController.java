@@ -16,6 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * FlashSaleAdmin控制器，处理相关业务请求
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api/admin/flash-sales")
 @PreAuthorize("hasRole('ADMIN')")
@@ -27,6 +33,10 @@ public class FlashSaleAdminController {
         this.flashSaleAdminService = flashSaleAdminService;
     }
 
+    /**
+     * 获取Flash Sale List
+     * @return 返回结果
+     */
     @GetMapping
     public ApiResponse<PageResponse<FlashSaleResponse>> getFlashSaleList(
             @RequestParam(defaultValue = "1") int page,
@@ -37,12 +47,21 @@ public class FlashSaleAdminController {
         return ApiResponse.success(result);
     }
 
+    /**
+     * 创建秒杀活动
+     * @param sale sale
+     * @return 返回结果
+     */
     @PostMapping
     public ApiResponse<Void> createFlashSale(@RequestBody FlashSaleDO sale) {
         flashSaleAdminService.createFlashSale(sale);
         return ApiResponse.success();
     }
 
+    /**
+     * 更新秒杀活动
+     * @return 返回结果
+     */
     @PutMapping("/{saleId}")
     public ApiResponse<Void> updateFlashSale(
             @PathVariable Long saleId,
@@ -51,6 +70,11 @@ public class FlashSaleAdminController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除秒杀活动
+     * @param saleId saleId
+     * @return 返回结果
+     */
     @DeleteMapping("/{saleId}")
     public ApiResponse<Void> deleteFlashSale(@PathVariable Long saleId) {
         flashSaleAdminService.deleteFlashSale(saleId);

@@ -21,6 +21,12 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * PointsAdmin服务，处理相关业务逻辑
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class PointsAdminService {
 
@@ -33,6 +39,15 @@ public class PointsAdminService {
     @Autowired
     private UserPointsMapper userPointsMapper;
 
+    /**
+     * 获取All Records
+     * @param page page
+     * @param size size
+     * @param userId userId
+     * @param type type
+     * @param source source
+     * @return 返回结果
+     */
     public IPage<PointsRecordResponse> getAllRecords(int page, int size, Long userId, String type, String source) {
         Page<PointsRecordDO> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<PointsRecordDO> wrapper = new LambdaQueryWrapper<>();
@@ -57,6 +72,14 @@ public class PointsAdminService {
         return resultPage;
     }
 
+    /**
+     * 获取Product List
+     * @param page page
+     * @param size size
+     * @param status status
+     * @param keyword keyword
+     * @return 返回结果
+     */
     public IPage<PointsProductResponse> getProductList(int page, int size, String status, String keyword) {
         Page<PointsProductDO> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<PointsProductDO> wrapper = new LambdaQueryWrapper<>();
@@ -78,6 +101,10 @@ public class PointsAdminService {
         return resultPage;
     }
 
+    /**
+     * 发布商品
+     * @param product product
+     */
     public void createProduct(PointsProductDO product) {
         if (product == null) {
             throw new BusinessException(400, "商品信息不能为空");
@@ -97,6 +124,11 @@ public class PointsAdminService {
         pointsProductMapper.insert(product);
     }
 
+    /**
+     * 编辑商品
+     * @param id id
+     * @param product product
+     */
     public void updateProduct(Long id, PointsProductDO product) {
         if (id == null) {
             throw new BusinessException(400, "商品ID不能为空");
@@ -132,6 +164,10 @@ public class PointsAdminService {
         pointsProductMapper.update(null, wrapper);
     }
 
+    /**
+     * 删除商品
+     * @param id id
+     */
     public void deleteProduct(Long id) {
         if (id == null) {
             throw new BusinessException(400, "商品ID不能为空");
@@ -143,6 +179,10 @@ public class PointsAdminService {
         pointsProductMapper.deleteById(id);
     }
 
+    /**
+     * 获取Statistics
+     * @return 返回结果
+     */
     public PointsStatisticsVO getStatistics() {
         Long totalUsers = userPointsMapper.selectCount(new LambdaQueryWrapper<>());
 

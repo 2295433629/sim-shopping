@@ -1,5 +1,11 @@
 package com.sim.shopping.domain.common.exception;
 
+/**
+ * Order异常
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 public class OrderException {
 
     public static class OrderNotFoundException extends BusinessException {

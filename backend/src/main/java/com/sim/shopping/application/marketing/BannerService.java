@@ -13,6 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Banner服务，处理首页轮播图的增删改查和排序
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class BannerService {
 
@@ -24,6 +30,10 @@ public class BannerService {
         this.bannerMapper = bannerMapper;
     }
 
+    /**
+     * 获取Active Banners
+     * @return 返回结果
+     */
     public List<BannerResponse> getActiveBanners() {
         LocalDateTime now = LocalDateTime.now();
         LambdaQueryWrapper<BannerDO> wrapper = new LambdaQueryWrapper<>();
@@ -40,12 +50,23 @@ public class BannerService {
         return list;
     }
 
+    /**
+     * 创建Banner
+     * @param banner banner
+     * @return 返回结果
+     */
     @Transactional
     public BannerResponse createBanner(BannerDO banner) {
         bannerMapper.insert(banner);
         return convertToResponse(banner);
     }
 
+    /**
+     * 更新Banner
+     * @param id id
+     * @param banner banner
+     * @return 返回结果
+     */
     @Transactional
     public BannerResponse updateBanner(Long id, BannerDO banner) {
         BannerDO existing = bannerMapper.selectById(id);
@@ -57,6 +78,10 @@ public class BannerService {
         return convertToResponse(bannerMapper.selectById(id));
     }
 
+    /**
+     * 删除Banner
+     * @param id id
+     */
     @Transactional
     public void deleteBanner(Long id) {
         BannerDO existing = bannerMapper.selectById(id);

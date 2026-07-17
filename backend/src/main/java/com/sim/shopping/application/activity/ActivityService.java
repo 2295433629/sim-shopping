@@ -14,6 +14,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 专题活动服务，处理专题活动的增删改查和商品关联
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class ActivityService {
 
@@ -27,6 +33,12 @@ public class ActivityService {
         this.activityProductMapper = activityProductMapper;
     }
 
+    /**
+     * 查询进行中的活动列表
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<ActivityResponse> getActiveActivities(int page, int size) {
         Page<ActivityResponse> pageParam = new Page<>(page, size);
         LocalDateTime now = LocalDateTime.now();
@@ -34,6 +46,11 @@ public class ActivityService {
         return PageResponse.of(result.getRecords(), result.getTotal(), (int) result.getCurrent(), (int) result.getSize());
     }
 
+    /**
+     * 查询活动详情
+     * @param activityId activityId
+     * @return 返回结果
+     */
     public ActivityDetailResponse getActivityDetail(Long activityId) {
         ActivityDO activity = activityMapper.selectById(activityId);
         if (activity == null || activity.getDeleted() != null && activity.getDeleted() == 1) {

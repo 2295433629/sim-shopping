@@ -21,6 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 评价服务，处理商品评价的提交、查询、回复和审核
+ *
+ * @author Sim Team
+ * @since 1.0.0
+ */
 @Service
 public class ReviewService {
 
@@ -49,6 +55,12 @@ public class ReviewService {
         this.eventPublisher = eventPublisher;
     }
 
+    /**
+     * 提交商品评价
+     * @param userId userId
+     * @param req req
+     * @return 返回结果
+     */
     @Transactional
     public ReviewResponse submitReview(Long userId, CreateReviewRequest req) {
         // Validate order exists and belongs to user, status is COMPLETED
@@ -110,6 +122,14 @@ public class ReviewService {
         return convertToReviewResponse(review);
     }
 
+    /**
+     * 查询商品评价列表
+     * @param productId productId
+     * @param page page
+     * @param size size
+     * @param rating rating
+     * @return 返回结果
+     */
     public PageResponse<ReviewResponse> getProductReviews(Long productId, int page, int size, Integer rating) {
         Page<ReviewDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<ReviewDO> wrapper = new LambdaQueryWrapper<>();
@@ -129,6 +149,13 @@ public class ReviewService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 查询我的评价
+     * @param userId userId
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<ReviewResponse> getMyReviews(Long userId, int page, int size) {
         Page<ReviewDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<ReviewDO> wrapper = new LambdaQueryWrapper<>();
@@ -144,6 +171,11 @@ public class ReviewService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 删除Review
+     * @param userId userId
+     * @param reviewId reviewId
+     */
     @Transactional
     public void deleteReview(Long userId, Long reviewId) {
         ReviewDO review = reviewMapper.selectById(reviewId);
@@ -166,6 +198,13 @@ public class ReviewService {
         updateProductRating(review.getProductId());
     }
 
+    /**
+     * 查询商家商品评价
+     * @param shopId shopId
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
     public PageResponse<MerchantReviewResponse> getMerchantReviews(Long shopId, int page, int size) {
         Page<ReviewDO> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<ReviewDO> wrapper = new LambdaQueryWrapper<>();
@@ -181,6 +220,12 @@ public class ReviewService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 回复评价
+     * @param shopId shopId
+     * @param reviewId reviewId
+     * @param reply reply
+     */
     @Transactional
     public void replyReview(Long shopId, Long reviewId, String reply) {
         ReviewDO review = reviewMapper.selectById(reviewId);
@@ -196,6 +241,10 @@ public class ReviewService {
         reviewMapper.updateById(review);
     }
 
+    /**
+     * 查询全平台评价（管理员）
+     * @return 返回结果
+     */
     public PageResponse<ReviewResponse> getAdminReviews(int page, int size, String keyword,
                                                          Integer rating, Boolean hasImage, Boolean replied) {
         Page<ReviewDO> pageObj = new Page<>(page, size);
@@ -244,6 +293,10 @@ public class ReviewService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * hide Review
+     * @param reviewId reviewId
+     */
     @Transactional
     public void hideReview(Long reviewId) {
         ReviewDO review = reviewMapper.selectById(reviewId);
@@ -254,6 +307,10 @@ public class ReviewService {
         reviewMapper.updateById(review);
     }
 
+    /**
+     * show Review
+     * @param reviewId reviewId
+     */
     @Transactional
     public void showReview(Long reviewId) {
         ReviewDO review = reviewMapper.selectById(reviewId);
@@ -264,6 +321,10 @@ public class ReviewService {
         reviewMapper.updateById(review);
     }
 
+    /**
+     * 删除Review By Admin
+     * @param reviewId reviewId
+     */
     @Transactional
     public void deleteReviewByAdmin(Long reviewId) {
         ReviewDO review = reviewMapper.selectById(reviewId);
