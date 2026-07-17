@@ -2,7 +2,12 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { createPayment, getPaymentStatus, getOrderDetail, type OrderDetailVO } from '@/api/modules/order'
+import {
+  createPayment,
+  getPaymentStatus,
+  getOrderDetail,
+  type OrderDetailVO,
+} from '@/api/modules/order'
 
 const route = useRoute()
 const router = useRouter()
@@ -116,8 +121,8 @@ function startPolling() {
       <el-card shadow="never" class="section-card">
         <template #header><span class="section-title">支付方式</span></template>
         <el-radio-group v-model="paymentMethod">
-          <el-radio label="ALIPAY">💰 模拟支付宝</el-radio>
-          <el-radio label="WECHAT">💬 模拟微信支付</el-radio>
+          <el-radio label="ALIPAY">💰 某宝支付</el-radio>
+          <el-radio label="WECHAT">💬 某信支付</el-radio>
         </el-radio-group>
       </el-card>
 
@@ -125,12 +130,7 @@ function startPolling() {
         <span class="pay-info">
           应付：<span class="pay-amount">¥{{ order.payAmount.toFixed(2) }}</span>
         </span>
-        <el-button
-          type="primary"
-          size="large"
-          :loading="paying"
-          @click="handlePay"
-        >
+        <el-button type="primary" size="large" :loading="paying" @click="handlePay">
           {{ paying ? '支付中...' : '立即支付' }}
         </el-button>
       </div>
