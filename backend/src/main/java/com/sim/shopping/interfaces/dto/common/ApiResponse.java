@@ -1,12 +1,15 @@
 package com.sim.shopping.interfaces.dto.common;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 public class ApiResponse<T> {
 
     private int code;
     private String message;
     private T data;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime timestamp;
 
     private ApiResponse() {
