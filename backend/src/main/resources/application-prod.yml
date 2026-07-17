@@ -30,7 +30,7 @@ app:
     path: /usr/bear/uploads
   cache:
 # database 或者 redis
-    type: database
+    type: redis
 
 logging:
   level:
