@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessageBox } from 'element-plus'
@@ -8,6 +8,16 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const searchKeyword = ref('')
+const activeNav = computed(() => router.currentRoute.value.path)
+
+// 活动入口（非用户关联，参考淘宝顶部导航）
+const activityNavItems = [
+  { label: '限时秒杀', path: '/flash-sale', icon: '⚡', hot: true },
+  { label: '积分商城', path: '/points-mall', icon: '🎁' },
+  { label: '领券中心', path: '/coupon-center', icon: '🎫' },
+  { label: '专题活动', path: '/activities', icon: '🎯' },
+  { label: '排行榜', path: '/rankings', icon: '🏆' },
+]
 
 function handleSearch() {
   if (searchKeyword.value.trim()) {
@@ -96,18 +106,27 @@ async function handleLogout() {
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="/profile">个人信息</el-dropdown-item>
-                <el-dropdown-item command="/orders">我的订单</el-dropdown-item>
-                <el-dropdown-item command="/favorites">我的收藏</el-dropdown-item>
-                <el-dropdown-item command="/history">浏览历史</el-dropdown-item>
-                <el-dropdown-item command="/coupon-center">领券中心</el-dropdown-item>
-                <el-dropdown-item command="/my-coupons">我的优惠券</el-dropdown-item>
-                <el-dropdown-item command="/points-mall">积分商城</el-dropdown-item>
-                <el-dropdown-item command="/points-records">积分明细</el-dropdown-item>
-                <el-dropdown-item command="/flash-sale">限时秒杀</el-dropdown-item>
-                <el-dropdown-item command="/activities">专题活动</el-dropdown-item>
-                <el-dropdown-item command="/rankings">排行榜</el-dropdown-item>
-                <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
+                <el-dropdown-item command="/profile">
+                  <el-icon><User /></el-icon>个人信息
+                </el-dropdown-item>
+                <el-dropdown-item command="/orders">
+                  <el-icon><List /></el-icon>我的订单
+                </el-dropdown-item>
+                <el-dropdown-item command="/favorites">
+                  <el-icon><Star /></el-icon>我的收藏
+                </el-dropdown-item>
+                <el-dropdown-item command="/history">
+                  <el-icon><Clock /></el-icon>浏览历史
+                </el-dropdown-item>
+                <el-dropdown-item command="/my-coupons">
+                  <el-icon><Ticket /></el-icon>我的优惠券
+                </el-dropdown-item>
+                <el-dropdown-item command="/points-records">
+                  <el-icon><Coin /></el-icon>积分明细
+                </el-dropdown-item>
+                <el-dropdown-item divided command="logout">
+                  <el-icon><SwitchButton /></el-icon>退出登录
+                </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -117,6 +136,36 @@ async function handleLogout() {
         </template>
       </div>
     </el-header>
+
+    <!-- 活动导航条（类似淘宝顶部分类Tab栏） -->
+    <div class="activity-nav-bar">
+      <div class="nav-items">
+        <a
+          class="nav-item"
+          :class="{ active: activeNav === '/home' }"
+          @click="router.push('/home')"
+        >
+          <span class="nav-icon">🏠</span>首页
+        </a>
+        <a
+          class="nav-item"
+          :class="{ active: activeNav === '/products' || activeNav.startsWith('/category') }"
+          @click="router.push('/products')"
+        >
+          <span class="nav-icon">🏷️</span>全部商品
+        </a>
+        <template v-for="item in activityNavItems" :key="item.path">
+          <a
+            class="nav-item"
+            :class="{ active: activeNav === item.path }"
+            @click="router.push(item.path)"
+          >
+            <span class="nav-icon">{{ item.icon }}</span>{{ item.label }}
+            <span v-if="item.hot" class="hot-tag">HOT</span>
+          </a>
+        </template>
+      </div>
+    </div>
 
     <!-- 内容区 -->
     <el-main class="layout-main">
@@ -144,13 +193,13 @@ async function handleLogout() {
   background-color: var(--color-canvas-light);
   border-bottom: 1px solid var(--color-hairline-light);
   padding: 0 var(--space-xl);
-  height: 72px;
+  height: 64px;
   gap: var(--space-xl);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 101;
   backdrop-filter: blur(12px);
-  background-color: rgba(255, 255, 255, 0.92);
+  background-color: rgba(255, 255, 255, 0.95);
 
   .header-left {
     .logo {
@@ -177,8 +226,8 @@ async function handleLogout() {
     }
 
     .logo-icon {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 10px;
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
       filter: drop-shadow(0 2px 6px rgba(255, 107, 107, 0.35));
@@ -191,7 +240,7 @@ async function handleLogout() {
     }
 
     .logo-text-main {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
       background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 50%, #FFC857 100%);
       -webkit-background-clip: text;
@@ -212,7 +261,7 @@ async function handleLogout() {
 
   .header-search {
     flex: 1;
-    max-width: 560px;
+    max-width: 520px;
     margin: 0 auto;
 
     :deep(.el-input__wrapper) {
@@ -273,6 +322,81 @@ async function handleLogout() {
       }
     }
   }
+}
+
+/* 活动导航条 — 参考淘宝顶部Tab栏 */
+.activity-nav-bar {
+  background: #fff;
+  border-bottom: 1px solid var(--color-hairline-light);
+  position: sticky;
+  top: 64px;
+  z-index: 100;
+
+  .nav-items {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 var(--space-xl);
+    max-width: 1400px;
+    margin: 0 auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .nav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 22px;
+    font-size: var(--font-size-body-sm);
+    font-weight: 500;
+    color: var(--color-shade-70);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2.5px solid transparent;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+    user-select: none;
+    text-decoration: none;
+    position: relative;
+
+    &:hover {
+      color: var(--color-ink);
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    &.active {
+      color: var(--color-ink);
+      border-bottom-color: #FF6B6B;
+      font-weight: 600;
+    }
+
+    .nav-icon {
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .hot-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #FF4757, #FF6B81);
+      padding: 0 5px;
+      border-radius: 8px;
+      line-height: 16px;
+      margin-left: 2px;
+      letter-spacing: 0.5px;
+      animation: hotPulse 2s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes hotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 .layout-main {

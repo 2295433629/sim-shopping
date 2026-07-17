@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getCart, type CartShopGroup, type CartItem } from '@/api/modules/cart'
 import { createOrder } from '@/api/modules/order'
@@ -8,6 +8,7 @@ import { getAddressListApi } from '@/api/modules/address'
 import type { AddressInfo } from '@/types/common'
 
 const router = useRouter()
+const route = useRoute()
 const loading = ref(false)
 const submitting = ref(false)
 const shopGroups = ref<CartShopGroup[]>([])
@@ -15,12 +16,17 @@ const addressList = ref<AddressInfo[]>([])
 const selectedAddressId = ref<number | null>(null)
 const remark = ref('')
 
+// 从 URL query 参数获取要结算的商品ID列表（购物车页面或立即购买传入）
+const queryCartItemIds = computed<number[] | null>(() => {
+  const ids = route.query.cartItemIds
+  if (!ids) return null
+  return String(ids).split(',').map(Number).filter(id => !isNaN(id))
+})
+
 const selectedItems = computed<CartItem[]>(() => {
   const items: CartItem[] = []
   shopGroups.value.forEach(g => {
-    g.items.forEach(i => {
-      if (i.selected === 1) items.push(i)
-    })
+    g.items.forEach(i => items.push(i))
   })
   return items
 })
@@ -50,10 +56,24 @@ async function loadData() {
       getCart(),
       getAddressListApi(),
     ])
-    shopGroups.value = (cartData.shopGroups || []).map(g => ({
-      ...g,
-      items: g.items.filter(i => i.selected === 1),
-    })).filter(g => g.items.length > 0)
+    // 优先使用 URL query 中的 cartItemIds 过滤（购物车页面/立即购买传入）
+    // 没有 query 参数时回退到 selected === 1 的过滤（兼容直接访问 /checkout）
+    if (queryCartItemIds.value) {
+      const idSet = new Set(queryCartItemIds.value)
+      const filteredGroups: CartShopGroup[] = []
+      ;(cartData.shopGroups || []).forEach(g => {
+        const items = g.items.filter(i => idSet.has(i.cartItemId))
+        if (items.length > 0) {
+          filteredGroups.push({ ...g, items })
+        }
+      })
+      shopGroups.value = filteredGroups
+    } else {
+      shopGroups.value = (cartData.shopGroups || []).map(g => ({
+        ...g,
+        items: g.items.filter(i => i.selected === 1),
+      })).filter(g => g.items.length > 0)
+    }
     addressList.value = addrData || []
     const def = addressList.value.find(a => a.isDefault === 1)
     selectedAddressId.value = def ? def.id : (addressList.value[0]?.id ?? null)

@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import DOMPurify from 'dompurify'
 import { getProductDetail, addFavorite, removeFavorite, isFavorite } from '@/api/modules/product'
-import { addToCart } from '@/api/modules/cart'
+import { addToCart, getCart } from '@/api/modules/cart'
 import { getProductReviews } from '@/api/modules/review'
 import { getToken } from '@/utils/storage'
 import type { ProductDetailVO, SkuVO } from '@/types/product'
@@ -104,7 +104,22 @@ async function handleBuyNow() {
   try {
     await addToCart(product.value.productId, selectedSku.value?.skuId || undefined, quantity.value)
     ElMessage.success('已加入购物车，正在前往结算页...')
-    router.push('/checkout')
+    // 获取购物车数据，找到刚加入的商品ID，只结算当前商品
+    const cartData = await getCart()
+    let targetItemId: number | null = null
+    const targetSkuId = selectedSku.value?.skuId || undefined
+    cartData.shopGroups?.forEach(g => {
+      g.items.forEach(i => {
+        if (i.productId === product.value!.productId && (i.skuId || undefined) === targetSkuId) {
+          targetItemId = i.cartItemId
+        }
+      })
+    })
+    if (targetItemId) {
+      router.push({ path: '/checkout', query: { cartItemIds: String(targetItemId) } })
+    } else {
+      router.push('/checkout')
+    }
   } catch {
     // error handled by interceptor
   }

@@ -123,7 +123,13 @@ function handleCheckout() {
     ElMessage.warning('请选择要结算的商品')
     return
   }
-  router.push('/checkout')
+  const selectedIds: number[] = []
+  shopGroups.value.forEach(g => {
+    g.items.forEach(i => {
+      if (i.selected === 1) selectedIds.push(i.cartItemId)
+    })
+  })
+  router.push({ path: '/checkout', query: { cartItemIds: selectedIds.join(',') } })
 }
 </script>
 

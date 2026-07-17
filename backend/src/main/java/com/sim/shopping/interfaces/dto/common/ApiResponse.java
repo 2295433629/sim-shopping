@@ -1,19 +1,19 @@
 package com.sim.shopping.interfaces.dto.common;
 
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class ApiResponse<T> {
 
     private int code;
     private String message;
     private T data;
+    private String timestamp;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime timestamp;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     private ApiResponse() {
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = LocalDateTime.now().format(FORMATTER);
     }
 
     public static <T> ApiResponse<T> success() {
@@ -60,6 +60,6 @@ public class ApiResponse<T> {
     public void setMessage(String message) { this.message = message; }
     public T getData() { return this.data; }
     public void setData(T data) { this.data = data; }
-    public LocalDateTime getTimestamp() { return this.timestamp; }
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public String getTimestamp() { return this.timestamp; }
+    public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 }
