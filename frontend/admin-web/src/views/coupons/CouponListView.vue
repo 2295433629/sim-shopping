@@ -3,59 +3,59 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>Coupons</span>
+          <span>优惠券管理</span>
           <div class="header-actions">
-            <el-select v-model="filter.status" placeholder="Status" clearable style="width: 140px" @change="loadList">
-              <el-option label="All" value="" />
-              <el-option label="Active" value="ACTIVE" />
-              <el-option label="Inactive" value="INACTIVE" />
-              <el-option label="Expired" value="EXPIRED" />
+            <el-select v-model="filter.status" placeholder="状态" clearable style="width: 140px" @change="loadList">
+              <el-option label="全部" value="" />
+              <el-option label="生效中" value="ACTIVE" />
+              <el-option label="未生效" value="INACTIVE" />
+              <el-option label="已过期" value="EXPIRED" />
             </el-select>
-            <el-input v-model="filter.keyword" placeholder="Search name" clearable style="width: 200px" @keyup.enter="loadList" />
-            <el-button type="primary" @click="loadList">Search</el-button>
-            <el-button type="success" @click="handleAdd">Add</el-button>
+            <el-input v-model="filter.keyword" placeholder="搜索优惠券名称" clearable style="width: 200px" @keyup.enter="loadList" />
+            <el-button type="primary" @click="loadList">搜索</el-button>
+            <el-button type="success" @click="handleAdd">新增</el-button>
           </div>
         </div>
       </template>
 
       <el-table :data="list" v-loading="loading" border>
         <el-table-column prop="id" label="ID" width="60" />
-        <el-table-column prop="couponName" label="Name" min-width="160" />
-        <el-table-column prop="couponType" label="Type" width="100">
+        <el-table-column prop="couponName" label="名称" min-width="160" />
+        <el-table-column prop="couponType" label="类型" width="100">
           <template #default="{ row }">
             <el-tag size="small" :type="typeTagType[row.couponType]">
               {{ formatType(row.couponType) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="Value" width="100">
+        <el-table-column label="面值" width="100">
           <template #default="{ row }">
             {{ formatValue(row) }}
           </template>
         </el-table-column>
-        <el-table-column prop="minSpend" label="Min Order" width="100">
+        <el-table-column prop="minSpend" label="最低消费" width="100">
           <template #default="{ row }">${{ row.minSpend.toFixed(2) }}</template>
         </el-table-column>
-        <el-table-column prop="remainingQuantity" label="Remain / Total" width="120">
+        <el-table-column prop="remainingQuantity" label="剩余/总量" width="120">
           <template #default="{ row }">{{ row.remainingQuantity }} / {{ row.totalQuantity }}</template>
         </el-table-column>
-        <el-table-column prop="status" label="Status" width="90">
+        <el-table-column prop="status" label="状态" width="90">
           <template #default="{ row }">
             <el-tag :type="statusTagType[row.status]" size="small">{{ row.status }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="validStartTime" label="Start" width="150" />
-        <el-table-column prop="validEndTime" label="End" width="150" />
-        <el-table-column label="Actions" width="160" fixed="right">
+        <el-table-column prop="validStartTime" label="开始时间" width="150" />
+        <el-table-column prop="validEndTime" label="结束时间" width="150" />
+        <el-table-column label="操作" width="160" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" type="primary" @click="handleEdit(row)">Edit</el-button>
-            <el-button size="small" type="info" @click="handleStats(row)">Stats</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(row)">Delete</el-button>
+            <el-button size="small" type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button size="small" type="info" @click="handleStats(row)">统计</el-button>
+            <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-empty v-if="!loading && list.length === 0" description="No coupons" />
+      <el-empty v-if="!loading && list.length === 0" description="暂无优惠券" />
 
       <el-pagination
         v-model:current-page="page"
@@ -68,66 +68,66 @@
     </el-card>
 
     <!-- 新增/编辑弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="isEdit ? 'Edit Coupon' : 'Add Coupon'" width="600px" destroy-on-close>
+    <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑优惠券' : '新增优惠券'" width="600px" destroy-on-close>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
-        <el-form-item label="Name" prop="name">
-          <el-input v-model="form.name" placeholder="Coupon name" />
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="form.name" placeholder="优惠券名称" />
         </el-form-item>
-        <el-form-item label="Description">
-          <el-input v-model="form.description" type="textarea" placeholder="Description" />
+        <el-form-item label="描述">
+          <el-input v-model="form.description" type="textarea" placeholder="请输入描述" />
         </el-form-item>
-        <el-form-item label="Type" prop="type">
+        <el-form-item label="类型" prop="type">
           <el-radio-group v-model="form.type">
-            <el-radio-button label="FIXED_AMOUNT">Fixed Amount</el-radio-button>
-            <el-radio-button label="PERCENTAGE">Percentage</el-radio-button>
-            <el-radio-button label="THRESHOLD">Threshold</el-radio-button>
+            <el-radio-button label="FIXED_AMOUNT">固定金额</el-radio-button>
+            <el-radio-button label="PERCENTAGE">折扣比例</el-radio-button>
+            <el-radio-button label="THRESHOLD">满减门槛</el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="Value" prop="value">
+        <el-form-item label="面值" prop="value">
           <el-input-number v-model="form.value" :min="0" :precision="form.type === 'PERCENTAGE' ? 0 : 2" style="width: 200px" />
           <span class="form-tip">{{ form.type === 'PERCENTAGE' ? '%' : '$' }}</span>
         </el-form-item>
-        <el-form-item label="Min Order" prop="minOrderAmount">
+        <el-form-item label="最低消费金额" prop="minOrderAmount">
           <el-input-number v-model="form.minOrderAmount" :min="0" :precision="2" style="width: 200px" />
         </el-form-item>
-        <el-form-item label="Scope" prop="scope">
+        <el-form-item label="适用范围" prop="scope">
           <el-radio-group v-model="form.scope">
-            <el-radio-button label="ALL">All</el-radio-button>
-            <el-radio-button label="CATEGORY">Category</el-radio-button>
-            <el-radio-button label="PRODUCT">Product</el-radio-button>
+            <el-radio-button label="ALL">全部商品</el-radio-button>
+            <el-radio-button label="CATEGORY">指定分类</el-radio-button>
+            <el-radio-button label="PRODUCT">指定商品</el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="form.scope !== 'ALL'" label="Scope ID">
-          <el-input-number v-model="form.scopeId" :min="1" style="width: 200px" placeholder="Category or Product ID" />
+        <el-form-item v-if="form.scope !== 'ALL'" label="范围ID">
+          <el-input-number v-model="form.scopeId" :min="1" style="width: 200px" placeholder="分类ID或商品ID" />
         </el-form-item>
-        <el-form-item label="Total Count" prop="totalCount">
+        <el-form-item label="发放总量" prop="totalCount">
           <el-input-number v-model="form.totalCount" :min="1" style="width: 200px" />
         </el-form-item>
-        <el-form-item label="Limit/User" prop="limitPerUser">
+        <el-form-item label="每人限领" prop="limitPerUser">
           <el-input-number v-model="form.limitPerUser" :min="1" style="width: 200px" />
         </el-form-item>
-        <el-form-item label="Start Time" prop="startTime">
-          <el-date-picker v-model="form.startTime" type="datetime" placeholder="Start time" value-format="YYYY-MM-DD HH:mm:ss" />
+        <el-form-item label="开始时间" prop="startTime">
+          <el-date-picker v-model="form.startTime" type="datetime" placeholder="选择开始时间" value-format="YYYY-MM-DD HH:mm:ss" />
         </el-form-item>
-        <el-form-item label="End Time" prop="endTime">
-          <el-date-picker v-model="form.endTime" type="datetime" placeholder="End time" value-format="YYYY-MM-DD HH:mm:ss" />
+        <el-form-item label="结束时间" prop="endTime">
+          <el-date-picker v-model="form.endTime" type="datetime" placeholder="选择结束时间" value-format="YYYY-MM-DD HH:mm:ss" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" :loading="submitting" @click="handleSubmit">Confirm</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
 
     <!-- 统计弹窗 -->
-    <el-dialog v-model="statsVisible" title="Coupon Statistics" width="400px">
+    <el-dialog v-model="statsVisible" title="优惠券统计" width="400px">
       <div v-loading="statsLoading">
         <el-descriptions v-if="stats" :column="1" border>
-          <el-descriptions-item label="Total Coupons">{{ stats.totalCoupons }}</el-descriptions-item>
-          <el-descriptions-item label="Total Claimed">{{ stats.totalClaimed }}</el-descriptions-item>
-          <el-descriptions-item label="Total Used">{{ stats.totalUsed }}</el-descriptions-item>
-          <el-descriptions-item label="Active Coupons">{{ stats.activeCoupons }}</el-descriptions-item>
-          <el-descriptions-item label="Expired Coupons">{{ stats.expiredCoupons }}</el-descriptions-item>
+          <el-descriptions-item label="优惠券总数">{{ stats.totalCoupons }}</el-descriptions-item>
+          <el-descriptions-item label="已领取数">{{ stats.totalClaimed }}</el-descriptions-item>
+          <el-descriptions-item label="已使用数">{{ stats.totalUsed }}</el-descriptions-item>
+          <el-descriptions-item label="生效中数量">{{ stats.activeCoupons }}</el-descriptions-item>
+          <el-descriptions-item label="已过期数量">{{ stats.expiredCoupons }}</el-descriptions-item>
         </el-descriptions>
       </div>
     </el-dialog>
@@ -177,15 +177,15 @@ const form = reactive<CouponFormData>({
 })
 
 const rules: FormRules = {
-  name: [{ required: true, message: 'Please enter name', trigger: 'blur' }],
-  type: [{ required: true, message: 'Please select type', trigger: 'change' }],
-  value: [{ required: true, message: 'Please enter value', trigger: 'blur' }],
-  minOrderAmount: [{ required: true, message: 'Please enter min order amount', trigger: 'blur' }],
-  scope: [{ required: true, message: 'Please select scope', trigger: 'change' }],
-  totalCount: [{ required: true, message: 'Please enter total count', trigger: 'blur' }],
-  limitPerUser: [{ required: true, message: 'Please enter limit per user', trigger: 'blur' }],
-  startTime: [{ required: true, message: 'Please select start time', trigger: 'change' }],
-  endTime: [{ required: true, message: 'Please select end time', trigger: 'change' }],
+  name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+  type: [{ required: true, message: '请选择类型', trigger: 'change' }],
+  value: [{ required: true, message: '请输入面值', trigger: 'blur' }],
+  minOrderAmount: [{ required: true, message: '请输入最低消费金额', trigger: 'blur' }],
+  scope: [{ required: true, message: '请选择适用范围', trigger: 'change' }],
+  totalCount: [{ required: true, message: '请输入发放总量', trigger: 'blur' }],
+  limitPerUser: [{ required: true, message: '请输入每人限领数量', trigger: 'blur' }],
+  startTime: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
+  endTime: [{ required: true, message: '请选择结束时间', trigger: 'change' }],
 }
 
 const statusTagType: Record<string, string> = {
@@ -202,18 +202,18 @@ const typeTagType: Record<string, string> = {
 
 function formatType(type: string) {
   const map: Record<string, string> = {
-    FIXED_AMOUNT: 'Fixed',
-    PERCENTAGE: 'Percent',
-    THRESHOLD: 'Threshold',
+    FIXED_AMOUNT: '固定金额',
+    PERCENTAGE: '折扣比例',
+    THRESHOLD: '满减',
   }
   return map[type] || type
 }
 
 function formatValue(row: Coupon) {
   if (row.couponType === 'PERCENTAGE') {
-    return `${row.discountValue}% OFF`
+    return `${row.discountValue}%折扣`
   }
-  return `$${row.discountValue.toFixed(2)} OFF`
+  return `满减¥${row.discountValue.toFixed(2)}`
 }
 
 function resetForm() {
@@ -263,15 +263,15 @@ async function handleSubmit() {
     try {
       if (isEdit.value && editingId.value != null) {
         await updateCoupon(editingId.value, form)
-        ElMessage.success('Updated successfully')
+        ElMessage.success('更新成功')
       } else {
         await createCoupon(form)
-        ElMessage.success('Created successfully')
+        ElMessage.success('创建成功')
       }
       dialogVisible.value = false
       loadList()
     } catch {
-      ElMessage.error('Operation failed')
+      ElMessage.error('操作失败')
     } finally {
       submitting.value = false
     }
@@ -280,16 +280,16 @@ async function handleSubmit() {
 
 async function handleDelete(row: Coupon) {
   try {
-    await ElMessageBox.confirm(`Delete coupon "${row.couponName}"?`, 'Confirm', {
-      confirmButtonText: 'Yes',
-      cancelButtonText: 'No',
+    await ElMessageBox.confirm(`确定删除优惠券"${row.couponName}"吗？`, '确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
       type: 'warning',
     })
     await deleteCoupon(row.id)
-    ElMessage.success('Deleted successfully')
+    ElMessage.success('删除成功')
     loadList()
   } catch (e: any) {
-    if (e !== 'cancel') ElMessage.error('Delete failed')
+    if (e !== 'cancel') ElMessage.error('删除失败')
   }
 }
 
@@ -304,7 +304,7 @@ async function handleStats(_row: Coupon) {
   try {
     stats.value = await getCouponStats()
   } catch {
-    ElMessage.error('Failed to load stats')
+    ElMessage.error('加载统计数据失败')
   } finally {
     statsLoading.value = false
   }
@@ -319,7 +319,7 @@ const loadList = async () => {
   } catch {
     list.value = []
     total.value = 0
-    ElMessage.error('Load failed')
+    ElMessage.error('加载失败')
   } finally {
     loading.value = false
   }

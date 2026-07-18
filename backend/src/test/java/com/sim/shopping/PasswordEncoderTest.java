@@ -38,6 +38,7 @@ public class PasswordEncoderTest {
         // ============================================
         String[] dbHashes = {
             // 例："$2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "$2a$10$7MaASWMlYItDrcW.KLnGYOqklzVZ9mlIIJToy0EVzCLZ0jFkwegJ2"
         };
 
         // 常见密码字典（可自行扩展）

@@ -19,18 +19,16 @@ const list = ref<PermissionItem[]>([])
 const form = ref<Partial<PermissionItem>>({
   permissionName: '',
   permissionCode: '',
-  resourceType: 'api',
-  httpMethod: 'GET',
-  httpPath: '',
+  permissionType: 1,
+  module: '',
   description: '',
 })
 
 const rules = {
   permissionName: [{ required: true, message: '请输入权限名称', trigger: 'blur' }],
   permissionCode: [{ required: true, message: '请输入权限编码', trigger: 'blur' }],
-  resourceType: [{ required: true, message: '请选择资源类型', trigger: 'change' }],
-  httpMethod: [{ required: true, message: '请选择HTTP方法', trigger: 'change' }],
-  httpPath: [{ required: true, message: '请输入请求路径', trigger: 'blur' }],
+  permissionType: [{ required: true, message: '请选择权限类型', trigger: 'change' }],
+  module: [{ required: true, message: '请输入所属模块', trigger: 'blur' }],
 }
 
 onMounted(() => {
@@ -60,9 +58,8 @@ function openDialog(row?: PermissionItem) {
     form.value = {
       permissionName: '',
       permissionCode: '',
-      resourceType: 'api',
-      httpMethod: 'GET',
-      httpPath: '',
+      permissionType: 1,
+      module: '',
       description: '',
     }
   }
@@ -75,10 +72,10 @@ async function submitForm() {
 
   try {
     if (isEdit.value && form.value.id) {
-      await updatePermission(form.value.id, form.value as Omit<PermissionItem, 'id'>)
+      await updatePermission(form.value.id, form.value as Omit<PermissionItem, 'id' | 'createdAt'>)
       ElMessage.success('更新成功')
     } else {
-      await createPermission(form.value as Omit<PermissionItem, 'id'>)
+      await createPermission(form.value as Omit<PermissionItem, 'id' | 'createdAt'>)
       ElMessage.success('创建成功')
     }
     dialogVisible.value = false
@@ -114,9 +111,8 @@ async function handleDelete(row: PermissionItem) {
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column prop="permissionName" label="权限名称" min-width="120" />
         <el-table-column prop="permissionCode" label="权限编码" min-width="150" />
-        <el-table-column prop="resourceType" label="资源类型" width="100" />
-        <el-table-column prop="httpMethod" label="方法" width="80" />
-        <el-table-column prop="httpPath" label="路径" min-width="180" />
+        <el-table-column prop="permissionType" label="权限类型" width="100" />
+        <el-table-column prop="module" label="所属模块" width="120" />
         <el-table-column prop="description" label="描述" min-width="150" show-overflow-tooltip />
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
@@ -135,23 +131,15 @@ async function handleDelete(row: PermissionItem) {
         <el-form-item label="权限编码" prop="permissionCode">
           <el-input v-model="form.permissionCode" placeholder="如：user:manage" />
         </el-form-item>
-        <el-form-item label="资源类型" prop="resourceType">
-          <el-select v-model="form.resourceType" placeholder="请选择">
-            <el-option label="API接口" value="api" />
-            <el-option label="菜单" value="menu" />
-            <el-option label="按钮" value="button" />
+        <el-form-item label="权限类型" prop="permissionType">
+          <el-select v-model="form.permissionType" placeholder="请选择">
+            <el-option label="菜单权限" :value="1" />
+            <el-option label="按钮权限" :value="2" />
+            <el-option label="API权限" :value="3" />
           </el-select>
         </el-form-item>
-        <el-form-item label="HTTP方法" prop="httpMethod">
-          <el-select v-model="form.httpMethod" placeholder="请选择">
-            <el-option label="GET" value="GET" />
-            <el-option label="POST" value="POST" />
-            <el-option label="PUT" value="PUT" />
-            <el-option label="DELETE" value="DELETE" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="请求路径" prop="httpPath">
-          <el-input v-model="form.httpPath" placeholder="如：/api/admin/users" />
+        <el-form-item label="所属模块" prop="module">
+          <el-input v-model="form.module" placeholder="如：system" />
         </el-form-item>
         <el-form-item label="描述">
           <el-input v-model="form.description" type="textarea" :rows="2" placeholder="权限描述" />

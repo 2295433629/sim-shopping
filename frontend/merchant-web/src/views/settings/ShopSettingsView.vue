@@ -7,7 +7,7 @@
           <el-input v-model="shopForm.shopName" />
         </el-form-item>
         <el-form-item label="Logo">
-          <el-upload action="/api/common/upload" :show-file-list="false" :on-success="handleLogoSuccess" :before-upload="beforeUpload">
+          <el-upload :http-request="uploadFile" :show-file-list="false" :on-success="handleLogoSuccess" :before-upload="beforeUpload">
             <el-image v-if="shopForm.shopLogo" :src="shopForm.shopLogo" fit="cover" style="width:80px;height:80px;border-radius:8px" />
             <el-button v-else type="primary" plain>上传</el-button>
           </el-upload>
@@ -43,7 +43,7 @@
     <el-dialog v-model="showBannerDialog" title="添加轮播图" width="500px">
       <el-form :model="bannerForm" label-width="80px">
         <el-form-item label="图片">
-          <el-upload action="/api/common/upload" :show-file-list="false" :on-success="handleBannerSuccess" :before-upload="beforeUpload">
+          <el-upload :http-request="uploadFile" :show-file-list="false" :on-success="handleBannerSuccess" :before-upload="beforeUpload">
             <el-image v-if="bannerForm.imageUrl" :src="bannerForm.imageUrl" fit="cover" style="width:120px;height:60px" />
             <el-button v-else type="primary" plain>上传</el-button>
           </el-upload>
@@ -69,6 +69,7 @@ import {
   addBanner as addShopBanner,
   removeBanner as removeShopBanner,
 } from '@/api/modules/merchant'
+import request from '@/api/request'
 
 const loading = ref(false)
 const shopForm = reactive({ shopName: '', shopLogo: '', description: '' })
@@ -76,13 +77,29 @@ const banners = ref<any[]>([])
 const showBannerDialog = ref(false)
 const bannerForm = reactive({ imageUrl: '', sortOrder: 0, linkUrl: '' })
 
-const beforeUpload = (file: File) => {
+const beforeUpload = (file: any) => {
   if (!file.type.startsWith('image/')) { ElMessage.error('仅支持图片文件'); return false }
   if (file.size / 1024 / 1024 > 5) { ElMessage.error('图片最大5MB'); return false }
   return true
 }
-const handleLogoSuccess = (res: any) => { if (res.code === 200) shopForm.shopLogo = res.data }
-const handleBannerSuccess = (res: any) => { if (res.code === 200) bannerForm.imageUrl = res.data }
+const uploadFile = async (options: any) => {
+  const formData = new FormData()
+  formData.append('file', options.file)
+  try {
+    const res = await request.post('/common/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    const data: any = res
+    const url = data?.url || data?.data?.url || ''
+    if (url) {
+      options.onSuccess({ url })
+    } else {
+      options.onError(new Error('上传失败'))
+    }
+  } catch (e) {
+    options.onError(e)
+  }
+}
+const handleLogoSuccess = (res: any) => { if (res.url) shopForm.shopLogo = res.url }
+const handleBannerSuccess = (res: any) => { if (res.url) bannerForm.imageUrl = res.url }
 
 const loadShop = async () => {
   loading.value = true

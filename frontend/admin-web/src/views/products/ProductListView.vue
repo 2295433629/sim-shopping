@@ -3,33 +3,33 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>Products</span>
+          <span>商品管理</span>
           <div>
-            <el-select v-model="filter.status" placeholder="Status" clearable style="width:120px" @change="loadList">
-              <el-option label="All" value="" />
-              <el-option label="Published" value="PUBLISHED" />
-              <el-option label="Draft" value="DRAFT" />
-              <el-option label="Offline" value="OFFLINE" />
+            <el-select v-model="filter.status" placeholder="状态" clearable style="width:120px" @change="loadList">
+              <el-option label="全部" value="" />
+              <el-option label="已上架" value="PUBLISHED" />
+              <el-option label="草稿" value="DRAFT" />
+              <el-option label="已下架" value="OFFLINE" />
             </el-select>
-            <el-input v-model="filter.keyword" placeholder="Search" clearable style="width:200px" @keyup.enter="loadList" />
-            <el-button type="primary" @click="loadList">Search</el-button>
+            <el-input v-model="filter.keyword" placeholder="搜索商品" clearable style="width:200px" @keyup.enter="loadList" />
+            <el-button type="primary" @click="loadList">搜索</el-button>
           </div>
         </div>
       </template>
       <el-table :data="list" v-loading="loading" border>
         <el-table-column prop="productId" label="ID" width="60" />
-        <el-table-column prop="name" label="Name" min-width="200" />
-        <el-table-column prop="shopName" label="Shop" width="120" />
-        <el-table-column prop="price" label="Price" width="100">
+        <el-table-column prop="name" label="商品名称" min-width="200" />
+        <el-table-column prop="shopName" label="所属店铺" width="120" />
+        <el-table-column prop="price" label="价格" width="100">
           <template #default="{ row }">{{ formatPrice(row.price) }}</template>
         </el-table-column>
-        <el-table-column prop="sales" label="Sales" width="80" />
-        <el-table-column prop="status" label="Status" width="90">
+        <el-table-column prop="sales" label="销量" width="80" />
+        <el-table-column prop="status" label="状态" width="90">
           <template #default="{ row }"><el-tag :type="row.status === 'PUBLISHED' ? 'success' : row.status === 'DRAFT' ? 'info' : 'warning'">{{ row.status }}</el-tag></template>
         </el-table-column>
-        <el-table-column label="Actions" width="150">
+        <el-table-column label="操作" width="150">
           <template #default="{ row }">
-            <el-button v-if="row.status === 'PUBLISHED'" size="small" type="danger" @click="handleForceOffline(row)">Force Offline</el-button>
+            <el-button v-if="row.status === 'PUBLISHED'" size="small" type="danger" @click="handleForceOffline(row)">强制下架</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -50,7 +50,7 @@ const size = ref(20)
 const loading = ref(false)
 const filter = reactive({ status: '', keyword: '' })
 
-function formatPrice(val: number) { return val != null ? val.toFixed(2) : '0.00' }
+function formatPrice(val: number) { return val != null ? '¥' + val.toFixed(2) : '¥0.00' }
 
 const loadList = async () => {
   loading.value = true
@@ -58,12 +58,19 @@ const loadList = async () => {
     const res = await getProducts({ page: page.value, size: size.value, status: filter.status, keyword: filter.keyword })
     list.value = res.list || []
     total.value = res.total || 0
-  } catch { ElMessage.error('Load failed') }
+  } catch { ElMessage.error('加载失败') }
   loading.value = false
 }
 
 const handleForceOffline = async (row: any) => {
-  try { const { value } = await ElMessageBox.prompt('Offline reason', 'Force Offline', { inputType: 'textarea' }); await forceOfflineProduct(row.productId, value); ElMessage.success('Offline'); loadList() } catch (e: any) { if (e !== 'cancel') ElMessage.error('Failed') }
+  try {
+    await ElMessageBox.confirm('确认强制下架该商品？', '强制下架', { type: 'warning' })
+    await forceOfflineProduct(row.productId)
+    ElMessage.success('已下架')
+    loadList()
+  } catch (e: any) {
+    if (e !== 'cancel') ElMessage.error('操作失败')
+  }
 }
 onMounted(loadList)
 </script>

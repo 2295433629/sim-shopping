@@ -1005,7 +1005,7 @@ INSERT INTO `t_user` (`username`, `password`, `nickname`, `role`, `status`, `pho
 
 -- 测试商家用户 (密码各不相同)
 INSERT INTO `t_user` (`username`, `password`, `nickname`, `role`, `status`, `phone`, `email`, `points`) VALUES
-('merchant1', '$2a$10$CIAvymesYwLeArEOQ9fDWO.SEANZ91QLNjC7lF3JfyZw8PyMZPFgS', '数码达人', 'MERCHANT', 'ACTIVE', '13800138001', 'merchant1@test.com', 0),
+('merchant1', '$2a$10$CIAvymesYwLeArEOQ9fDWO.SEANZ91QLNjC7lF3JfyZw8PyMZPFgS', '模拟商城官方', 'MERCHANT', 'ACTIVE', '13800138001', 'merchant1@test.com', 0),
 ('merchant2', '$2a$10$6k6e80g3ndhEDPjYfPqC8OBVGYbahlh6IXSuXT9WmFtchoUkZQizi', '美妆女王', 'MERCHANT', 'ACTIVE', '13800138002', 'merchant2@test.com', 0),
 ('merchant3', '$2a$10$ChR2p6vItrBlvGUN64carOZNXaTCKsP7ks.Ra1zVXTao64Rk4iAsm', '潮流服饰', 'MERCHANT', 'ACTIVE', '13800138003', 'merchant3@test.com', 0),
 ('merchant4', '$2a$10$BJzOeTxeCZy8IePltNVG5.bfVinpFviow9Zkr9Hw5dt6SUgSli6OC', '美食天下', 'MERCHANT', 'ACTIVE', '13800138004', 'merchant4@test.com', 0),
@@ -1079,7 +1079,7 @@ INSERT INTO `t_banner` (`title`, `image_url`, `link_url`, `sort_order`, `status`
 
 -- 商家
 INSERT INTO `t_merchant` (`user_id`, `merchant_name`, `contact_phone`, `contact_email`, `status`, `approved_at`, `approved_by`) VALUES
-(2, '极客数码旗舰店', '13800138001', 'merchant1@test.com', 'ACTIVE', NOW(), 1),
+(2, '模拟商城旗舰店', '13800138001', 'merchant1@test.com', 'ACTIVE', NOW(), 1),
 (3, '花漾美妆专营店', '13800138002', 'merchant2@test.com', 'ACTIVE', NOW(), 1),
 (4, '潮流服饰旗舰店', '13800138003', 'merchant3@test.com', 'ACTIVE', NOW(), 1),
 (5, '美食天下旗舰店', '13800138004', 'merchant4@test.com', 'ACTIVE', NOW(), 1),
@@ -1090,7 +1090,7 @@ INSERT INTO `t_merchant` (`user_id`, `merchant_name`, `contact_phone`, `contact_
 
 -- 店铺
 INSERT INTO `t_shop` (`merchant_id`, `shop_name`, `shop_logo`, `description`, `status`) VALUES
-(1, '极客数码旗舰店', '', '专注数码产品，品质保证，极速发货', 'ACTIVE'),
+(1, '模拟商城旗舰店', '', '模拟商城官方自营店铺，全品类商品，品质保障', 'ACTIVE'),
 (2, '花漾美妆专营店', '', '正品美妆，呵护你的美丽', 'ACTIVE'),
 (3, '潮流服饰旗舰店', '', '时尚穿搭，品质生活', 'ACTIVE'),
 (4, '美食天下旗舰店', '', '精选美味，产地直供', 'ACTIVE'),

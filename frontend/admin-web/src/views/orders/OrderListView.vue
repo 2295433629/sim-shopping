@@ -83,46 +83,46 @@ function handleDetail(row: OrderListVO) {
 <template>
   <el-card shadow="never">
     <template #header>
-      <span class="card-title">Order Management</span>
+      <span class="card-title">订单管理</span>
     </template>
 
     <!-- Filters -->
     <div class="filter-bar">
-      <el-select v-model="filterStatus" placeholder="Status" clearable style="width: 150px;">
+      <el-select v-model="filterStatus" placeholder="状态" clearable style="width: 150px;">
         <el-option v-for="s in statusOptions" :key="s.value" :label="s.label" :value="s.value" />
       </el-select>
-      <el-input-number v-model="filterShopId" placeholder="Shop ID" :min="1" controls-position="right" style="width: 130px;" />
-      <el-input v-model="keyword" placeholder="Order No / Buyer" clearable style="width: 200px;" @keyup.enter="handleSearch" />
-      <el-button type="primary" @click="handleSearch">Search</el-button>
-      <el-button @click="handleReset">Reset</el-button>
+      <el-input-number v-model="filterShopId" placeholder="店铺ID" :min="1" controls-position="right" style="width: 130px;" />
+      <el-input v-model="keyword" placeholder="订单号/买家" clearable style="width: 200px;" @keyup.enter="handleSearch" />
+      <el-button type="primary" @click="handleSearch">搜索</el-button>
+      <el-button @click="handleReset">重置</el-button>
     </div>
 
     <el-table :data="orderList" v-loading="loading" style="width: 100%; margin-top: 16px;" stripe>
-      <el-table-column label="Order No" prop="orderNo" width="200" />
-      <el-table-column label="Status" width="120">
+      <el-table-column label="订单号" prop="orderNo" width="200" />
+      <el-table-column label="状态" width="120">
         <template #default="{ row }">
           <el-tag :type="(statusTagType[row.status] as any) || 'info'" size="small">
             {{ row.statusText }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Shop" prop="shopName" width="150" />
-      <el-table-column label="Buyer" prop="buyerName" width="120" />
-      <el-table-column label="Items" prop="itemCount" width="80" align="center" />
-      <el-table-column label="Total" width="120" align="right">
+      <el-table-column label="店铺" prop="shopName" width="150" />
+      <el-table-column label="买家" prop="buyerName" width="120" />
+      <el-table-column label="商品数" prop="itemCount" width="80" align="center" />
+      <el-table-column label="总金额" width="120" align="right">
         <template #default="{ row }">
-          <span class="amount">${{ row.payAmount.toFixed(2) }}</span>
+          <span class="amount">¥{{ row.payAmount.toFixed(2) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Created At" prop="createdAt" width="180" />
-      <el-table-column label="Action" width="100" align="center" fixed="right">
+      <el-table-column label="下单时间" prop="createdAt" width="180" />
+      <el-table-column label="操作" width="100" align="center" fixed="right">
         <template #default="{ row }">
-          <el-button link type="primary" @click="handleDetail(row)">Detail</el-button>
+          <el-button link type="primary" @click="handleDetail(row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-empty v-if="!loading && orderList.length === 0" description="No orders" />
+    <el-empty v-if="!loading && orderList.length === 0" description="暂无订单" />
 
     <div v-if="total > pageSize" class="pagination-wrap">
       <el-pagination

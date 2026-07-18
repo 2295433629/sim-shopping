@@ -29,9 +29,17 @@ public class SecurityUser implements UserDetails {
         this.userType = userType;
         this.role = role;
         this.enabled = enabled;
-        this.authorities = role != null
-                ? Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                : Collections.emptyList();
+
+        // 构建权限列表：SUPER_ADMIN 同时拥有 ADMIN 和 SUPER_ADMIN 权限
+        java.util.Set<GrantedAuthority> authSet = new java.util.HashSet<>();
+        if (role != null) {
+            authSet.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+            // SUPER_ADMIN 继承 ADMIN 权限
+            if ("SUPER_ADMIN".equalsIgnoreCase(role)) {
+                authSet.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            }
+        }
+        this.authorities = java.util.Collections.unmodifiableSet(authSet);
     }
 
     /**

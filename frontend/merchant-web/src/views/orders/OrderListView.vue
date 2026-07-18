@@ -7,8 +7,9 @@ const router = useRouter()
 const loading = ref(false)
 const orderList = ref<OrderListVO[]>([])
 const activeTab = ref('all')
+const keyword = ref('')
 const page = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(20)
 const total = ref(0)
 
 const tabs = [
@@ -45,6 +46,9 @@ async function loadOrders() {
     if (activeTab.value !== 'all') {
       params.status = activeTab.value
     }
+    if (keyword.value.trim()) {
+      params.keyword = keyword.value.trim()
+    }
     const data = await getMerchantOrders(params as any)
     orderList.value = data.list || []
     total.value = data.total || 0
@@ -74,6 +78,14 @@ function handleDetail(row: OrderListVO) {
       <el-tabs v-model="activeTab">
         <el-tab-pane v-for="tab in tabs" :key="tab.value" :label="tab.label" :name="tab.value" />
       </el-tabs>
+
+      <div style="margin-bottom:12px">
+        <el-input v-model="keyword" placeholder="搜索订单号/买家" clearable style="width:280px" @keyup.enter="page=1;loadOrders()" @clear="page=1;loadOrders()">
+          <template #append>
+            <el-button @click="page=1;loadOrders()">搜索</el-button>
+          </template>
+        </el-input>
+      </div>
 
       <el-table :data="orderList" v-loading="loading" style="width: 100%" stripe>
         <el-table-column label="订单号" prop="orderNo" width="200" />

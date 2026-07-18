@@ -59,13 +59,31 @@ public class AdminAuthService {
             throw new UserException.PasswordErrorException("密码不正确");
         }
 
-        // Check if user is an admin
-        LambdaQueryWrapper<SysAdminDO> adminWrapper = new LambdaQueryWrapper<>();
-        adminWrapper.eq(SysAdminDO::getUserId, user.getId())
-                    .last("LIMIT 1");
-        SysAdminDO admin = sysAdminMapper.selectOne(adminWrapper);
-        if (admin == null) {
-            throw new BusinessException(403, "无管理员权限");
+        // 确定管理员角色：优先从 sys_admin 表获取，回退到 user 表的 role
+        String adminRole = user.getRole();
+        String adminName = user.getNickname();
+        if (!"ADMIN".equalsIgnoreCase(adminRole) && !"SUPER_ADMIN".equalsIgnoreCase(adminRole)) {
+            // user 表角色不是管理员，尝试查 sys_admin 表
+            LambdaQueryWrapper<SysAdminDO> adminWrapper = new LambdaQueryWrapper<>();
+            adminWrapper.eq(SysAdminDO::getUserId, user.getId())
+                        .last("LIMIT 1");
+            SysAdminDO admin = sysAdminMapper.selectOne(adminWrapper);
+            if (admin != null) {
+                adminRole = admin.getRole();
+                adminName = admin.getAdminName();
+            } else {
+                throw new BusinessException(403, "无管理员权限");
+            }
+        } else {
+            // user 表角色是管理员，尝试补充 adminName
+            LambdaQueryWrapper<SysAdminDO> adminWrapper = new LambdaQueryWrapper<>();
+            adminWrapper.eq(SysAdminDO::getUserId, user.getId())
+                        .last("LIMIT 1");
+            SysAdminDO admin = sysAdminMapper.selectOne(adminWrapper);
+            if (admin != null) {
+                adminRole = admin.getRole();
+                adminName = admin.getAdminName();
+            }
         }
 
         // Check user status
@@ -75,7 +93,7 @@ public class AdminAuthService {
 
         // Generate JWT token
         String accessToken = jwtTokenProvider.generateAccessToken(
-                user.getId(), user.getUsername(), admin.getRole());
+                user.getId(), user.getUsername(), adminRole);
         String refreshToken = jwtTokenProvider.generateRefreshToken(
                 user.getId(), user.getUsername());
 
@@ -89,8 +107,8 @@ public class AdminAuthService {
         result.put("username", user.getUsername());
         result.put("nickname", user.getNickname());
         result.put("avatar", user.getAvatar());
-        result.put("role", admin.getRole());
-        result.put("adminName", admin.getAdminName());
+        result.put("role", adminRole);
+        result.put("adminName", adminName);
         return result;
     }
 }

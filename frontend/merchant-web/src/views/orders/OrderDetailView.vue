@@ -202,10 +202,10 @@ async function openLogisticsDialog() {
       <el-card shadow="never" class="section-card">
         <template #header><span class="section-title">支付与物流</span></template>
         <el-descriptions :column="1" border>
-          <el-descriptions-item label="支付方式">{{ (order as any).payment?.paymentMethod || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="支付状态">{{ (order as any).payment?.paymentStatus || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="物流公司">{{ (order as any).logistics?.company || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="运单号">{{ (order as any).logistics?.trackingNo || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="支付方式">{{ order.paymentMethod || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="支付状态">{{ order.paymentStatus || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="物流公司">{{ order.logisticsCompany || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="运单号">{{ order.logisticsNo || '-' }}</el-descriptions-item>
         </el-descriptions>
       </el-card>
 

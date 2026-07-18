@@ -14,8 +14,8 @@ export interface NotificationItem {
   createdAt: string
 }
 
-export function getNotifications(params: { page: number; size: number }) {
-  return request.get('/notifications', { params })
+export function getNotifications(params: { page?: number; size?: number; type?: string; isRead?: number }) {
+  return request.get('/notifications', { params: { pageNum: params.page || 1, pageSize: params.size || 10, type: params.type, isRead: params.isRead } })
 }
 
 export function getUnreadCount() {

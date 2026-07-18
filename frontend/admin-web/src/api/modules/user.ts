@@ -1,6 +1,7 @@
 import request from '../request'
 import type { PageResponse } from '@/types/common'
 
+/** 用户列表项（对应后端 AdminUserItem） */
 export interface UserItem {
   userId: number
   username: string
@@ -8,11 +9,12 @@ export interface UserItem {
   phone?: string
   email?: string
   role?: string
-  status: number
+  status: string
+  points?: number
   createdAt?: string
 }
 
-export function getUsers(params: { page: number; size: number; keyword?: string; status?: number }) {
+export function getUsers(params: { page: number; size: number; keyword?: string; status?: string }) {
   return request.get<unknown, PageResponse<UserItem>>('/admin/users', { params })
 }
 

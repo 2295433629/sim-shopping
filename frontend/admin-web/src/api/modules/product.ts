@@ -23,8 +23,8 @@ export function getProductDetail(id: number) {
   return request.get<unknown, ProductListItem>(`/admin/products/${id}`)
 }
 
-export function forceOfflineProduct(id: number, reason: string) {
-  return request.patch<unknown, void>(`/admin/products/${id}/force-offline`, { reason })
+export function forceOfflineProduct(id: number) {
+  return request.patch<unknown, void>(`/admin/products/${id}/force-offline`)
 }
 
 export function getCategories() {

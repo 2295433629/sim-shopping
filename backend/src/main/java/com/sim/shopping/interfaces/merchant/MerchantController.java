@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0.0
  */
 @RestController
-@PreAuthorize("hasRole('MERCHANT')")
 public class MerchantController {
 
     private final MerchantService merchantService;
@@ -28,7 +27,7 @@ public class MerchantController {
         this.merchantService = merchantService;
     }
 
-    // ===== Merchant endpoints (requires login) =====
+    // ===== Merchant endpoints (requires merchant role) =====
 
     /**
      * apply
@@ -36,6 +35,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PostMapping("/api/merchant/apply")
+    @PreAuthorize("hasRole('MERCHANT')")
     public ApiResponse<MerchantInfoResponse> apply(@Valid @RequestBody MerchantApplyRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(merchantService.apply(userId, req));
@@ -57,6 +57,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @GetMapping("/api/merchant/info")
+    @PreAuthorize("hasRole('MERCHANT')")
     public ApiResponse<MerchantInfoResponse> getMerchantInfo() {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(merchantService.getMerchantInfo(userId));
@@ -68,18 +69,20 @@ public class MerchantController {
      * @return 返回结果
      */
     @PutMapping("/api/merchant/info")
+    @PreAuthorize("hasRole('MERCHANT')")
     public ApiResponse<MerchantInfoResponse> updateMerchantInfo(@Valid @RequestBody MerchantApplyRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(merchantService.updateMerchantInfo(userId, req));
     }
 
-    // ===== Admin endpoints (requires admin login) =====
+    // ===== Admin endpoints (requires admin role) =====
 
     /**
      * 获取Merchant List
      * @return 返回结果
      */
     @GetMapping("/api/admin/merchants")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<PageResponse<MerchantListResponse>> getMerchantList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size,
