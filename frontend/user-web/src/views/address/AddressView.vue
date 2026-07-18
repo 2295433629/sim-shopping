@@ -9,6 +9,7 @@ import {
   setDefaultAddressApi,
 } from '@/api/modules/address'
 import type { AddressInfo } from '@/types/common'
+import regionData from '@/data/regions'
 
 const loading = ref(false)
 const addressList = ref<AddressInfo[]>([])
@@ -16,6 +17,11 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formRef = ref<FormInstance>()
 const editingId = ref<number | null>(null)
+
+// 级联选择器绑定的值
+const selectedRegion = ref<string[]>([])
+// 级联选择器的选项数据
+const regionOptions = regionData
 
 const addressForm = reactive({
   receiverName: '',
@@ -33,11 +39,24 @@ const rules = reactive<FormRules>({
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' },
   ],
-  province: [{ required: true, message: '请输入省份', trigger: 'blur' }],
-  city: [{ required: true, message: '请输入城市', trigger: 'blur' }],
-  district: [{ required: true, message: '请输入区/县', trigger: 'blur' }],
+  province: [{ required: true, message: '请选择所在地区', trigger: 'change' }],
   detailAddress: [{ required: true, message: '请输入详细地址', trigger: 'blur' }],
 })
+
+function onRegionChange(value: string[]) {
+  if (value && value.length >= 3) {
+    addressForm.province = value[0]
+    addressForm.city = value[1]
+    addressForm.district = value[2]
+  } else if (value && value.length === 2) {
+    // 直辖市等没有中间城市层的情况（如香港、澳门）
+    addressForm.province = value[0]
+    addressForm.city = value[0]
+    addressForm.district = value[1]
+  }
+  // 触发 province 字段的校验
+  formRef.value?.validateField('province')
+}
 
 async function fetchAddresses() {
   loading.value = true
@@ -60,6 +79,7 @@ function resetForm() {
   addressForm.detailAddress = ''
   addressForm.isDefault = 0
   editingId.value = null
+  selectedRegion.value = []
 }
 
 function handleAdd() {
@@ -79,6 +99,10 @@ function handleEdit(row: AddressInfo) {
   addressForm.district = row.district
   addressForm.detailAddress = row.detailAddress
   addressForm.isDefault = row.isDefault
+  // 回填级联选择器
+  if (row.province && row.city && row.district) {
+    selectedRegion.value = [row.province, row.city, row.district]
+  }
   dialogVisible.value = true
 }
 
@@ -175,14 +199,14 @@ onMounted(() => {
         <el-form-item label="手机号" prop="receiverPhone">
           <el-input v-model="addressForm.receiverPhone" placeholder="请输入手机号" />
         </el-form-item>
-        <el-form-item label="省份" prop="province">
-          <el-input v-model="addressForm.province" placeholder="请输入省份" />
-        </el-form-item>
-        <el-form-item label="城市" prop="city">
-          <el-input v-model="addressForm.city" placeholder="请输入城市" />
-        </el-form-item>
-        <el-form-item label="区/县" prop="district">
-          <el-input v-model="addressForm.district" placeholder="请输入区/县" />
+        <el-form-item label="所在地区" prop="province">
+          <el-cascader
+            v-model="selectedRegion"
+            :options="regionOptions"
+            placeholder="请选择省/市/区"
+            style="width: 100%"
+            @change="onRegionChange"
+          />
         </el-form-item>
         <el-form-item label="详细地址" prop="detailAddress">
           <el-input v-model="addressForm.detailAddress" type="textarea" placeholder="请输入详细地址" />

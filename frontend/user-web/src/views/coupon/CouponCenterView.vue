@@ -51,6 +51,15 @@ function formatType(type: string) {
   }
   return map[type] || type
 }
+
+function formatScope(scope: string) {
+  const map: Record<string, string> = {
+    ALL: '全场通用',
+    CATEGORY: '指定分类',
+    PRODUCT: '指定商品',
+  }
+  return map[scope] || scope
+}
 </script>
 
 <template>
@@ -71,7 +80,7 @@ function formatType(type: string) {
               <div class="coupon-body">
                 <div class="coupon-name">{{ coupon.couponName }}</div>
                 <div class="coupon-rule">最低消费: ¥{{ coupon.minSpend.toFixed(2) }}</div>
-                <div class="coupon-scope">适用范围: {{ coupon.applicableScope }}</div>
+                <div class="coupon-scope">适用范围: {{ formatScope(coupon.applicableScope) }}</div>
                 <div class="coupon-time">
                   <el-icon><Clock /></el-icon>
                   {{ coupon.validStartTime }} ~ {{ coupon.validEndTime }}

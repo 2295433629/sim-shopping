@@ -69,7 +69,7 @@ public class LogisticsScheduler {
     );
 
     /**
-     * 每个状态对应的模拟地点
+     * 每个状态对应的模拟地点（静态默认值，如果物流记录中有发货城市则动态替换）
      */
     private static final Map<String, String> STATUS_LOCATIONS = Map.of(
             "CREATED", "商家仓库",
@@ -168,12 +168,15 @@ public class LogisticsScheduler {
                 // 动态生成轨迹描述，包含地址信息
                 String description = buildDescription(nextStatus, receiverAddress, receiverName);
 
+                // 动态生成地点信息，使用实际发货城市替代硬编码
+                String location = resolveLocation(nextStatus, record);
+
                 // 创建物流轨迹记录
                 LogisticsTrackDO track = new LogisticsTrackDO();
                 track.setLogisticsId(record.getId());
                 track.setStatus(nextStatus);
                 track.setDescription(description);
-                track.setLocation(STATUS_LOCATIONS.get(nextStatus));
+                track.setLocation(location);
                 track.setOccurredAt(LocalDateTime.now());
                 logisticsTrackMapper.insert(track);
 
@@ -195,6 +198,18 @@ public class LogisticsScheduler {
             case "DELIVERED" -> base + "（" + receiverAddress + "），签收人：" + (receiverName.isEmpty() ? "本人" : receiverName);
             default -> base;
         };
+    }
+
+    /**
+     * 根据物流状态和记录动态解析地点信息
+     * 使用实际的发货城市替代硬编码的"发货城市集散中心"
+     */
+    private String resolveLocation(String status, LogisticsRecordDO record) {
+        String defaultLocation = STATUS_LOCATIONS.getOrDefault(status, status);
+        if ("PICKED_UP".equals(status) && record.getSenderCity() != null && !record.getSenderCity().isEmpty()) {
+            return record.getSenderCity() + "集散中心";
+        }
+        return defaultLocation;
     }
 
     /**

@@ -4,11 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.sim.shopping.infrastructure.persistence.entity.PointsProductDO;
 import com.sim.shopping.infrastructure.persistence.entity.PointsRecordDO;
+import com.sim.shopping.infrastructure.persistence.entity.UserDO;
 import com.sim.shopping.infrastructure.persistence.entity.UserPointsDO;
 import com.sim.shopping.infrastructure.persistence.mapper.PointsProductMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.PointsRecordMapper;
+import com.sim.shopping.infrastructure.persistence.mapper.UserMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.UserPointsMapper;
 import com.sim.shopping.interfaces.dto.points.ExchangeResponse;
 import com.sim.shopping.interfaces.dto.points.PointsBalanceVO;
@@ -33,11 +36,14 @@ public class PointsService {
     private final UserPointsMapper userPointsMapper;
     private final PointsRecordMapper pointsRecordMapper;
     private final PointsProductMapper pointsProductMapper;
+    private final UserMapper userMapper;
 
-    public PointsService(UserPointsMapper userPointsMapper, PointsRecordMapper pointsRecordMapper, PointsProductMapper pointsProductMapper) {
+    public PointsService(UserPointsMapper userPointsMapper, PointsRecordMapper pointsRecordMapper,
+                         PointsProductMapper pointsProductMapper, UserMapper userMapper) {
         this.userPointsMapper = userPointsMapper;
         this.pointsRecordMapper = pointsRecordMapper;
         this.pointsProductMapper = pointsProductMapper;
+        this.userMapper = userMapper;
     }
 
     /**
@@ -61,6 +67,12 @@ public class PointsService {
 
         // 原子增加积分
         userPointsMapper.addPoints(userId, points);
+
+        // 同步更新 t_user.points
+        userMapper.update(null,
+                new LambdaUpdateWrapper<UserDO>()
+                        .eq(UserDO::getId, userId)
+                        .setSql("points = points + " + points));
 
         // 记录积分明细
         PointsRecordDO record = new PointsRecordDO();
@@ -207,6 +219,12 @@ public class PointsService {
         if (pointsRows == 0) {
             throw new BusinessException(400, "积分不足或积分账户异常");
         }
+
+        // 同步更新 t_user.points
+        userMapper.update(null,
+                new LambdaUpdateWrapper<UserDO>()
+                        .eq(UserDO::getId, userId)
+                        .setSql("points = points - " + totalPointsNeeded));
 
         // 生成积分记录
         PointsRecordDO record = new PointsRecordDO();

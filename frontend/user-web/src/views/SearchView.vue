@@ -8,8 +8,9 @@ import {
   hotKeywords,
   getSearchHistory,
   clearSearchHistory,
+  getCategories,
 } from '@/api/modules/product'
-import type { ProductCardVO, SearchHistoryItem } from '@/types/product'
+import type { ProductCardVO, SearchHistoryItem, CategoryNode } from '@/types/product'
 import type { PageResponse } from '@/types/common'
 import ProductCard from '@/components/ProductCard.vue'
 
@@ -27,6 +28,12 @@ const hotWordList = ref<string[]>([])
 const historyList = ref<SearchHistoryItem[]>([])
 const showSuggest = ref(false)
 
+// 筛选条件
+const categoryList = ref<CategoryNode[]>([])
+const selectedCategoryId = ref<number | undefined>(undefined)
+const minPrice = ref<number | undefined>(undefined)
+const maxPrice = ref<number | undefined>(undefined)
+
 const sortOptions = [
   { label: '综合', value: 'comprehensive' },
   { label: '价格升', value: 'price_asc' },
@@ -35,11 +42,36 @@ const sortOptions = [
 ]
 const selectedSort = ref('comprehensive')
 
+// 扁平化分类树，用于下拉选择（取所有层级的分类）
+const flatCategories = ref<{ id: number; name: string; level: number }[]>([])
+
+function flattenCategories(nodes: CategoryNode[], level = 0): { id: number; name: string; level: number }[] {
+  const result: { id: number; name: string; level: number }[] = []
+  for (const node of nodes) {
+    result.push({ id: node.id, name: '  '.repeat(level) + node.name, level })
+    if (node.children && node.children.length > 0) {
+      result.push(...flattenCategories(node.children, level + 1))
+    }
+  }
+  return result
+}
+
+async function loadCategories() {
+  try {
+    const res = await getCategories()
+    categoryList.value = res
+    flatCategories.value = flattenCategories(res)
+  } catch {
+    // ignore
+  }
+}
+
 let suggestTimer: ReturnType<typeof setTimeout> | null = null
 
 onMounted(() => {
   loadHotKeywords()
   loadHistory()
+  loadCategories()
   if (route.query.keyword) {
     keyword.value = String(route.query.keyword)
     doSearch()
@@ -115,6 +147,9 @@ async function doSearch() {
       page: currentPage.value,
       size: pageSize.value,
       sort: selectedSort.value,
+      categoryId: selectedCategoryId.value,
+      minPrice: minPrice.value,
+      maxPrice: maxPrice.value,
     })
     productList.value = res.list
     total.value = res.total
@@ -132,6 +167,9 @@ async function handlePageChange(page: number) {
       page: currentPage.value,
       size: pageSize.value,
       sort: selectedSort.value,
+      categoryId: selectedCategoryId.value,
+      minPrice: minPrice.value,
+      maxPrice: maxPrice.value,
     })
     productList.value = res.list
     total.value = res.total
@@ -149,6 +187,13 @@ async function handleClearHistory() {
   } catch {
     // cancelled
   }
+}
+
+function resetFilters() {
+  selectedCategoryId.value = undefined
+  minPrice.value = undefined
+  maxPrice.value = undefined
+  doSearch()
 }
 
 </script>
@@ -234,6 +279,53 @@ async function handleClearHistory() {
         <el-select v-model="selectedSort" @change="doSearch" size="small" style="width: 130px">
           <el-option v-for="opt in sortOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
+      </div>
+
+      <!-- 筛选区 -->
+      <div class="filter-bar">
+        <div class="filter-item">
+          <span class="filter-label">分类:</span>
+          <el-select
+            v-model="selectedCategoryId"
+            placeholder="全部分类"
+            clearable
+            size="small"
+            style="width: 180px"
+            @change="doSearch"
+          >
+            <el-option
+              v-for="cat in flatCategories"
+              :key="cat.id"
+              :label="cat.name"
+              :value="cat.id"
+            />
+          </el-select>
+        </div>
+        <div class="filter-item">
+          <span class="filter-label">价格:</span>
+          <el-input-number
+            v-model="minPrice"
+            :min="0"
+            :controls="false"
+            placeholder="最低"
+            size="small"
+            style="width: 110px"
+            @change="doSearch"
+          />
+          <span class="filter-sep">-</span>
+          <el-input-number
+            v-model="maxPrice"
+            :min="0"
+            :controls="false"
+            placeholder="最高"
+            size="small"
+            style="width: 110px"
+            @change="doSearch"
+          />
+        </div>
+        <el-button v-if="selectedCategoryId || minPrice || maxPrice" size="small" @click="resetFilters">
+          重置筛选
+        </el-button>
       </div>
 
       <el-row :gutter="16">
@@ -333,6 +425,34 @@ async function handleClearHistory() {
     .result-count {
       font-size: var(--font-size-caption);
       color: var(--color-shade-50);
+    }
+  }
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-canvas-light);
+    border-radius: var(--rounded-md);
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .filter-label {
+      font-size: var(--font-size-caption);
+      color: var(--color-shade-60);
+      white-space: nowrap;
+    }
+
+    .filter-sep {
+      color: var(--color-shade-40);
+      margin: 0 2px;
     }
   }
 

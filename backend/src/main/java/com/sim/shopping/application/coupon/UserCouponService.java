@@ -191,17 +191,28 @@ public class UserCouponService {
             }
         }
 
-        // 更新用户优惠券状态
-        userCoupon.setStatus(USER_COUPON_STATUS_USED);
-        userCoupon.setUsedAt(LocalDateTime.now());
-        userCoupon.setOrderNo(orderNo);
-        userCouponMapper.updateById(userCoupon);
+        // 原子更新用户优惠券状态为已使用（防止并发重复使用）
+        int updateRows = userCouponMapper.update(null,
+                new LambdaUpdateWrapper<UserCouponDO>()
+                        .eq(UserCouponDO::getId, userCouponId)
+                        .eq(UserCouponDO::getUserId, userId)
+                        .eq(UserCouponDO::getStatus, USER_COUPON_STATUS_CLAIMED)
+                        .set(UserCouponDO::getStatus, USER_COUPON_STATUS_USED)
+                        .set(UserCouponDO::getUsedAt, LocalDateTime.now())
+                        .set(UserCouponDO::getOrderNo, orderNo));
+        if (updateRows == 0) {
+            throw new BusinessException(400, "优惠券状态异常或已被使用，请刷新后重试");
+        }
 
         // 原子更新优惠券已使用数量
         couponMapper.update(null,
                 new LambdaUpdateWrapper<CouponDO>()
                         .eq(CouponDO::getId, userCoupon.getCouponId())
                         .setSql("used_quantity = used_quantity + 1"));
+
+        userCoupon.setStatus(USER_COUPON_STATUS_USED);
+        userCoupon.setUsedAt(LocalDateTime.now());
+        userCoupon.setOrderNo(orderNo);
 
         return convertToResponse(userCoupon, coupon);
     }

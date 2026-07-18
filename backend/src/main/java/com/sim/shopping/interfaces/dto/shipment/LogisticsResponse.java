@@ -17,6 +17,9 @@ public class LogisticsResponse {
     private String status;
     private LocalDateTime deliveredAt;
     private List<LogisticsTrackItem> tracks;
+    private String senderAddress;
+    private String receiverAddress;
+    private String senderCity;
 
     /** 获取Id */
     public Long getId() { return id; }
@@ -82,4 +85,16 @@ public class LogisticsResponse {
      * @param tracks tracks
      */
     public void setTracks(List<LogisticsTrackItem> tracks) { this.tracks = tracks; }
+    /** 获取Sender Address */
+    public String getSenderAddress() { return senderAddress; }
+    /** set Sender Address */
+    public void setSenderAddress(String senderAddress) { this.senderAddress = senderAddress; }
+    /** 获取Receiver Address */
+    public String getReceiverAddress() { return receiverAddress; }
+    /** set Receiver Address */
+    public void setReceiverAddress(String receiverAddress) { this.receiverAddress = receiverAddress; }
+    /** 获取Sender City */
+    public String getSenderCity() { return senderCity; }
+    /** set Sender City */
+    public void setSenderCity(String senderCity) { this.senderCity = senderCity; }
 }

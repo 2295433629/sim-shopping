@@ -1,14 +1,40 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessageBox } from 'element-plus'
+import { getCart } from '@/api/modules/cart'
 
 const router = useRouter()
 const userStore = useUserStore()
 
 const searchKeyword = ref('')
 const activeNav = computed(() => router.currentRoute.value.path)
+const cartCount = ref(0)
+
+// 加载购物车数量
+async function loadCartCount() {
+  if (!userStore.isLoggedIn) {
+    cartCount.value = 0
+    return
+  }
+  try {
+    const res = await getCart()
+    cartCount.value = res.totalCount || 0
+  } catch {
+    cartCount.value = 0
+  }
+}
+
+// 登录后加载购物车数量
+watch(() => userStore.isLoggedIn, (val) => {
+  if (val) loadCartCount()
+  else cartCount.value = 0
+})
+
+onMounted(() => {
+  if (userStore.isLoggedIn) loadCartCount()
+})
 
 // 活动入口（非用户关联，参考淘宝顶部导航）
 const activityNavItems = [
@@ -91,7 +117,7 @@ async function handleLogout() {
       </div>
       <div class="header-right">
         <template v-if="userStore.isLoggedIn">
-          <el-badge :value="0" :hidden="true" class="cart-badge">
+          <el-badge :value="cartCount" :hidden="cartCount === 0" class="cart-badge">
             <el-button text @click="router.push('/cart')">
               <el-icon :size="22"><ShoppingCart /></el-icon>
             </el-button>

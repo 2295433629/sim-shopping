@@ -35,7 +35,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PostMapping("/api/merchant/apply")
-    @PreAuthorize("hasRole('MERCHANT')")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MerchantInfoResponse> apply(@Valid @RequestBody MerchantApplyRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(merchantService.apply(userId, req));

@@ -1,6 +1,10 @@
 package com.sim.shopping.interfaces.refund;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sim.shopping.application.refund.RefundService;
+import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.persistence.entity.OrderDO;
+import com.sim.shopping.infrastructure.persistence.mapper.OrderMapper;
 import com.sim.shopping.infrastructure.security.SecurityUtils;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.refund.RefundRequest;
@@ -19,9 +23,11 @@ import org.springframework.web.bind.annotation.*;
 public class RefundController {
 
     private final RefundService refundService;
+    private final OrderMapper orderMapper;
 
-    public RefundController(RefundService refundService) {
+    public RefundController(RefundService refundService, OrderMapper orderMapper) {
         this.refundService = refundService;
+        this.orderMapper = orderMapper;
     }
 
     /**
@@ -42,6 +48,14 @@ public class RefundController {
      */
     @GetMapping("/{orderNo}/refund")
     public ApiResponse<RefundVO> getRefund(@PathVariable String orderNo) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        // 校验订单归属
+        LambdaQueryWrapper<OrderDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(OrderDO::getOrderNo, orderNo);
+        OrderDO order = orderMapper.selectOne(wrapper);
+        if (order != null && !userId.equals(order.getUserId())) {
+            throw new BusinessException(403, "无权查看此订单的退款信息");
+        }
         RefundVO refund = refundService.getRefundByOrderNo(orderNo);
         return ApiResponse.success(refund);
     }

@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import { getCart, type CartShopGroup, type CartItem } from '@/api/modules/cart'
 import { createOrder } from '@/api/modules/order'
 import { getAddressListApi } from '@/api/modules/address'
+import { getMyCoupons, type MyCoupon } from '@/api/modules/coupon'
 import type { AddressInfo } from '@/types/common'
 
 const router = useRouter()
@@ -15,6 +16,10 @@ const shopGroups = ref<CartShopGroup[]>([])
 const addressList = ref<AddressInfo[]>([])
 const selectedAddressId = ref<number | null>(null)
 const remark = ref('')
+
+// 优惠券相关
+const myCoupons = ref<MyCoupon[]>([])
+const selectedCouponId = ref<number | null>(null)
 
 // 从 URL query 参数获取要结算的商品ID列表（购物车页面或立即购买传入）
 const queryCartItemIds = computed<number[] | null>(() => {
@@ -35,15 +40,70 @@ const totalAmount = computed(() => {
   return selectedItems.value.reduce((sum, i) => sum + i.price * i.quantity, 0)
 })
 
+// TODO: 运费暂时保留前端计算，后端尚未提供运费API，后续应以后端返回的运费为准
 const shippingFee = computed(() => {
   return shopGroups.value.length > 0 ? 10 * shopGroups.value.length : 0
 })
 
-const payAmount = computed(() => totalAmount.value + shippingFee.value)
+// 计算优惠券折扣金额
+const discountAmount = computed(() => {
+  if (!selectedCouponId.value) return 0
+  const coupon = myCoupons.value.find(c => c.id === selectedCouponId.value)
+  if (!coupon) return 0
+  const amount = totalAmount.value
+  if (coupon.couponType === 'FIXED_AMOUNT') {
+    // 固定金额：直接减去 discountValue
+    return Math.min(coupon.discountValue, amount)
+  } else if (coupon.couponType === 'PERCENTAGE') {
+    // 折扣比例：discountValue 为百分比值（如 20 表示 8 折）
+    return Math.round(amount * coupon.discountValue) / 100
+  } else if (coupon.couponType === 'FIXED_DISCOUNT') {
+    // 满减：满 minSpend 减 discountValue
+    if (amount >= coupon.minSpend) {
+      return Math.min(coupon.discountValue, amount)
+    }
+    return 0
+  }
+  return 0
+})
+
+const payAmount = computed(() => {
+  return Math.max(0, totalAmount.value + shippingFee.value - discountAmount.value)
+})
 
 const selectedAddress = computed(() => {
   return addressList.value.find(a => a.id === selectedAddressId.value)
 })
+
+// 过滤可用的优惠券：状态为 UNUSED，且在有效期内，且满足金额门槛
+const availableCoupons = computed(() => {
+  const now = new Date()
+  return myCoupons.value.filter(c => {
+    if (c.status !== 'UNUSED') return false
+    const start = new Date(c.validStartTime)
+    const end = new Date(c.validEndTime)
+    if (now < start || now > end) return false
+    // 门槛检查
+    if (c.minSpend > 0 && totalAmount.value < c.minSpend) return false
+    return true
+  })
+})
+
+// 优惠券描述文字
+function couponLabel(coupon: MyCoupon): string {
+  let desc = ''
+  if (coupon.couponType === 'FIXED_AMOUNT') {
+    desc = `¥${coupon.discountValue.toFixed(2)}`
+  } else if (coupon.couponType === 'PERCENTAGE') {
+    desc = `${coupon.discountValue}% 折扣`
+  } else if (coupon.couponType === 'FIXED_DISCOUNT') {
+    desc = `满${coupon.minSpend.toFixed(0)}减${coupon.discountValue.toFixed(2)}`
+  }
+  if (coupon.minSpend > 0 && coupon.couponType !== 'FIXED_DISCOUNT') {
+    desc += `（满${coupon.minSpend.toFixed(0)}可用）`
+  }
+  return `${coupon.couponName} - ${desc}`
+}
 
 onMounted(() => {
   loadData()
@@ -52,9 +112,10 @@ onMounted(() => {
 async function loadData() {
   loading.value = true
   try {
-    const [cartData, addrData] = await Promise.all([
+    const [cartData, addrData, couponData] = await Promise.all([
       getCart(),
       getAddressListApi(),
+      getMyCoupons({ status: 'UNUSED', page: 1, size: 100 }),
     ])
     // 优先使用 URL query 中的 cartItemIds 过滤（购物车页面/立即购买传入）
     // 没有 query 参数时回退到 selected === 1 的过滤（兼容直接访问 /checkout）
@@ -77,6 +138,15 @@ async function loadData() {
     addressList.value = addrData || []
     const def = addressList.value.find(a => a.isDefault === 1)
     selectedAddressId.value = def ? def.id : (addressList.value[0]?.id ?? null)
+    // 优惠券数据
+    myCoupons.value = couponData?.list || []
+    // 如果当前选中的优惠券不再可用，自动清除
+    if (selectedCouponId.value) {
+      const stillValid = availableCoupons.value.some(c => c.id === selectedCouponId.value)
+      if (!stillValid) {
+        selectedCouponId.value = null
+      }
+    }
   } catch {
     // handled by interceptor
   } finally {
@@ -100,6 +170,7 @@ async function handleSubmit() {
       addressId: selectedAddressId.value,
       remark: remark.value || undefined,
       cartItemIds,
+      couponId: selectedCouponId.value || undefined,
     })
     ElMessage.success('订单创建成功')
     // 后端按店铺拆单，取第一个订单跳支付页
@@ -166,6 +237,35 @@ function formatAddress(addr: AddressInfo) {
     </el-card>
 
     <el-card shadow="never" class="section-card">
+      <template #header><span class="section-title">优惠券</span></template>
+      <el-select
+        v-model="selectedCouponId"
+        placeholder="请选择优惠券"
+        style="width: 100%"
+        size="large"
+        clearable
+        @clear="selectedCouponId = null"
+      >
+        <el-option
+          v-for="coupon in availableCoupons"
+          :key="coupon.id"
+          :label="couponLabel(coupon)"
+          :value="coupon.id"
+        />
+      </el-select>
+      <el-empty
+        v-if="availableCoupons.length === 0"
+        description="暂无可用优惠券"
+        :image-size="60"
+      />
+      <div v-if="selectedCouponId && discountAmount > 0" class="coupon-discount-info">
+        <el-icon><Ticket /></el-icon>
+        <span>已选优惠券，优惠 <b class="discount-text">-¥{{ discountAmount.toFixed(2) }}</b></span>
+        <el-button text type="danger" size="small" @click="selectedCouponId = null">取消选择</el-button>
+      </div>
+    </el-card>
+
+    <el-card shadow="never" class="section-card">
       <template #header><span class="section-title">订单备注</span></template>
       <el-input
         v-model="remark"
@@ -182,6 +282,10 @@ function formatAddress(addr: AddressInfo) {
       <div class="summary-row">
         <span>商品总额：</span>
         <span>¥{{ totalAmount.toFixed(2) }}</span>
+      </div>
+      <div v-if="discountAmount > 0" class="summary-row discount-row">
+        <span>优惠券折扣：</span>
+        <span class="discount-text">-¥{{ discountAmount.toFixed(2) }}</span>
       </div>
       <div class="summary-row">
         <span>运费：</span>
@@ -240,6 +344,23 @@ function formatAddress(addr: AddressInfo) {
     border-radius: 4px;
     font-size: 14px;
     color: var(--color-ink);
+  }
+
+  .coupon-discount-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #f0f9eb;
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--color-ink);
+
+    .discount-text {
+      color: var(--color-price);
+      font-weight: 600;
+    }
   }
 
   .checkout-item {
@@ -317,10 +438,19 @@ function formatAddress(addr: AddressInfo) {
       color: var(--color-ink);
     }
 
+    &.discount-row {
+      color: #67c23a;
+    }
+
     .pay-amount {
       color: var(--color-price);
       font-size: 22px;
       font-weight: 700;
+    }
+
+    .discount-text {
+      color: #67c23a;
+      font-weight: 600;
     }
   }
 

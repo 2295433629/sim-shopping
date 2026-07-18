@@ -11,6 +11,11 @@ const userStore = useUserStore()
 const loginFormRef = ref<FormInstance>()
 const loading = ref(false)
 
+// 三端地址：生产环境同域名不同路径，开发环境不同端口
+const baseUrl = import.meta.env.VITE_APP_BASE_URL || ''
+const userWebUrl = `${window.location.origin}${baseUrl}/`
+const merchantWebUrl = `${window.location.origin}${baseUrl}/merchant/`
+
 const loginForm = reactive({
   username: '',
   password: '',
@@ -68,6 +73,11 @@ async function handleLogin() {
           </el-button>
         </el-form-item>
       </el-form>
+      <div class="login-links">
+        <a :href="userWebUrl" target="_blank">用户端</a>
+        <span class="login-links-divider">|</span>
+        <a :href="merchantWebUrl" target="_blank">商家端</a>
+      </div>
     </el-card>
   </div>
 </template>
@@ -92,6 +102,29 @@ async function handleLogin() {
     font-family: var(--font-display, 'Helvetica Neue', sans-serif);
     color: var(--color-ink);
     font-weight: 600;
+  }
+}
+
+.login-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--color-ink-subtle);
+
+  a {
+    color: var(--color-primary, #409eff);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .login-links-divider {
+    color: var(--color-border, #dcdfe6);
   }
 }
 </style>

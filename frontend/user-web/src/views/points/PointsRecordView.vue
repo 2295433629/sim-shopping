@@ -93,7 +93,7 @@ function formatPoints(row: PointsRecord) {
       </template>
 
       <el-table :data="list" v-loading="loading" border stripe>
-        <el-table-column prop="recordId" label="编号" width="70" />
+        <el-table-column prop="id" label="编号" width="70" />
         <el-table-column label="时间" width="170">
           <template #default="{ row }">
             {{ formatDate(row.createdAt) }}

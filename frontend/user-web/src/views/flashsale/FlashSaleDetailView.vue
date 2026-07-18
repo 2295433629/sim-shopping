@@ -3,6 +3,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getFlashSaleDetail, createFlashSaleOrder, type FlashSaleDetail } from '@/api/modules/flashsale'
+import { getAddressListApi } from '@/api/modules/address'
+import type { AddressInfo } from '@/types/common'
 
 const route = useRoute()
 const router = useRouter()
@@ -11,6 +13,8 @@ const loading = ref(false)
 const detail = ref<FlashSaleDetail | null>(null)
 const quantity = ref(1)
 const ordering = ref(false)
+const selectedAddressId = ref<number | null>(null)
+const addressList = ref<AddressInfo[]>([])
 const countdownText = ref('--:--:--')
 let timer: ReturnType<typeof setInterval> | null = null
 
@@ -19,6 +23,7 @@ const saleId = ref<number>(0)
 onMounted(() => {
   saleId.value = Number(route.params.id)
   loadDetail()
+  loadAddresses()
   timer = setInterval(updateCountdown, 1000)
 })
 
@@ -41,6 +46,19 @@ async function loadDetail() {
     ElMessage.error('加载秒杀详情失败')
   } finally {
     loading.value = false
+  }
+}
+
+async function loadAddresses() {
+  try {
+    const list = await getAddressListApi()
+    addressList.value = Array.isArray(list) ? list : []
+    if (addressList.value.length > 0) {
+      const defaultAddr = addressList.value.find(a => a.isDefault === 1)
+      selectedAddressId.value = defaultAddr ? defaultAddr.id : addressList.value[0].id
+    }
+  } catch {
+    addressList.value = []
   }
 }
 
@@ -88,6 +106,10 @@ function isEnded(): boolean {
 
 async function handleOrder() {
   if (!detail.value) return
+  if (!selectedAddressId.value) {
+    ElMessage.warning('请先选择收货地址')
+    return
+  }
   if (quantity.value < 1 || quantity.value > detail.value.limitPerUser) {
     ElMessage.warning(`限购 ${detail.value.limitPerUser} 件`)
     return
@@ -98,7 +120,7 @@ async function handleOrder() {
   }
   ordering.value = true
   try {
-    const res = await createFlashSaleOrder(detail.value.saleId, { quantity: quantity.value, addressId: 0 })
+    const res = await createFlashSaleOrder(detail.value.saleId, { quantity: quantity.value, addressId: selectedAddressId.value })
     ElMessage.success('抢购成功')
     router.push(`/orders/${res.orderNo}`)
   } catch {
@@ -180,6 +202,24 @@ function goBack() {
                 :max="Math.min(detail.limitPerUser, detail.stock)"
                 :disabled="isEnded()"
               />
+            </div>
+
+            <div class="address-section">
+              <span class="address-label">收货地址</span>
+              <el-select
+                v-model="selectedAddressId"
+                placeholder="请选择收货地址"
+                style="width: 320px"
+                :disabled="isEnded()"
+              >
+                <el-option
+                  v-for="addr in addressList"
+                  :key="addr.id"
+                  :label="`${addr.receiverName} ${addr.receiverPhone} - ${addr.province}${addr.city}${addr.district}${addr.detailAddress}`"
+                  :value="addr.id"
+                />
+              </el-select>
+              <router-link to="/addresses" class="manage-address-link">管理地址</router-link>
             </div>
 
             <div class="action-buttons">
@@ -320,6 +360,29 @@ function goBack() {
       .quantity-label {
         font-size: var(--font-size-caption);
         color: var(--color-shade-50);
+      }
+    }
+
+    .address-section {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+      flex-wrap: wrap;
+
+      .address-label {
+        font-size: var(--font-size-caption);
+        color: var(--color-shade-50);
+      }
+
+      .manage-address-link {
+        font-size: var(--font-size-caption);
+        color: var(--color-primary, #409eff);
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
       }
     }
 

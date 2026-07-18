@@ -8,10 +8,12 @@ import com.sim.shopping.infrastructure.persistence.entity.LogisticsRecordDO;
 import com.sim.shopping.infrastructure.persistence.entity.LogisticsTrackDO;
 import com.sim.shopping.infrastructure.persistence.entity.OrderDO;
 import com.sim.shopping.infrastructure.persistence.entity.ShipmentDO;
+import com.sim.shopping.infrastructure.persistence.entity.ShopDO;
 import com.sim.shopping.infrastructure.persistence.mapper.LogisticsRecordMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.LogisticsTrackMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.OrderMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.ShipmentMapper;
+import com.sim.shopping.infrastructure.persistence.mapper.ShopMapper;
 import com.sim.shopping.interfaces.dto.shipment.LogisticsResponse;
 import com.sim.shopping.interfaces.dto.shipment.LogisticsTrackItem;
 import com.sim.shopping.interfaces.dto.shipment.CreateShipmentRequest;
@@ -45,6 +47,7 @@ public class ShipmentService {
     private final LogisticsRecordMapper logisticsRecordMapper;
     private final LogisticsTrackMapper logisticsTrackMapper;
     private final OrderMapper orderMapper;
+    private final ShopMapper shopMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     private static final String ORDER_STATUS_PAID = "PAID";
@@ -60,11 +63,13 @@ public class ShipmentService {
                             LogisticsRecordMapper logisticsRecordMapper,
                             LogisticsTrackMapper logisticsTrackMapper,
                             OrderMapper orderMapper,
+                            ShopMapper shopMapper,
                             ApplicationEventPublisher eventPublisher) {
         this.shipmentMapper = shipmentMapper;
         this.logisticsRecordMapper = logisticsRecordMapper;
         this.logisticsTrackMapper = logisticsTrackMapper;
         this.orderMapper = orderMapper;
+        this.shopMapper = shopMapper;
         this.eventPublisher = eventPublisher;
     }
 
@@ -122,6 +127,17 @@ public class ShipmentService {
         logisticsRecord.setTrackingNo(shipmentNo);
         logisticsRecord.setLogisticsCompany(req.getLogisticsCompany());
         logisticsRecord.setStatus(LOGISTICS_STATUS_CREATED);
+
+        // 从 shop 表读取发货地址
+        ShopDO shop = shopMapper.selectById(shopId);
+        if (shop != null) {
+            logisticsRecord.setSenderCity(shop.getSenderCity());
+            String fullSenderAddress = buildFullAddress(shop.getSenderProvince(), shop.getSenderCity(),
+                    shop.getSenderDistrict(), shop.getSenderAddress());
+            logisticsRecord.setSenderAddress(fullSenderAddress);
+        }
+        logisticsRecord.setReceiverAddress(order.getReceiverAddress());
+
         logisticsRecordMapper.insert(logisticsRecord);
 
         // 创建初始物流轨迹
@@ -196,6 +212,17 @@ public class ShipmentService {
         logisticsRecord.setTrackingNo(trackingNo);
         logisticsRecord.setLogisticsCompany(logisticsCompany);
         logisticsRecord.setStatus(LOGISTICS_STATUS_CREATED);
+
+        // 从 shop 表读取发货地址
+        ShopDO shop = shopMapper.selectById(order.getShopId());
+        if (shop != null) {
+            logisticsRecord.setSenderCity(shop.getSenderCity());
+            String fullSenderAddress = buildFullAddress(shop.getSenderProvince(), shop.getSenderCity(),
+                    shop.getSenderDistrict(), shop.getSenderAddress());
+            logisticsRecord.setSenderAddress(fullSenderAddress);
+        }
+        logisticsRecord.setReceiverAddress(order.getReceiverAddress());
+
         logisticsRecordMapper.insert(logisticsRecord);
 
         // 创建初始物流轨迹
@@ -256,6 +283,9 @@ public class ShipmentService {
         response.setLogisticsCompany(record.getLogisticsCompany());
         response.setStatus(record.getStatus());
         response.setDeliveredAt(record.getDeliveredAt());
+        response.setSenderAddress(record.getSenderAddress());
+        response.setReceiverAddress(record.getReceiverAddress());
+        response.setSenderCity(record.getSenderCity());
 
         List<LogisticsTrackItem> trackItems = tracks.stream().map(t -> {
             LogisticsTrackItem item = new LogisticsTrackItem();
@@ -313,5 +343,14 @@ public class ShipmentService {
         resp.setStatus(shipment.getStatus());
         resp.setShippedAt(shipment.getShippedAt());
         return resp;
+    }
+
+    private String buildFullAddress(String province, String city, String district, String address) {
+        StringBuilder sb = new StringBuilder();
+        if (province != null && !province.isEmpty()) sb.append(province);
+        if (city != null && !city.isEmpty()) sb.append(city);
+        if (district != null && !district.isEmpty()) sb.append(district);
+        if (address != null && !address.isEmpty()) sb.append(address);
+        return sb.length() > 0 ? sb.toString() : null;
     }
 }

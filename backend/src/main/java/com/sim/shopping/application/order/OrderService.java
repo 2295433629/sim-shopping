@@ -39,6 +39,7 @@ public class OrderService {
     private final CartItemMapper cartItemMapper;
     private final ShoppingCartMapper shoppingCartMapper;
     private final ProductMapper productMapper;
+    private final ProductSkuMapper productSkuMapper;
     private final UserAddressMapper userAddressMapper;
     private final ShopMapper shopMapper;
     private final PaymentMapper paymentMapper;
@@ -59,6 +60,7 @@ public class OrderService {
                        CartItemMapper cartItemMapper,
                        ShoppingCartMapper shoppingCartMapper,
                        ProductMapper productMapper,
+                       ProductSkuMapper productSkuMapper,
                        UserAddressMapper userAddressMapper,
                        ShopMapper shopMapper,
                        PaymentMapper paymentMapper,
@@ -72,6 +74,7 @@ public class OrderService {
         this.cartItemMapper = cartItemMapper;
         this.shoppingCartMapper = shoppingCartMapper;
         this.productMapper = productMapper;
+        this.productSkuMapper = productSkuMapper;
         this.userAddressMapper = userAddressMapper;
         this.shopMapper = shopMapper;
         this.paymentMapper = paymentMapper;
@@ -165,6 +168,14 @@ public class OrderService {
                 int rows = productMapper.deductStock(product.getId(), cartItem.getQuantity());
                 if (rows == 0) {
                     throw new BusinessException(400, "商品库存不足: " + product.getName());
+                }
+
+                // 原子扣减SKU库存（防止并发超卖）
+                if (cartItem.getSkuId() != null) {
+                    int skuRows = productSkuMapper.deductStock(cartItem.getSkuId(), cartItem.getQuantity());
+                    if (skuRows == 0) {
+                        throw new BusinessException(400, "商品SKU库存不足: " + product.getName());
+                    }
                 }
             }
 

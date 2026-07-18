@@ -20,7 +20,7 @@ public interface UserPointsMapper extends BaseMapper<UserPointsDO> {
     /**
      * 原子扣减用户可用积分，防止并发超扣。
      */
-    @Update("UPDATE t_user_points SET available_points = available_points - #{points}, total_spent = total_spent + #{points} " +
+    @Update("UPDATE t_user_points SET available_points = available_points - #{points} " +
             "WHERE user_id = #{userId} AND available_points >= #{points}")
     int deductPoints(@Param("userId") Long userId, @Param("points") int points);
 

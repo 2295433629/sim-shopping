@@ -96,6 +96,12 @@ CREATE TABLE `t_shop` (
   `total_settled` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '已结算金额',
   `frozen_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '冻结金额（待结算）',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态(ACTIVE/DISABLED)',
+  `sender_name` VARCHAR(50) DEFAULT NULL COMMENT '发货人姓名',
+  `sender_phone` VARCHAR(20) DEFAULT NULL COMMENT '发货人电话',
+  `sender_province` VARCHAR(30) DEFAULT NULL COMMENT '发货省份',
+  `sender_city` VARCHAR(30) DEFAULT NULL COMMENT '发货城市',
+  `sender_district` VARCHAR(30) DEFAULT NULL COMMENT '发货区县',
+  `sender_address` VARCHAR(200) DEFAULT NULL COMMENT '发货详细地址',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_by` BIGINT DEFAULT NULL,
@@ -105,6 +111,23 @@ CREATE TABLE `t_shop` (
   UNIQUE KEY `uk_merchant_id` (`merchant_id`),
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='店铺表';
+
+-- ============================================================
+-- 增量迁移：为已有 t_shop 表添加发货地址字段（如果不存在）
+-- ============================================================
+-- ALTER TABLE t_shop ADD COLUMN sender_name VARCHAR(50) DEFAULT NULL COMMENT '发货人姓名';
+-- ALTER TABLE t_shop ADD COLUMN sender_phone VARCHAR(20) DEFAULT NULL COMMENT '发货人电话';
+-- ALTER TABLE t_shop ADD COLUMN sender_province VARCHAR(30) DEFAULT NULL COMMENT '发货省份';
+-- ALTER TABLE t_shop ADD COLUMN sender_city VARCHAR(30) DEFAULT NULL COMMENT '发货城市';
+-- ALTER TABLE t_shop ADD COLUMN sender_district VARCHAR(30) DEFAULT NULL COMMENT '发货区县';
+-- ALTER TABLE t_shop ADD COLUMN sender_address VARCHAR(200) DEFAULT NULL COMMENT '发货详细地址';
+
+-- ============================================================
+-- 增量迁移：为已有 t_logistics_record 表添加地址字段（如果不存在）
+-- ============================================================
+-- ALTER TABLE t_logistics_record ADD COLUMN sender_address VARCHAR(500) DEFAULT NULL COMMENT '发货地址（快照）';
+-- ALTER TABLE t_logistics_record ADD COLUMN receiver_address VARCHAR(500) DEFAULT NULL COMMENT '收货地址（快照）';
+-- ALTER TABLE t_logistics_record ADD COLUMN sender_city VARCHAR(50) DEFAULT NULL COMMENT '发货城市';
 
 -- ============================================================
 -- 4. 商品领域 (Product Domain)
@@ -423,6 +446,9 @@ CREATE TABLE `t_logistics_record` (
   `logistics_company` VARCHAR(50) DEFAULT NULL COMMENT '物流公司',
   `status` VARCHAR(20) NOT NULL DEFAULT 'CREATED' COMMENT '状态(CREATED/PICKED_UP/SORTING/IN_TRANSIT/OUT_FOR_DELIVERY/DELIVERED)',
   `delivered_at` DATETIME DEFAULT NULL COMMENT '签收时间',
+  `sender_address` VARCHAR(500) DEFAULT NULL COMMENT '发货地址（快照）',
+  `receiver_address` VARCHAR(500) DEFAULT NULL COMMENT '收货地址（快照）',
+  `sender_city` VARCHAR(50) DEFAULT NULL COMMENT '发货城市',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_by` BIGINT DEFAULT NULL,

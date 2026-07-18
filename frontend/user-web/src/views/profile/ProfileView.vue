@@ -1,9 +1,21 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import {
+  ShoppingBag,
+  Location,
+  Star,
+  Ticket,
+  Coin,
+  ChatDotSquare,
+  Clock,
+  Setting,
+} from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
+const router = useRouter()
 
 const profileFormRef = ref<FormInstance>()
 const passwordFormRef = ref<FormInstance>()
@@ -50,6 +62,22 @@ const passwordRules = reactive<FormRules>({
     },
   ],
 })
+
+/** 快捷功能入口配置 */
+const shortcuts = [
+  { icon: ShoppingBag, label: '我的订单', path: '/orders' },
+  { icon: Location, label: '收货地址', path: '/addresses' },
+  { icon: Star, label: '我的收藏', path: '/favorites' },
+  { icon: Ticket, label: '我的优惠券', path: '/coupons' },
+  { icon: Coin, label: '积分商城', path: '/points/mall' },
+  { icon: ChatDotSquare, label: '评价记录', path: '/reviews' },
+  { icon: Clock, label: '浏览历史', path: '/history' },
+  { icon: Setting, label: '设置', path: '/profile' },
+]
+
+function navigateTo(path: string) {
+  router.push(path)
+}
 
 function openProfileDialog() {
   profileForm.nickname = userStore.userInfo?.nickname || ''
@@ -129,6 +157,30 @@ async function handleChangePassword() {
           <el-button @click="passwordDialogVisible = true">修改密码</el-button>
         </div>
       </div>
+    </el-card>
+
+    <!-- 快捷功能入口 -->
+    <el-card shadow="never" style="margin-top: 16px">
+      <template #header>
+        <span class="card-title">快捷功能</span>
+      </template>
+      <el-row :gutter="16">
+        <el-col
+          v-for="item in shortcuts"
+          :key="item.path"
+          :xs="12"
+          :sm="12"
+          :md="6"
+          :lg="6"
+        >
+          <div class="shortcut-item" @click="navigateTo(item.path)">
+            <el-card shadow="hover" class="shortcut-card" :body-style="{ padding: '16px', textAlign: 'center' }">
+              <el-icon :size="28" class="shortcut-icon"><component :is="item.icon" /></el-icon>
+              <div class="shortcut-label">{{ item.label }}</div>
+            </el-card>
+          </div>
+        </el-col>
+      </el-row>
     </el-card>
 
     <!-- 编辑信息弹窗 -->
@@ -223,6 +275,30 @@ async function handleChangePassword() {
       display: flex;
       flex-direction: column;
       gap: var(--space-md);
+    }
+  }
+
+  .shortcut-item {
+    cursor: pointer;
+    margin-bottom: 16px;
+
+    .shortcut-card {
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      .shortcut-icon {
+        color: var(--el-color-primary);
+        margin-bottom: 8px;
+      }
+
+      .shortcut-label {
+        font-size: 13px;
+        color: var(--color-shade-50);
+        margin-top: 4px;
+      }
     }
   }
 }

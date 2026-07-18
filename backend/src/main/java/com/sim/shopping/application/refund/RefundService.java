@@ -1,14 +1,17 @@
 package com.sim.shopping.application.refund;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.sim.shopping.domain.common.exception.BusinessException;
 import com.sim.shopping.domain.common.exception.OrderException;
 import com.sim.shopping.infrastructure.persistence.entity.OrderDO;
 import com.sim.shopping.infrastructure.persistence.entity.OrderItemDO;
+import com.sim.shopping.infrastructure.persistence.entity.ProductDO;
 import com.sim.shopping.infrastructure.persistence.entity.ProductSkuDO;
 import com.sim.shopping.infrastructure.persistence.entity.RefundDO;
 import com.sim.shopping.infrastructure.persistence.mapper.OrderItemMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.OrderMapper;
+import com.sim.shopping.infrastructure.persistence.mapper.ProductMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.ProductSkuMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.RefundMapper;
 import com.sim.shopping.application.settlement.SettlementService;
@@ -39,15 +42,17 @@ public class RefundService {
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final ProductSkuMapper productSkuMapper;
+    private final ProductMapper productMapper;
     private final SettlementService settlementService;
 
     public RefundService(RefundMapper refundMapper, OrderMapper orderMapper,
                           OrderItemMapper orderItemMapper, ProductSkuMapper productSkuMapper,
-                          SettlementService settlementService) {
+                          ProductMapper productMapper, SettlementService settlementService) {
         this.refundMapper = refundMapper;
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.productSkuMapper = productSkuMapper;
+        this.productMapper = productMapper;
         this.settlementService = settlementService;
     }
 
@@ -147,7 +152,7 @@ public class RefundService {
             order.setStatus("REFUNDED");
             orderMapper.updateById(order);
 
-            // 恢复商品库存：查询订单项，逐个恢复 SKU 库存
+            // 恢复商品库存：查询订单项，逐个恢复 SKU 库存和商品主库存
             LambdaQueryWrapper<OrderItemDO> itemWrapper = new LambdaQueryWrapper<>();
             itemWrapper.eq(OrderItemDO::getOrderId, order.getId());
             List<OrderItemDO> items = orderItemMapper.selectList(itemWrapper);
@@ -159,9 +164,17 @@ public class RefundService {
                         productSkuMapper.updateById(sku);
                     }
                 }
+                // 恢复商品主库存
+                if (item.getProductId() != null && item.getQuantity() != null) {
+                    productMapper.update(null,
+                            new LambdaUpdateWrapper<ProductDO>()
+                                    .eq(ProductDO::getId, item.getProductId())
+                                    .setSql("stock = stock + " + item.getQuantity())
+                                    .setSql("sales = sales - " + item.getQuantity()));
+                }
             }
 
-            log.info("自动退款审批完成: orderNo={}, 恢复了{}个SKU库存", orderNo, items.size());
+            log.info("自动退款审批完成: orderNo={}, 恢复了{}个SKU库存和商品主库存", orderNo, items.size());
 
             // 退款结算扣减：从商户余额扣减退款金额
             BigDecimal refundAmount = refund.getAmount() != null ? refund.getAmount() : BigDecimal.ZERO;

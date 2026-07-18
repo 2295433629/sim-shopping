@@ -4,7 +4,8 @@ export interface BannerItem {
   id: number
   title: string
   imageUrl: string
-  linkUrl: string
+  linkUrl?: string
+  productId?: number
   sortOrder: number
   startTime: string
   endTime: string

@@ -17,6 +17,12 @@ public class ShopResponse {
     private String description;
     private Integer productCount;
     private LocalDateTime createdAt;
+    private String senderName;
+    private String senderPhone;
+    private String senderProvince;
+    private String senderCity;
+    private String senderDistrict;
+    private String senderAddress;
 
     /**
      * 获取Shop Id
@@ -82,4 +88,28 @@ public class ShopResponse {
     public LocalDateTime getCreatedAt() { return this.createdAt; }
     /** set Created At */
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    /** 获取Sender Name */
+    public String getSenderName() { return this.senderName; }
+    /** set Sender Name */
+    public void setSenderName(String senderName) { this.senderName = senderName; }
+    /** 获取Sender Phone */
+    public String getSenderPhone() { return this.senderPhone; }
+    /** set Sender Phone */
+    public void setSenderPhone(String senderPhone) { this.senderPhone = senderPhone; }
+    /** 获取Sender Province */
+    public String getSenderProvince() { return this.senderProvince; }
+    /** set Sender Province */
+    public void setSenderProvince(String senderProvince) { this.senderProvince = senderProvince; }
+    /** 获取Sender City */
+    public String getSenderCity() { return this.senderCity; }
+    /** set Sender City */
+    public void setSenderCity(String senderCity) { this.senderCity = senderCity; }
+    /** 获取Sender District */
+    public String getSenderDistrict() { return this.senderDistrict; }
+    /** set Sender District */
+    public void setSenderDistrict(String senderDistrict) { this.senderDistrict = senderDistrict; }
+    /** 获取Sender Address */
+    public String getSenderAddress() { return this.senderAddress; }
+    /** set Sender Address */
+    public void setSenderAddress(String senderAddress) { this.senderAddress = senderAddress; }
 }

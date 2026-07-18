@@ -3,9 +3,10 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import type { UploadFile } from 'element-plus'
+import type { UploadFile, UploadRequestOptions } from 'element-plus'
 import { submitReview } from '@/api/modules/review'
 import { getOrderDetail } from '@/api/modules/order'
+import request from '@/api/request'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,6 +19,8 @@ const orderIdRef = ref<number>(0)
 const rating = ref(0)
 const content = ref('')
 const imageUrls = ref<string[]>([])
+// 记录上传中状态，防止重复提交
+const uploadingCount = ref(0)
 
 onMounted(async () => {
   loading.value = true
@@ -38,6 +41,10 @@ async function handleSubmit() {
   }
   if (!content.value.trim()) {
     ElMessage.warning('请输入评价内容')
+    return
+  }
+  if (uploadingCount.value > 0) {
+    ElMessage.warning('请等待图片上传完成')
     return
   }
   submitting.value = true
@@ -63,14 +70,38 @@ function goBack() {
   router.back()
 }
 
-function handleImageUpload(file: UploadFile) {
-  if (file.url) {
-    imageUrls.value.push(file.url)
+/** 自定义上传方法：调用后端 /api/common/upload 接口 */
+async function handleHttpUpload(options: UploadRequestOptions) {
+  const file = options.file
+  const formData = new FormData()
+  formData.append('file', file)
+  uploadingCount.value++
+  try {
+    const res: any = await request.post('/common/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    // 后端返回的 URL 格式可能是 res.url 或 res.data?.url 或完整路径
+    const url = res?.url || res?.data?.url || (typeof res === 'string' ? res : '')
+    if (!url) {
+      ElMessage.error('图片上传失败：未获取到返回URL')
+      return
+    }
+    imageUrls.value.push(url)
+    ElMessage.success('图片上传成功')
+  } catch (e: any) {
+    ElMessage.error(e.message || '图片上传失败')
+  } finally {
+    uploadingCount.value--
   }
 }
 
-function handleImageRemove(_file: UploadFile, _fileList: UploadFile[]) {
-  imageUrls.value = imageUrls.value.slice(0, -1)
+function handleImageRemove(file: UploadFile, _fileList: UploadFile[]) {
+  const url = (file.response as any)?.url || file.url || ''
+  if (url) {
+    imageUrls.value = imageUrls.value.filter(u => u !== url)
+  }
 }
 </script>
 
@@ -105,20 +136,20 @@ function handleImageRemove(_file: UploadFile, _fileList: UploadFile[]) {
           <el-upload
             action="#"
             list-type="picture-card"
-            :auto-upload="false"
+            :auto-upload="true"
+            :http-request="handleHttpUpload"
             :limit="5"
-            :on-change="handleImageUpload"
             :on-remove="handleImageRemove"
             accept="image/*"
           >
             <el-icon><Plus /></el-icon>
           </el-upload>
-          <div class="upload-tip">最多上传5张图片</div>
+          <div class="upload-tip">最多上传5张图片，图片将自动上传至服务器</div>
         </div>
 
         <div class="form-actions">
           <el-button @click="goBack">取消</el-button>
-          <el-button type="primary" :loading="submitting" @click="handleSubmit">提交评价</el-button>
+          <el-button type="primary" :loading="submitting || uploadingCount > 0" @click="handleSubmit">提交评价</el-button>
         </div>
       </div>
     </el-card>

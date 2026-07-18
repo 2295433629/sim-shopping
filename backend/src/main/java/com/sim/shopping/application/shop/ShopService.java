@@ -87,6 +87,24 @@ public class ShopService {
         if (req.getDescription() != null) {
             shop.setDescription(req.getDescription());
         }
+        if (req.getSenderName() != null) {
+            shop.setSenderName(req.getSenderName());
+        }
+        if (req.getSenderPhone() != null) {
+            shop.setSenderPhone(req.getSenderPhone());
+        }
+        if (req.getSenderProvince() != null) {
+            shop.setSenderProvince(req.getSenderProvince());
+        }
+        if (req.getSenderCity() != null) {
+            shop.setSenderCity(req.getSenderCity());
+        }
+        if (req.getSenderDistrict() != null) {
+            shop.setSenderDistrict(req.getSenderDistrict());
+        }
+        if (req.getSenderAddress() != null) {
+            shop.setSenderAddress(req.getSenderAddress());
+        }
         shopMapper.updateById(shop);
         Integer productCount = countProductsByShopId(shop.getId());
         return toShopResponse(shop, productCount);
@@ -259,6 +277,12 @@ public class ShopService {
         resp.setDescription(shop.getDescription());
         resp.setProductCount(productCount);
         resp.setCreatedAt(shop.getCreatedAt());
+        resp.setSenderName(shop.getSenderName());
+        resp.setSenderPhone(shop.getSenderPhone());
+        resp.setSenderProvince(shop.getSenderProvince());
+        resp.setSenderCity(shop.getSenderCity());
+        resp.setSenderDistrict(shop.getSenderDistrict());
+        resp.setSenderAddress(shop.getSenderAddress());
         return resp;
     }
 

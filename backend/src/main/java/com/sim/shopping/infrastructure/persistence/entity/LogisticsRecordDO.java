@@ -1,5 +1,6 @@
 package com.sim.shopping.infrastructure.persistence.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.math.BigDecimal;
@@ -20,6 +21,15 @@ public class LogisticsRecordDO extends BaseEntity {
     private LocalDateTime deliveredAt;
     private String logisticsCompany;
     private String status;
+
+    @TableField("sender_address")
+    private String senderAddress;
+
+    @TableField("receiver_address")
+    private String receiverAddress;
+
+    @TableField("sender_city")
+    private String senderCity;
 
     /**
      * 获取Order Id
@@ -91,4 +101,34 @@ public class LogisticsRecordDO extends BaseEntity {
      * @param status status
      */
     public void setStatus(String status) { this.status = status; }
+    /**
+     * 获取Sender Address
+     * @return 返回结果
+     */
+    public String getSenderAddress() { return this.senderAddress; }
+    /**
+     * set Sender Address
+     * @param senderAddress senderAddress
+     */
+    public void setSenderAddress(String senderAddress) { this.senderAddress = senderAddress; }
+    /**
+     * 获取Receiver Address
+     * @return 返回结果
+     */
+    public String getReceiverAddress() { return this.receiverAddress; }
+    /**
+     * set Receiver Address
+     * @param receiverAddress receiverAddress
+     */
+    public void setReceiverAddress(String receiverAddress) { this.receiverAddress = receiverAddress; }
+    /**
+     * 获取Sender City
+     * @return 返回结果
+     */
+    public String getSenderCity() { return this.senderCity; }
+    /**
+     * set Sender City
+     * @param senderCity senderCity
+     */
+    public void setSenderCity(String senderCity) { this.senderCity = senderCity; }
 }

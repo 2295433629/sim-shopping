@@ -15,6 +15,25 @@
         <el-form-item label="店铺描述">
           <el-input v-model="shopForm.description" type="textarea" :rows="4" />
         </el-form-item>
+        <el-divider content-position="left">发货地址</el-divider>
+        <el-form-item label="发货人姓名">
+          <el-input v-model="shopForm.senderName" placeholder="请输入发货人姓名" />
+        </el-form-item>
+        <el-form-item label="发货人电话">
+          <el-input v-model="shopForm.senderPhone" placeholder="请输入发货人电话" />
+        </el-form-item>
+        <el-form-item label="所在地区">
+          <el-cascader
+            v-model="senderRegion"
+            :options="regionData"
+            placeholder="请选择省/市/区"
+            clearable
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="详细地址">
+          <el-input v-model="shopForm.senderAddress" placeholder="请输入详细地址（街道、门牌号等）" />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="saveShop">保存</el-button>
         </el-form-item>
@@ -60,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import {
@@ -70,9 +89,31 @@ import {
   removeBanner as removeShopBanner,
 } from '@/api/modules/merchant'
 import request from '@/api/request'
+import regionData from '@/data/regions'
 
 const loading = ref(false)
-const shopForm = reactive({ shopName: '', shopLogo: '', description: '' })
+const shopForm = reactive({
+  shopName: '',
+  shopLogo: '',
+  description: '',
+  senderName: '',
+  senderPhone: '',
+  senderProvince: '',
+  senderCity: '',
+  senderDistrict: '',
+  senderAddress: '',
+})
+const senderRegion = ref<string[]>([])
+
+// 监听级联选择器变化，同步到 shopForm
+watch(senderRegion, (val) => {
+  if (val && val.length >= 1) shopForm.senderProvince = val[0] || ''
+  else shopForm.senderProvince = ''
+  if (val && val.length >= 2) shopForm.senderCity = val[1] || ''
+  else shopForm.senderCity = ''
+  if (val && val.length >= 3) shopForm.senderDistrict = val[2] || ''
+  else shopForm.senderDistrict = ''
+})
 const banners = ref<any[]>([])
 const showBannerDialog = ref(false)
 const bannerForm = reactive({ imageUrl: '', sortOrder: 0, linkUrl: '' })
@@ -106,11 +147,22 @@ const loadShop = async () => {
   try {
     const res = await getShopInfo()
     Object.assign(shopForm, res)
+    // 还原省市区级联选择器的值
+    if (shopForm.senderProvince || shopForm.senderCity || shopForm.senderDistrict) {
+      senderRegion.value = [
+        shopForm.senderProvince || '',
+        shopForm.senderCity || '',
+        shopForm.senderDistrict || '',
+      ].filter(Boolean)
+    }
   } catch (e: any) { ElMessage.error(e?.message || '加载失败') }
   loading.value = false
 }
 const saveShop = async () => {
-  try { await updateShopInfo(shopForm); ElMessage.success('保存成功') } catch (e: any) { ElMessage.error(e?.message || '保存失败') }
+  try {
+    await updateShopInfo(shopForm)
+    ElMessage.success('保存成功')
+  } catch (e: any) { ElMessage.error(e?.message || '保存失败') }
 }
 const handleAddBanner = async () => {
   if (!bannerForm.imageUrl) { ElMessage.warning('请先上传图片'); return }

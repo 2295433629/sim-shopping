@@ -12,7 +12,17 @@ export function getShopInfo() {
   return request.get<unknown, any>('/merchant/shop')
 }
 
-export function updateShopInfo(data: { shopName: string; shopLogo: string; description: string }) {
+export function updateShopInfo(data: {
+  shopName: string
+  shopLogo: string
+  description: string
+  senderName?: string
+  senderPhone?: string
+  senderProvince?: string
+  senderCity?: string
+  senderDistrict?: string
+  senderAddress?: string
+}) {
   return request.put<unknown, any>('/merchant/shop', data)
 }
 

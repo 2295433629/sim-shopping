@@ -20,6 +20,6 @@ public interface ShopMapper extends BaseMapper<ShopDO> {
     @Update("UPDATE t_shop SET balance = balance + #{amount}, total_income = total_income + #{amount}, total_settled = total_settled + #{amount} WHERE id = #{shopId}")
     int addIncome(@Param("shopId") Long shopId, @Param("amount") BigDecimal amount);
 
-    @Update("UPDATE t_shop SET balance = balance + #{amount}, total_income = total_income + #{amount}, total_settled = total_settled + #{amount} WHERE id = #{shopId}")
+    @Update("UPDATE t_shop SET balance = balance - #{amount}, total_income = total_income - #{amount}, total_settled = total_settled - #{amount} WHERE id = #{shopId}")
     int deductIncome(@Param("shopId") Long shopId, @Param("amount") BigDecimal amount);
 }

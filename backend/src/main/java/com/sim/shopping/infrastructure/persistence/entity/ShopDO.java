@@ -30,6 +30,24 @@ public class ShopDO extends BaseEntity {
     @TableField("frozen_amount")
     private BigDecimal frozenAmount;
 
+    @TableField("sender_name")
+    private String senderName;
+
+    @TableField("sender_phone")
+    private String senderPhone;
+
+    @TableField("sender_province")
+    private String senderProvince;
+
+    @TableField("sender_city")
+    private String senderCity;
+
+    @TableField("sender_district")
+    private String senderDistrict;
+
+    @TableField("sender_address")
+    private String senderAddress;
+
     /**
      * 获取Status
      * @return 返回结果
@@ -120,4 +138,64 @@ public class ShopDO extends BaseEntity {
      * @param frozenAmount frozenAmount
      */
     public void setFrozenAmount(BigDecimal frozenAmount) { this.frozenAmount = frozenAmount; }
+    /**
+     * 获取Sender Name
+     * @return 返回结果
+     */
+    public String getSenderName() { return this.senderName; }
+    /**
+     * set Sender Name
+     * @param senderName senderName
+     */
+    public void setSenderName(String senderName) { this.senderName = senderName; }
+    /**
+     * 获取Sender Phone
+     * @return 返回结果
+     */
+    public String getSenderPhone() { return this.senderPhone; }
+    /**
+     * set Sender Phone
+     * @param senderPhone senderPhone
+     */
+    public void setSenderPhone(String senderPhone) { this.senderPhone = senderPhone; }
+    /**
+     * 获取Sender Province
+     * @return 返回结果
+     */
+    public String getSenderProvince() { return this.senderProvince; }
+    /**
+     * set Sender Province
+     * @param senderProvince senderProvince
+     */
+    public void setSenderProvince(String senderProvince) { this.senderProvince = senderProvince; }
+    /**
+     * 获取Sender City
+     * @return 返回结果
+     */
+    public String getSenderCity() { return this.senderCity; }
+    /**
+     * set Sender City
+     * @param senderCity senderCity
+     */
+    public void setSenderCity(String senderCity) { this.senderCity = senderCity; }
+    /**
+     * 获取Sender District
+     * @return 返回结果
+     */
+    public String getSenderDistrict() { return this.senderDistrict; }
+    /**
+     * set Sender District
+     * @param senderDistrict senderDistrict
+     */
+    public void setSenderDistrict(String senderDistrict) { this.senderDistrict = senderDistrict; }
+    /**
+     * 获取Sender Address
+     * @return 返回结果
+     */
+    public String getSenderAddress() { return this.senderAddress; }
+    /**
+     * set Sender Address
+     * @param senderAddress senderAddress
+     */
+    public void setSenderAddress(String senderAddress) { this.senderAddress = senderAddress; }
 }

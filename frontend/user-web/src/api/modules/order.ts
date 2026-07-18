@@ -121,7 +121,7 @@ export interface OrderQueryParams {
 }
 
 /** Create order */
-export function createOrder(data: { addressId: number; remark?: string; cartItemIds: number[] }) {
+export function createOrder(data: { addressId: number; remark?: string; cartItemIds: number[]; couponId?: number }) {
   return request.post<unknown, CreateOrderResult>('/user/orders', data)
 }
 
