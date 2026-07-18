@@ -13,7 +13,7 @@ const loading = ref(false)
 
 // 三端地址：生产环境同域名不同路径，开发环境不同端口
 const baseUrl = import.meta.env.VITE_APP_BASE_URL || ''
-const userWebUrl = `${window.location.origin}${baseUrl}/`
+const userWebUrl = `${window.location.origin}${baseUrl}/user-web/`
 const merchantWebUrl = `${window.location.origin}${baseUrl}/merchant/`
 
 const loginForm = reactive({

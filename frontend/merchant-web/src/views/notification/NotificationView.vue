@@ -41,7 +41,8 @@ async function loadNotifications() {
 
 async function loadUnreadCount() {
   try {
-    unreadCount.value = (await getUnreadCount()) as any
+    const res = await getUnreadCount() as any
+    unreadCount.value = res?.unreadCount ?? res?.count ?? 0
   } catch {
     // handled by interceptor
   }
