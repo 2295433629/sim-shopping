@@ -11,7 +11,7 @@
         <el-table-column prop="name" label="分类名称" />
         <el-table-column prop="sortOrder" label="排序" width="80" />
         <el-table-column prop="status" label="状态" width="80">
-          <template #default="{ row }"><el-tag :type="row.status === 1 ? 'success' : 'info'">{{ row.status === 1 ? '启用' : '禁用' }}</el-tag></template>
+          <template #default="{ row }"><el-tag :type="row.status === 'ACTIVE' ? 'success' : 'info'">{{ row.status === 'ACTIVE' ? '启用' : '禁用' }}</el-tag></template>
         </el-table-column>
         <el-table-column label="操作" width="250">
           <template #default="{ row }">
@@ -27,7 +27,7 @@
         <el-form-item label="分类名称"><el-input v-model="editingCategory.name" /></el-form-item>
         <el-form-item label="图标"><el-input v-model="editingCategory.icon" placeholder="图标URL（可选）" /></el-form-item>
         <el-form-item label="排序"><el-input-number v-model="editingCategory.sortOrder" :min="0" /></el-form-item>
-        <el-form-item label="状态"><el-switch v-model="editingCategory.status" :active-value="1" :inactive-value="0" /></el-form-item>
+        <el-form-item label="状态"><el-switch v-model="editingCategory.status" :active-value="'ACTIVE'" :inactive-value="'INACTIVE'" /></el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -45,14 +45,14 @@ import { getCategories, createCategory, updateCategory, deleteCategory } from '@
 
 const categoryTree = ref<any[]>([])
 const dialogVisible = ref(false)
-const editingCategory = reactive({ id: null as number | null, parentId: 0, name: '', icon: '', sortOrder: 0, status: 1 })
+const editingCategory = reactive({ id: null as number | null, parentId: 0, name: '', icon: '', sortOrder: 0, status: 'ACTIVE' as string })
 
 const loadTree = async () => {
   try { const res = await getCategories(); categoryTree.value = res.data || [] } catch { ElMessage.error('加载失败') }
 }
 const openDialog = (row: any, parentId?: number) => {
   if (row) { Object.assign(editingCategory, row) }
-  else { editingCategory.id = null; editingCategory.name = ''; editingCategory.icon = ''; editingCategory.sortOrder = 0; editingCategory.status = 1; editingCategory.parentId = parentId || 0 }
+  else { editingCategory.id = null; editingCategory.name = ''; editingCategory.icon = ''; editingCategory.sortOrder = 0; editingCategory.status = 'ACTIVE'; editingCategory.parentId = parentId || 0 }
   dialogVisible.value = true
 }
 const handleSave = async () => {

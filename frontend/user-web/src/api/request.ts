@@ -55,7 +55,9 @@ request.interceptors.response.use(
           window.location.href = import.meta.env.BASE_URL + 'login'
           break
         case 403:
-          ElMessage.error('无权限')
+          removeToken()
+          ElMessage.error('登录已过期，请重新登录')
+          window.location.href = import.meta.env.BASE_URL + 'login'
           break
         case 404:
           ElMessage.error('请求的资源不存在')

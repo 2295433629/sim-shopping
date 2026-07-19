@@ -4,10 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sim.shopping.domain.common.exception.BusinessException;
 import com.sim.shopping.infrastructure.persistence.entity.BrandDO;
 import com.sim.shopping.infrastructure.persistence.mapper.BrandMapper;
+import com.sim.shopping.interfaces.dto.product.BrandRequest;
+import com.sim.shopping.interfaces.dto.product.BrandResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 品牌服务，处理品牌信息的增删改查
@@ -28,52 +31,55 @@ public class BrandService {
      * 查询品牌列表
      * @return 返回结果
      */
-    public List<BrandDO> getBrands() {
+    public List<BrandResponse> getBrands() {
         LambdaQueryWrapper<BrandDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByDesc(BrandDO::getCreatedAt);
-        return brandMapper.selectList(wrapper);
+        return brandMapper.selectList(wrapper).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     /**
      * 创建品牌
-     * @param brand brand
+     * @param request request
      * @return 返回结果
      */
     @Transactional
-    public BrandDO createBrand(BrandDO brand) {
+    public BrandResponse createBrand(BrandRequest request) {
+        BrandDO brand = toEntity(request);
         if (brand.getStatus() == null) {
             brand.setStatus("ENABLED");
         }
         brandMapper.insert(brand);
-        return brand;
+        return toResponse(brand);
     }
 
     /**
      * 更新品牌
      * @param id id
-     * @param brand brand
+     * @param request request
      * @return 返回结果
      */
     @Transactional
-    public BrandDO updateBrand(Long id, BrandDO brand) {
+    public BrandResponse updateBrand(Long id, BrandRequest request) {
         BrandDO existing = brandMapper.selectById(id);
         if (existing == null) {
             throw new BusinessException(404, "品牌不存在");
         }
-        if (brand.getBrandName() != null) {
-            existing.setBrandName(brand.getBrandName());
+        if (request.getBrandName() != null) {
+            existing.setBrandName(request.getBrandName());
         }
-        if (brand.getBrandLogo() != null) {
-            existing.setBrandLogo(brand.getBrandLogo());
+        if (request.getBrandLogo() != null) {
+            existing.setBrandLogo(request.getBrandLogo());
         }
-        if (brand.getBrandDescription() != null) {
-            existing.setBrandDescription(brand.getBrandDescription());
+        if (request.getBrandDescription() != null) {
+            existing.setBrandDescription(request.getBrandDescription());
         }
-        if (brand.getStatus() != null) {
-            existing.setStatus(brand.getStatus());
+        if (request.getStatus() != null) {
+            existing.setStatus(request.getStatus());
         }
         brandMapper.updateById(existing);
-        return existing;
+        return toResponse(existing);
     }
 
     /**
@@ -87,5 +93,26 @@ public class BrandService {
             throw new BusinessException(404, "品牌不存在");
         }
         brandMapper.deleteById(id);
+    }
+
+    private BrandDO toEntity(BrandRequest request) {
+        BrandDO brand = new BrandDO();
+        brand.setBrandName(request.getBrandName());
+        brand.setBrandLogo(request.getBrandLogo());
+        brand.setBrandDescription(request.getBrandDescription());
+        brand.setStatus(request.getStatus());
+        return brand;
+    }
+
+    private BrandResponse toResponse(BrandDO brand) {
+        BrandResponse resp = new BrandResponse();
+        resp.setId(brand.getId());
+        resp.setBrandName(brand.getBrandName());
+        resp.setBrandLogo(brand.getBrandLogo());
+        resp.setBrandDescription(brand.getBrandDescription());
+        resp.setStatus(brand.getStatus());
+        resp.setCreatedAt(brand.getCreatedAt());
+        resp.setUpdatedAt(brand.getUpdatedAt());
+        return resp;
     }
 }

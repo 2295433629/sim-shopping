@@ -31,6 +31,18 @@ public class BannerService {
     }
 
     /**
+     * 获取所有Banner列表（管理员用，不限状态和有效期）
+     * @return 返回结果
+     */
+    public List<BannerResponse> getAllBanners() {
+        List<BannerDO> banners = bannerMapper.selectList(
+            new LambdaQueryWrapper<BannerDO>().orderByAsc(BannerDO::getSortOrder));
+        return banners.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 获取Active Banners
      * @return 返回结果
      */

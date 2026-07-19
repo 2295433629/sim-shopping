@@ -46,8 +46,7 @@ public class ActivityAdminController {
      * @return 返回结果
      */
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<ActivityDO> createActivity(@RequestBody ActivityCreateRequest request) {
+    public ApiResponse<ActivityResponse> createActivity(@RequestBody ActivityCreateRequest request) {
         ActivityDO activity = new ActivityDO();
         activity.setActivityName(request.getName());
         activity.setBannerImage(request.getBannerImage());
@@ -66,8 +65,7 @@ public class ActivityAdminController {
      * @return 返回结果
      */
     @PutMapping("/{activityId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<ActivityDO> updateActivity(@PathVariable Long activityId, @RequestBody ActivityCreateRequest request) {
+    public ApiResponse<ActivityResponse> updateActivity(@PathVariable Long activityId, @RequestBody ActivityCreateRequest request) {
         ActivityDO activity = new ActivityDO();
         activity.setActivityName(request.getName());
         activity.setBannerImage(request.getBannerImage());

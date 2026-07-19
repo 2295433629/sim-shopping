@@ -1,10 +1,7 @@
 package com.sim.shopping.interfaces.payment;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.sim.shopping.application.order.OrderService;
 import com.sim.shopping.application.payment.PaymentService;
-import com.sim.shopping.domain.common.exception.BusinessException;
-import com.sim.shopping.infrastructure.persistence.entity.OrderDO;
-import com.sim.shopping.infrastructure.persistence.mapper.OrderMapper;
 import com.sim.shopping.infrastructure.security.SecurityUtils;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.payment.PaymentRequest;
@@ -22,11 +19,11 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
 
     private final PaymentService paymentService;
-    private final OrderMapper orderMapper;
+    private final OrderService orderService;
 
-    public PaymentController(PaymentService paymentService, OrderMapper orderMapper) {
+    public PaymentController(PaymentService paymentService, OrderService orderService) {
         this.paymentService = paymentService;
-        this.orderMapper = orderMapper;
+        this.orderService = orderService;
     }
 
     /**
@@ -49,12 +46,7 @@ public class PaymentController {
     public ApiResponse<PaymentResponse> getPaymentStatus(@PathVariable String orderNo) {
         Long userId = SecurityUtils.getCurrentUserId();
         // 校验订单归属
-        LambdaQueryWrapper<OrderDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OrderDO::getOrderNo, orderNo);
-        OrderDO order = orderMapper.selectOne(wrapper);
-        if (order != null && !userId.equals(order.getUserId())) {
-            throw new BusinessException(403, "无权查看此订单的支付信息");
-        }
+        orderService.validateOrderOwnership(orderNo, userId);
         return ApiResponse.success(paymentService.getPaymentStatus(orderNo));
     }
 }

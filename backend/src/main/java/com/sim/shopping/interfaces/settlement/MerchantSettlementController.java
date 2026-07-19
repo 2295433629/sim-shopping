@@ -2,20 +2,15 @@ package com.sim.shopping.interfaces.settlement;
 
 import com.sim.shopping.application.merchant.MerchantService;
 import com.sim.shopping.application.settlement.SettlementService;
-import com.sim.shopping.infrastructure.persistence.entity.MerchantDO;
 import com.sim.shopping.infrastructure.persistence.entity.ShopDO;
-import com.sim.shopping.infrastructure.persistence.mapper.ShopMapper;
 import com.sim.shopping.infrastructure.security.SecurityUtils;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.settlement.SettlementRecordResponse;
 import com.sim.shopping.interfaces.dto.settlement.ShopFinanceResponse;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 /**
  * 商家结算控制器，处理商家结算记录查询
@@ -28,14 +23,11 @@ import java.time.LocalDateTime;
 public class MerchantSettlementController {
 
     private final SettlementService settlementService;
-    private final ShopMapper shopMapper;
     private final MerchantService merchantService;
 
     public MerchantSettlementController(SettlementService settlementService,
-                                         ShopMapper shopMapper,
                                          MerchantService merchantService) {
         this.settlementService = settlementService;
-        this.shopMapper = shopMapper;
         this.merchantService = merchantService;
     }
 
@@ -45,7 +37,7 @@ public class MerchantSettlementController {
     @GetMapping("/finance")
     public ApiResponse<ShopFinanceResponse> getFinance() {
         Long userId = SecurityUtils.getCurrentUserId();
-        ShopDO shop = getShopByUserId(userId);
+        ShopDO shop = merchantService.getShopByUserId(userId);
 
         ShopFinanceResponse resp = new ShopFinanceResponse();
         resp.setBalance(shop.getBalance() != null ? shop.getBalance() : BigDecimal.ZERO);
@@ -65,15 +57,8 @@ public class MerchantSettlementController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         Long userId = SecurityUtils.getCurrentUserId();
-        ShopDO shop = getShopByUserId(userId);
+        ShopDO shop = merchantService.getShopByUserId(userId);
 
         return ApiResponse.success(settlementService.getSettlementRecords(shop.getId(), page, size));
-    }
-
-    private ShopDO getShopByUserId(Long userId) {
-        MerchantDO merchant = merchantService.getByUserId(userId);
-        LambdaQueryWrapper<ShopDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ShopDO::getMerchantId, merchant.getId());
-        return shopMapper.selectOne(wrapper);
     }
 }

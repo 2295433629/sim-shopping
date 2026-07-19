@@ -7,6 +7,8 @@ import com.sim.shopping.infrastructure.persistence.entity.CategoryDO;
 import com.sim.shopping.infrastructure.persistence.entity.ProductDO;
 import com.sim.shopping.infrastructure.persistence.mapper.CategoryMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.ProductMapper;
+import com.sim.shopping.interfaces.dto.product.CategoryRequest;
+import com.sim.shopping.interfaces.dto.product.CategoryResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +46,12 @@ public class CategoryService {
 
     /**
      * 创建分类
-     * @param category category
+     * @param request request
      * @return 返回结果
      */
     @Transactional
-    public CategoryDO createCategory(CategoryDO category) {
+    public CategoryResponse createCategory(CategoryRequest request) {
+        CategoryDO category = toEntity(request);
         if (category.getParentId() == null) {
             category.setParentId(0L);
         }
@@ -59,38 +62,38 @@ public class CategoryService {
             category.setSortOrder(0);
         }
         categoryMapper.insert(category);
-        return category;
+        return toResponse(category);
     }
 
     /**
      * 更新分类
      * @param id id
-     * @param category category
+     * @param request request
      * @return 返回结果
      */
     @Transactional
-    public CategoryDO updateCategory(Long id, CategoryDO category) {
+    public CategoryResponse updateCategory(Long id, CategoryRequest request) {
         CategoryDO existing = categoryMapper.selectById(id);
         if (existing == null) {
             throw new ProductException.CategoryNotFoundException("分类不存在");
         }
-        if (category.getName() != null) {
-            existing.setName(category.getName());
+        if (request.getName() != null) {
+            existing.setName(request.getName());
         }
-        if (category.getIcon() != null) {
-            existing.setIcon(category.getIcon());
+        if (request.getIcon() != null) {
+            existing.setIcon(request.getIcon());
         }
-        if (category.getSortOrder() != null) {
-            existing.setSortOrder(category.getSortOrder());
+        if (request.getSortOrder() != null) {
+            existing.setSortOrder(request.getSortOrder());
         }
-        if (category.getStatus() != null) {
-            existing.setStatus(category.getStatus());
+        if (request.getStatus() != null) {
+            existing.setStatus(request.getStatus());
         }
-        if (category.getParentId() != null) {
-            existing.setParentId(category.getParentId());
+        if (request.getParentId() != null) {
+            existing.setParentId(request.getParentId());
         }
         categoryMapper.updateById(existing);
-        return existing;
+        return toResponse(existing);
     }
 
     /**
@@ -135,6 +138,30 @@ public class CategoryService {
                     return node;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private CategoryDO toEntity(CategoryRequest request) {
+        CategoryDO category = new CategoryDO();
+        category.setName(request.getName());
+        category.setParentId(request.getParentId());
+        category.setSortOrder(request.getSortOrder());
+        category.setIcon(request.getIcon());
+        category.setStatus(request.getStatus());
+        return category;
+    }
+
+    private CategoryResponse toResponse(CategoryDO category) {
+        CategoryResponse resp = new CategoryResponse();
+        resp.setId(category.getId());
+        resp.setParentId(category.getParentId());
+        resp.setName(category.getName());
+        resp.setLevel(category.getLevel());
+        resp.setSortOrder(category.getSortOrder());
+        resp.setIcon(category.getIcon());
+        resp.setStatus(category.getStatus());
+        resp.setCreatedAt(category.getCreatedAt());
+        resp.setUpdatedAt(category.getUpdatedAt());
+        return resp;
     }
 
     public static class CategoryNode {

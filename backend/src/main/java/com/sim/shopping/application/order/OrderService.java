@@ -429,6 +429,41 @@ public class OrderService {
         return PageResponse.of(list, result.getTotal(), page, size);
     }
 
+    /**
+     * 校验订单归属当前用户
+     * @param orderNo orderNo
+     * @param userId userId
+     */
+    public void validateOrderOwnership(String orderNo, Long userId) {
+        OrderDO order = orderByNo(orderNo);
+        if (order != null && !userId.equals(order.getUserId())) {
+            throw new BusinessException(403, "无权操作此订单");
+        }
+    }
+
+    /**
+     * 查询待发货订单分页（商家物流管理）
+     * @param shopId shopId
+     * @param page page
+     * @param size size
+     * @return 返回结果
+     */
+    public PageResponse<OrderListItemVO> getPendingShipmentOrders(Long shopId, int page, int size) {
+        Page<OrderDO> pageObj = new Page<>(page, size);
+        LambdaQueryWrapper<OrderDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(OrderDO::getShopId, shopId);
+        wrapper.eq(OrderDO::getStatus, "PAID");
+        wrapper.orderByAsc(OrderDO::getCreatedAt);
+
+        IPage<OrderDO> result = orderMapper.selectPage(pageObj, wrapper);
+
+        List<OrderListItemVO> list = result.getRecords().stream()
+                .map(order -> convertToOrderListItemVO(order))
+                .collect(Collectors.toList());
+
+        return PageResponse.of(list, result.getTotal(), page, size);
+    }
+
     // ========== Private helper methods ==========
 
     private OrderDO orderByNo(String orderNo) {

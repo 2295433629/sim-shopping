@@ -1,12 +1,11 @@
 package com.sim.shopping.interfaces.system;
 
 import com.sim.shopping.application.system.PermissionService;
-import com.sim.shopping.infrastructure.persistence.entity.SysPermissionDO;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
+import com.sim.shopping.interfaces.dto.system.PermissionRequest;
+import com.sim.shopping.interfaces.dto.system.PermissionResponse;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -32,7 +31,7 @@ public class PermissionController {
      * @return 返回结果
      */
     @GetMapping
-    public ApiResponse<PageResponse<SysPermissionDO>> getPermissions(
+    public ApiResponse<PageResponse<PermissionResponse>> getPermissions(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
         return ApiResponse.success(permissionService.getPermissions(page, size));
@@ -40,23 +39,23 @@ public class PermissionController {
 
     /**
      * 创建Permission
-     * @param permission permission
+     * @param request request
      * @return 返回结果
      */
     @PostMapping
-    public ApiResponse<SysPermissionDO> createPermission(@RequestBody SysPermissionDO permission) {
-        return ApiResponse.success(permissionService.createPermission(permission));
+    public ApiResponse<PermissionResponse> createPermission(@RequestBody PermissionRequest request) {
+        return ApiResponse.success(permissionService.createPermission(request));
     }
 
     /**
      * 更新Permission
      * @param permissionId permissionId
-     * @param permission permission
+     * @param request request
      * @return 返回结果
      */
     @PutMapping("/{permissionId}")
-    public ApiResponse<SysPermissionDO> updatePermission(@PathVariable Long permissionId, @RequestBody SysPermissionDO permission) {
-        return ApiResponse.success(permissionService.updatePermission(permissionId, permission));
+    public ApiResponse<PermissionResponse> updatePermission(@PathVariable Long permissionId, @RequestBody PermissionRequest request) {
+        return ApiResponse.success(permissionService.updatePermission(permissionId, request));
     }
 
     /**

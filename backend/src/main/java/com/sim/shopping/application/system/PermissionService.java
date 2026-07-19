@@ -6,9 +6,12 @@ import com.sim.shopping.domain.common.exception.BusinessException;
 import com.sim.shopping.infrastructure.persistence.entity.SysPermissionDO;
 import com.sim.shopping.infrastructure.persistence.mapper.SysPermissionMapper;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
+import com.sim.shopping.interfaces.dto.system.PermissionRequest;
+import com.sim.shopping.interfaces.dto.system.PermissionResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 权限服务，处理权限的增删改查
@@ -31,12 +34,15 @@ public class PermissionService {
      * @param size size
      * @return 返回结果
      */
-    public PageResponse<SysPermissionDO> getPermissions(int page, int size) {
+    public PageResponse<PermissionResponse> getPermissions(int page, int size) {
         Page<SysPermissionDO> pageResult = sysPermissionMapper.selectPage(
                 new Page<>(page, size),
                 Wrappers.<SysPermissionDO>lambdaQuery().orderByDesc(SysPermissionDO::getCreatedAt)
         );
-        return PageResponse.of(pageResult.getRecords(), pageResult.getTotal(), page, size);
+        List<PermissionResponse> records = pageResult.getRecords().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+        return PageResponse.of(records, pageResult.getTotal(), page, size);
     }
 
     /**
@@ -73,35 +79,36 @@ public class PermissionService {
 
     /**
      * 创建Permission
-     * @param permission permission
+     * @param request request
      * @return 返回结果
      */
-    public SysPermissionDO createPermission(SysPermissionDO permission) {
+    public PermissionResponse createPermission(PermissionRequest request) {
         // Check permission code uniqueness
         Long count = sysPermissionMapper.selectCount(
-                Wrappers.<SysPermissionDO>lambdaQuery().eq(SysPermissionDO::getPermissionCode, permission.getPermissionCode())
+                Wrappers.<SysPermissionDO>lambdaQuery().eq(SysPermissionDO::getPermissionCode, request.getPermissionCode())
         );
         if (count > 0) {
-            throw new BusinessException(400, "权限编码已存在: " + permission.getPermissionCode());
+            throw new BusinessException(400, "权限编码已存在: " + request.getPermissionCode());
         }
+        SysPermissionDO permission = toEntity(request);
         sysPermissionMapper.insert(permission);
-        return permission;
+        return toResponse(permission);
     }
 
     /**
      * 更新Permission
      * @param id id
-     * @param permission permission
+     * @param request request
      * @return 返回结果
      */
-    public SysPermissionDO updatePermission(Long id, SysPermissionDO permission) {
+    public PermissionResponse updatePermission(Long id, PermissionRequest request) {
         SysPermissionDO existing = getPermissionById(id);
-        existing.setPermissionName(permission.getPermissionName());
-        existing.setDescription(permission.getDescription());
-        existing.setModule(permission.getModule());
-        existing.setPermissionType(permission.getPermissionType());
+        existing.setPermissionName(request.getPermissionName());
+        existing.setDescription(request.getDescription());
+        existing.setModule(request.getModule());
+        existing.setPermissionType(request.getPermissionType());
         sysPermissionMapper.updateById(existing);
-        return existing;
+        return toResponse(existing);
     }
 
     /**
@@ -111,5 +118,28 @@ public class PermissionService {
     public void deletePermission(Long id) {
         getPermissionById(id);
         sysPermissionMapper.deleteById(id);
+    }
+
+    private SysPermissionDO toEntity(PermissionRequest request) {
+        SysPermissionDO permission = new SysPermissionDO();
+        permission.setPermissionName(request.getPermissionName());
+        permission.setPermissionCode(request.getPermissionCode());
+        permission.setPermissionType(request.getPermissionType());
+        permission.setDescription(request.getDescription());
+        permission.setModule(request.getModule());
+        return permission;
+    }
+
+    private PermissionResponse toResponse(SysPermissionDO permission) {
+        PermissionResponse resp = new PermissionResponse();
+        resp.setId(permission.getId());
+        resp.setPermissionName(permission.getPermissionName());
+        resp.setPermissionCode(permission.getPermissionCode());
+        resp.setPermissionType(permission.getPermissionType());
+        resp.setDescription(permission.getDescription());
+        resp.setModule(permission.getModule());
+        resp.setCreatedAt(permission.getCreatedAt());
+        resp.setUpdatedAt(permission.getUpdatedAt());
+        return resp;
     }
 }

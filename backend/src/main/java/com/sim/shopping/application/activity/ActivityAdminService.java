@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
 import com.sim.shopping.infrastructure.persistence.entity.ActivityDO;
 import com.sim.shopping.infrastructure.persistence.entity.ActivityProductDO;
+import com.sim.shopping.infrastructure.persistence.entity.ActivityQueryResult;
 import com.sim.shopping.infrastructure.persistence.mapper.ActivityMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.ActivityProductMapper;
 import com.sim.shopping.infrastructure.security.SecurityUtils;
@@ -44,9 +45,31 @@ public class ActivityAdminService {
      * @return 返回结果
      */
     public PageResponse<ActivityResponse> getActivityList(int page, int size, String status, String keyword) {
-        Page<ActivityResponse> pageParam = new Page<>(page, size);
-        Page<ActivityResponse> result = activityMapper.selectActivityPage(pageParam, status, keyword);
-        return PageResponse.of(result.getRecords(), result.getTotal(), (int) result.getCurrent(), (int) result.getSize());
+        Page<ActivityQueryResult> pageParam = new Page<>(page, size);
+        Page<ActivityQueryResult> result = activityMapper.selectActivityPage(pageParam, status, keyword);
+        List<ActivityResponse> records = result.getRecords().stream()
+                .map(this::toActivityResponse)
+                .collect(Collectors.toList());
+        return PageResponse.of(records, result.getTotal(), (int) result.getCurrent(), (int) result.getSize());
+    }
+
+    /**
+     * ActivityQueryResult -> ActivityResponse 转换
+     * @param qr qr
+     * @return 返回结果
+     */
+    private ActivityResponse toActivityResponse(ActivityQueryResult qr) {
+        ActivityResponse resp = new ActivityResponse();
+        resp.setId(qr.getId());
+        resp.setActivityName(qr.getActivityName());
+        resp.setBannerImage(qr.getBannerImage());
+        resp.setDescription(qr.getDescription());
+        resp.setStartTime(qr.getStartTime());
+        resp.setEndTime(qr.getEndTime());
+        resp.setSortOrder(qr.getSortOrder());
+        resp.setStatus(qr.getStatus());
+        resp.setProductCount(qr.getProductCount());
+        return resp;
     }
 
     /**
@@ -56,7 +79,7 @@ public class ActivityAdminService {
      * @return 返回结果
      */
     @Transactional
-    public ActivityDO createActivity(ActivityDO activity, List<Long> productIds) {
+    public ActivityResponse createActivity(ActivityDO activity, List<Long> productIds) {
         LocalDateTime now = LocalDateTime.now();
         Long userId = SecurityUtils.getCurrentUserId();
 
@@ -71,7 +94,7 @@ public class ActivityAdminService {
             insertActivityProducts(activity.getId(), productIds, userId, now);
         }
 
-        return activity;
+        return toActivityResponseDO(activity);
     }
 
     /**
@@ -82,7 +105,7 @@ public class ActivityAdminService {
      * @return 返回结果
      */
     @Transactional
-    public ActivityDO updateActivity(Long id, ActivityDO activity, List<Long> productIds) {
+    public ActivityResponse updateActivity(Long id, ActivityDO activity, List<Long> productIds) {
         ActivityDO existing = activityMapper.selectById(id);
         if (existing == null || existing.getDeleted() != null && existing.getDeleted() == 1) {
             throw new BusinessException(404, "活动不存在");
@@ -103,7 +126,29 @@ public class ActivityAdminService {
             insertActivityProducts(id, productIds, userId, now);
         }
 
-        return activityMapper.selectById(id);
+        ActivityDO updated = activityMapper.selectById(id);
+        Long productCount = activityProductMapper.countByActivityId(id);
+        ActivityResponse resp = toActivityResponseDO(updated);
+        resp.setProductCount(productCount);
+        return resp;
+    }
+
+    /**
+     * ActivityDO -> ActivityResponse 转换
+     * @param activity activity
+     * @return 返回结果
+     */
+    private ActivityResponse toActivityResponseDO(ActivityDO activity) {
+        ActivityResponse resp = new ActivityResponse();
+        resp.setId(activity.getId());
+        resp.setActivityName(activity.getActivityName());
+        resp.setBannerImage(activity.getBannerImage());
+        resp.setDescription(activity.getDescription());
+        resp.setStartTime(activity.getStartTime());
+        resp.setEndTime(activity.getEndTime());
+        resp.setSortOrder(activity.getSortOrder());
+        resp.setStatus(activity.getStatus());
+        return resp;
     }
 
     /**

@@ -39,7 +39,9 @@ request.interceptors.response.use(
       return Promise.reject(new Error(res.message || '未认证'))
     }
     if (res.code === 403) {
-      ElMessage.error('无权限')
+      removeToken()
+      ElMessage.error('登录已过期，请重新登录')
+      window.location.href = '/login'
       return Promise.reject(new Error(res.message || '无权限'))
     }
     ElMessage.error(res.message || '请求失败')
@@ -55,7 +57,9 @@ request.interceptors.response.use(
           window.location.href = import.meta.env.BASE_URL + 'login'
           break
         case 403:
-          ElMessage.error('无权限')
+          removeToken()
+          ElMessage.error('登录已过期，请重新登录')
+          window.location.href = import.meta.env.BASE_URL + 'login'
           break
         case 404:
           ElMessage.error('请求的资源不存在')

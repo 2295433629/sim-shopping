@@ -1,17 +1,13 @@
 package com.sim.shopping.interfaces.product;
 
+import com.sim.shopping.application.merchant.MerchantService;
 import com.sim.shopping.application.product.ProductService;
-import com.sim.shopping.infrastructure.persistence.entity.MerchantDO;
-import com.sim.shopping.infrastructure.persistence.mapper.MerchantMapper;
 import com.sim.shopping.infrastructure.security.SecurityUtils;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.product.*;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -27,11 +23,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public class MerchantProductController {
 
     private final ProductService productService;
-    private final MerchantMapper merchantMapper;
+    private final MerchantService merchantService;
 
-    public MerchantProductController(ProductService productService, MerchantMapper merchantMapper) {
+    public MerchantProductController(ProductService productService, MerchantService merchantService) {
         this.productService = productService;
-        this.merchantMapper = merchantMapper;
+        this.merchantService = merchantService;
     }
 
     /**
@@ -41,7 +37,8 @@ public class MerchantProductController {
      */
     @PostMapping
     public ApiResponse<Long> createProduct(@Valid @RequestBody ProductCreateRequest req) {
-        Long merchantId = resolveMerchantId();
+        Long userId = SecurityUtils.getCurrentUserId();
+        Long merchantId = merchantService.getMerchantIdByUserId(userId);
         return ApiResponse.success(productService.createProduct(merchantId, req));
     }
 
@@ -52,7 +49,8 @@ public class MerchantProductController {
     @PutMapping("/{productId}")
     public ApiResponse<Void> updateProduct(@PathVariable Long productId,
                                             @Valid @RequestBody ProductUpdateRequest req) {
-        Long merchantId = resolveMerchantId();
+        Long userId = SecurityUtils.getCurrentUserId();
+        Long merchantId = merchantService.getMerchantIdByUserId(userId);
         productService.updateProduct(merchantId, productId, req);
         return ApiResponse.success();
     }
@@ -64,7 +62,8 @@ public class MerchantProductController {
      */
     @PatchMapping("/{productId}/publish")
     public ApiResponse<Void> publishProduct(@PathVariable Long productId) {
-        Long merchantId = resolveMerchantId();
+        Long userId = SecurityUtils.getCurrentUserId();
+        Long merchantId = merchantService.getMerchantIdByUserId(userId);
         productService.publishProduct(merchantId, productId);
         return ApiResponse.success();
     }
@@ -76,7 +75,8 @@ public class MerchantProductController {
      */
     @PatchMapping("/{productId}/offline")
     public ApiResponse<Void> offlineProduct(@PathVariable Long productId) {
-        Long merchantId = resolveMerchantId();
+        Long userId = SecurityUtils.getCurrentUserId();
+        Long merchantId = merchantService.getMerchantIdByUserId(userId);
         productService.offlineProduct(merchantId, productId);
         return ApiResponse.success();
     }
@@ -88,7 +88,8 @@ public class MerchantProductController {
      */
     @DeleteMapping("/{productId}")
     public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
-        Long merchantId = resolveMerchantId();
+        Long userId = SecurityUtils.getCurrentUserId();
+        Long merchantId = merchantService.getMerchantIdByUserId(userId);
         productService.deleteProduct(merchantId, productId);
         return ApiResponse.success();
     }
@@ -103,7 +104,8 @@ public class MerchantProductController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String keyword) {
-        Long merchantId = resolveMerchantId();
+        Long userId = SecurityUtils.getCurrentUserId();
+        Long merchantId = merchantService.getMerchantIdByUserId(userId);
         return ApiResponse.success(productService.getMerchantProducts(merchantId, page, size, status, keyword));
     }
 
@@ -114,18 +116,8 @@ public class MerchantProductController {
      */
     @GetMapping("/{productId}")
     public ApiResponse<ProductDetailVO> getMerchantProductDetail(@PathVariable Long productId) {
-        Long merchantId = resolveMerchantId();
-        return ApiResponse.success(productService.getMerchantProductDetail(merchantId, productId));
-    }
-
-    private Long resolveMerchantId() {
         Long userId = SecurityUtils.getCurrentUserId();
-        LambdaQueryWrapper<MerchantDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(MerchantDO::getUserId, userId);
-        MerchantDO merchant = merchantMapper.selectOne(wrapper);
-        if (merchant == null) {
-            throw new com.sim.shopping.domain.common.exception.BusinessException(403, "非商家用户");
-        }
-        return merchant.getId();
+        Long merchantId = merchantService.getMerchantIdByUserId(userId);
+        return ApiResponse.success(productService.getMerchantProductDetail(merchantId, productId));
     }
 }

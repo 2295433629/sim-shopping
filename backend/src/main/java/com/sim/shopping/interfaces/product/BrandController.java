@@ -1,8 +1,9 @@
 package com.sim.shopping.interfaces.product;
 
 import com.sim.shopping.application.product.BrandService;
-import com.sim.shopping.infrastructure.persistence.entity.BrandDO;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
+import com.sim.shopping.interfaces.dto.product.BrandRequest;
+import com.sim.shopping.interfaces.dto.product.BrandResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class BrandController {
      * @return 返回结果
      */
     @GetMapping("/public/brands")
-    public ApiResponse<List<BrandDO>> getPublicBrands() {
+    public ApiResponse<List<BrandResponse>> getPublicBrands() {
         return ApiResponse.success(brandService.getBrands());
     }
 
@@ -40,30 +41,32 @@ public class BrandController {
      */
     @GetMapping("/admin/brands")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<BrandDO>> getAdminBrands() {
+    public ApiResponse<List<BrandResponse>> getAdminBrands() {
         return ApiResponse.success(brandService.getBrands());
     }
 
     /**
      * 创建品牌
-     * @param brand brand
+     * @param request request
      * @return 返回结果
      */
     @PostMapping("/admin/brands")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<BrandDO> createBrand(@Valid @RequestBody BrandDO brand) {
-        return ApiResponse.success(brandService.createBrand(brand));
+    public ApiResponse<BrandResponse> createBrand(@Valid @RequestBody BrandRequest request) {
+        return ApiResponse.success(brandService.createBrand(request));
     }
 
     /**
      * 更新品牌
+     * @param brandId brandId
+     * @param request request
      * @return 返回结果
      */
     @PutMapping("/admin/brands/{brandId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<BrandDO> updateBrand(@PathVariable Long brandId,
-                                             @Valid @RequestBody BrandDO brand) {
-        return ApiResponse.success(brandService.updateBrand(brandId, brand));
+    public ApiResponse<BrandResponse> updateBrand(@PathVariable Long brandId,
+                                             @Valid @RequestBody BrandRequest request) {
+        return ApiResponse.success(brandService.updateBrand(brandId, request));
     }
 
     /**

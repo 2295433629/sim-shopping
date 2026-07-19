@@ -1,12 +1,7 @@
 package com.sim.shopping.interfaces.review;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.sim.shopping.application.merchant.MerchantService;
 import com.sim.shopping.application.review.ReviewService;
-import com.sim.shopping.domain.common.exception.BusinessException;
-import com.sim.shopping.infrastructure.persistence.entity.MerchantDO;
-import com.sim.shopping.infrastructure.persistence.entity.ShopDO;
-import com.sim.shopping.infrastructure.persistence.mapper.MerchantMapper;
-import com.sim.shopping.infrastructure.persistence.mapper.ShopMapper;
 import com.sim.shopping.infrastructure.security.SecurityUtils;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
@@ -29,15 +24,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public class MerchantReviewController {
 
     private final ReviewService reviewService;
-    private final MerchantMapper merchantMapper;
-    private final ShopMapper shopMapper;
+    private final MerchantService merchantService;
 
     public MerchantReviewController(ReviewService reviewService,
-                                    MerchantMapper merchantMapper,
-                                    ShopMapper shopMapper) {
+                                    MerchantService merchantService) {
         this.reviewService = reviewService;
-        this.merchantMapper = merchantMapper;
-        this.shopMapper = shopMapper;
+        this.merchantService = merchantService;
     }
 
     /**
@@ -48,7 +40,8 @@ public class MerchantReviewController {
     public ApiResponse<PageResponse<MerchantReviewResponse>> getMerchantReviews(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Long shopId = resolveShopId();
+        Long userId = SecurityUtils.getCurrentUserId();
+        Long shopId = merchantService.getShopIdByUserId(userId);
         return ApiResponse.success(reviewService.getMerchantReviews(shopId, page, size));
     }
 
@@ -60,26 +53,10 @@ public class MerchantReviewController {
      */
     @PostMapping("/{reviewId}/reply")
     public ApiResponse<Void> replyReview(@PathVariable Long reviewId, @RequestBody Map<String, String> body) {
-        Long shopId = resolveShopId();
+        Long userId = SecurityUtils.getCurrentUserId();
+        Long shopId = merchantService.getShopIdByUserId(userId);
         String content = body.get("content");
         reviewService.replyReview(shopId, reviewId, content);
         return ApiResponse.success();
-    }
-
-    private Long resolveShopId() {
-        Long userId = SecurityUtils.getCurrentUserId();
-        LambdaQueryWrapper<MerchantDO> merchantWrapper = new LambdaQueryWrapper<>();
-        merchantWrapper.eq(MerchantDO::getUserId, userId);
-        MerchantDO merchant = merchantMapper.selectOne(merchantWrapper);
-        if (merchant == null) {
-            throw new BusinessException(403, "非商家用户");
-        }
-        LambdaQueryWrapper<ShopDO> shopWrapper = new LambdaQueryWrapper<>();
-        shopWrapper.eq(ShopDO::getMerchantId, merchant.getId());
-        ShopDO shop = shopMapper.selectOne(shopWrapper);
-        if (shop == null) {
-            throw new BusinessException(403, "店铺不存在");
-        }
-        return shop.getId();
     }
 }

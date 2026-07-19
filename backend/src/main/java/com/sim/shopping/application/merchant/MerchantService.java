@@ -255,6 +255,44 @@ public class MerchantService {
         }
     }
 
+    /**
+     * 根据当前用户ID获取商家ID
+     */
+    public Long getMerchantIdByUserId(Long userId) {
+        MerchantDO merchant = merchantMapper.selectOne(
+            new LambdaQueryWrapper<MerchantDO>().eq(MerchantDO::getUserId, userId));
+        if (merchant == null) {
+            throw new MerchantException.MerchantNotFoundException("商家信息不存在");
+        }
+        return merchant.getId();
+    }
+
+    /**
+     * 根据当前用户ID获取店铺ID
+     */
+    public Long getShopIdByUserId(Long userId) {
+        Long merchantId = getMerchantIdByUserId(userId);
+        ShopDO shop = shopMapper.selectOne(
+            new LambdaQueryWrapper<ShopDO>().eq(ShopDO::getMerchantId, merchantId));
+        if (shop == null) {
+            throw new BusinessException(403, "店铺不存在");
+        }
+        return shop.getId();
+    }
+
+    /**
+     * 根据当前用户ID获取店铺信息
+     */
+    public ShopDO getShopByUserId(Long userId) {
+        Long merchantId = getMerchantIdByUserId(userId);
+        ShopDO shop = shopMapper.selectOne(
+            new LambdaQueryWrapper<ShopDO>().eq(ShopDO::getMerchantId, merchantId));
+        if (shop == null) {
+            throw new BusinessException(403, "店铺不存在");
+        }
+        return shop;
+    }
+
     // ===== Helper methods =====
 
     /**

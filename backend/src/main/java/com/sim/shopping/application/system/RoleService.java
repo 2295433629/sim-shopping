@@ -14,6 +14,10 @@ import com.sim.shopping.infrastructure.persistence.mapper.SysRoleMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.SysRoleMenuMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.SysRolePermissionMapper;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
+import com.sim.shopping.interfaces.dto.system.MenuResponse;
+import com.sim.shopping.interfaces.dto.system.PermissionResponse;
+import com.sim.shopping.interfaces.dto.system.RoleRequest;
+import com.sim.shopping.interfaces.dto.system.RoleResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,12 +58,15 @@ public class RoleService {
      * @param size size
      * @return 返回结果
      */
-    public PageResponse<SysRoleDO> getRoles(int page, int size) {
+    public PageResponse<RoleResponse> getRoles(int page, int size) {
         Page<SysRoleDO> pageResult = sysRoleMapper.selectPage(
                 new Page<>(page, size),
                 Wrappers.<SysRoleDO>lambdaQuery().orderByDesc(SysRoleDO::getCreatedAt)
         );
-        return PageResponse.of(pageResult.getRecords(), pageResult.getTotal(), page, size);
+        List<RoleResponse> records = pageResult.getRecords().stream()
+                .map(this::toRoleResponse)
+                .collect(Collectors.toList());
+        return PageResponse.of(records, pageResult.getTotal(), page, size);
     }
 
     /**
@@ -77,39 +84,40 @@ public class RoleService {
 
     /**
      * 创建角色
-     * @param role role
+     * @param request request
      * @return 返回结果
      */
     @Transactional
-    public SysRoleDO createRole(SysRoleDO role) {
+    public RoleResponse createRole(RoleRequest request) {
         // Check role code uniqueness
         Long count = sysRoleMapper.selectCount(
-                Wrappers.<SysRoleDO>lambdaQuery().eq(SysRoleDO::getRoleCode, role.getRoleCode())
+                Wrappers.<SysRoleDO>lambdaQuery().eq(SysRoleDO::getRoleCode, request.getRoleCode())
         );
         if (count > 0) {
-            throw new BusinessException(400, "角色编码已存在: " + role.getRoleCode());
+            throw new BusinessException(400, "角色编码已存在: " + request.getRoleCode());
         }
+        SysRoleDO role = toEntity(request);
         if (role.getStatus() == null) {
             role.setStatus("ACTIVE");
         }
         sysRoleMapper.insert(role);
-        return role;
+        return toRoleResponse(role);
     }
 
     /**
      * 更新角色
      * @param id id
-     * @param role role
+     * @param request request
      * @return 返回结果
      */
     @Transactional
-    public SysRoleDO updateRole(Long id, SysRoleDO role) {
+    public RoleResponse updateRole(Long id, RoleRequest request) {
         SysRoleDO existing = getRoleById(id);
-        existing.setRoleName(role.getRoleName());
-        existing.setDescription(role.getDescription());
-        existing.setStatus(role.getStatus());
+        existing.setRoleName(request.getRoleName());
+        existing.setDescription(request.getDescription());
+        existing.setStatus(request.getStatus());
         sysRoleMapper.updateById(existing);
-        return existing;
+        return toRoleResponse(existing);
     }
 
     /**
@@ -180,7 +188,7 @@ public class RoleService {
      * @param roleId roleId
      * @return 返回结果
      */
-    public List<SysPermissionDO> getRolePermissions(Long roleId) {
+    public List<PermissionResponse> getRolePermissions(Long roleId) {
         getRoleById(roleId);
         List<Long> permissionIds = sysRolePermissionMapper.selectList(
                 Wrappers.<SysRolePermissionDO>lambdaQuery().eq(SysRolePermissionDO::getRoleId, roleId)
@@ -189,7 +197,9 @@ public class RoleService {
         if (permissionIds.isEmpty()) {
             return new ArrayList<>();
         }
-        return sysPermissionMapper.selectBatchIds(permissionIds);
+        return sysPermissionMapper.selectBatchIds(permissionIds).stream()
+                .map(this::toPermissionResponse)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -197,7 +207,7 @@ public class RoleService {
      * @param roleId roleId
      * @return 返回结果
      */
-    public List<SysMenuDO> getRoleMenus(Long roleId) {
+    public List<MenuResponse> getRoleMenus(Long roleId) {
         getRoleById(roleId);
         List<Long> menuIds = sysRoleMenuMapper.selectList(
                 Wrappers.<SysRoleMenuDO>lambdaQuery().eq(SysRoleMenuDO::getRoleId, roleId)
@@ -206,6 +216,57 @@ public class RoleService {
         if (menuIds.isEmpty()) {
             return new ArrayList<>();
         }
-        return sysMenuMapper.selectBatchIds(menuIds);
+        return sysMenuMapper.selectBatchIds(menuIds).stream()
+                .map(this::toMenuResponse)
+                .collect(Collectors.toList());
+    }
+
+    private SysRoleDO toEntity(RoleRequest request) {
+        SysRoleDO role = new SysRoleDO();
+        role.setRoleName(request.getRoleName());
+        role.setRoleCode(request.getRoleCode());
+        role.setStatus(request.getStatus());
+        role.setDescription(request.getDescription());
+        return role;
+    }
+
+    private RoleResponse toRoleResponse(SysRoleDO role) {
+        RoleResponse resp = new RoleResponse();
+        resp.setId(role.getId());
+        resp.setRoleName(role.getRoleName());
+        resp.setRoleCode(role.getRoleCode());
+        resp.setStatus(role.getStatus());
+        resp.setDescription(role.getDescription());
+        resp.setCreatedAt(role.getCreatedAt());
+        resp.setUpdatedAt(role.getUpdatedAt());
+        return resp;
+    }
+
+    private PermissionResponse toPermissionResponse(SysPermissionDO permission) {
+        PermissionResponse resp = new PermissionResponse();
+        resp.setId(permission.getId());
+        resp.setPermissionName(permission.getPermissionName());
+        resp.setPermissionCode(permission.getPermissionCode());
+        resp.setPermissionType(permission.getPermissionType());
+        resp.setDescription(permission.getDescription());
+        resp.setModule(permission.getModule());
+        resp.setCreatedAt(permission.getCreatedAt());
+        resp.setUpdatedAt(permission.getUpdatedAt());
+        return resp;
+    }
+
+    private MenuResponse toMenuResponse(SysMenuDO menu) {
+        MenuResponse resp = new MenuResponse();
+        resp.setId(menu.getId());
+        resp.setMenuName(menu.getName());
+        resp.setParentId(menu.getParentId());
+        resp.setMenuType(menu.getType());
+        resp.setPath(menu.getPath());
+        resp.setComponent(menu.getComponent());
+        resp.setIcon(menu.getIcon());
+        resp.setSortOrder(menu.getSortOrder());
+        resp.setVisible(menu.getVisible());
+        resp.setCreatedAt(menu.getCreatedAt());
+        return resp;
     }
 }

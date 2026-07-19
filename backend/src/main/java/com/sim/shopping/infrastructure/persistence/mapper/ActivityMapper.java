@@ -3,7 +3,7 @@ package com.sim.shopping.infrastructure.persistence.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.infrastructure.persistence.entity.ActivityDO;
-import com.sim.shopping.interfaces.dto.activity.ActivityResponse;
+import com.sim.shopping.infrastructure.persistence.entity.ActivityQueryResult;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -31,7 +31,7 @@ public interface ActivityMapper extends BaseMapper<ActivityDO> {
             "AND a.deleted = 0 " +
             "GROUP BY a.id " +
             "ORDER BY a.sort_order ASC, a.start_time DESC")
-    Page<ActivityResponse> selectActiveActivityPage(Page<ActivityResponse> page,
+    Page<ActivityQueryResult> selectActiveActivityPage(Page<ActivityQueryResult> page,
                                                       @Param("status") String status,
                                                       @Param("now") LocalDateTime now);
 
@@ -48,7 +48,7 @@ public interface ActivityMapper extends BaseMapper<ActivityDO> {
             "GROUP BY a.id " +
             "ORDER BY a.sort_order ASC, a.start_time DESC" +
             "</script>")
-    Page<ActivityResponse> selectActivityPage(Page<ActivityResponse> page,
+    Page<ActivityQueryResult> selectActivityPage(Page<ActivityQueryResult> page,
                                                @Param("status") String status,
                                                @Param("keyword") String keyword);
 }

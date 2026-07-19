@@ -1,12 +1,7 @@
 package com.sim.shopping.interfaces.order;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.sim.shopping.application.merchant.MerchantService;
 import com.sim.shopping.application.order.OrderService;
-import com.sim.shopping.domain.common.exception.BusinessException;
-import com.sim.shopping.infrastructure.persistence.entity.MerchantDO;
-import com.sim.shopping.infrastructure.persistence.entity.ShopDO;
-import com.sim.shopping.infrastructure.persistence.mapper.MerchantMapper;
-import com.sim.shopping.infrastructure.persistence.mapper.ShopMapper;
 import com.sim.shopping.infrastructure.security.SecurityUtils;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
@@ -27,15 +22,12 @@ import org.springframework.web.bind.annotation.*;
 public class MerchantOrderController {
 
     private final OrderService orderService;
-    private final MerchantMapper merchantMapper;
-    private final ShopMapper shopMapper;
+    private final MerchantService merchantService;
 
     public MerchantOrderController(OrderService orderService,
-                                   MerchantMapper merchantMapper,
-                                   ShopMapper shopMapper) {
+                                   MerchantService merchantService) {
         this.orderService = orderService;
-        this.merchantMapper = merchantMapper;
-        this.shopMapper = shopMapper;
+        this.merchantService = merchantService;
     }
 
     /**
@@ -48,7 +40,8 @@ public class MerchantOrderController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String keyword) {
-        Long shopId = resolveShopId();
+        Long userId = SecurityUtils.getCurrentUserId();
+        Long shopId = merchantService.getShopIdByUserId(userId);
         return ApiResponse.success(orderService.getMerchantOrders(shopId, page, size, status, keyword));
     }
 
@@ -59,24 +52,8 @@ public class MerchantOrderController {
      */
     @GetMapping("/{orderNo}")
     public ApiResponse<OrderDetailVO> getOrderDetail(@PathVariable String orderNo) {
-        Long shopId = resolveShopId();
-        return ApiResponse.success(orderService.getOrderDetailForShop(orderNo, shopId));
-    }
-
-    private Long resolveShopId() {
         Long userId = SecurityUtils.getCurrentUserId();
-        LambdaQueryWrapper<MerchantDO> merchantWrapper = new LambdaQueryWrapper<>();
-        merchantWrapper.eq(MerchantDO::getUserId, userId);
-        MerchantDO merchant = merchantMapper.selectOne(merchantWrapper);
-        if (merchant == null) {
-            throw new BusinessException(403, "非商家用户");
-        }
-        LambdaQueryWrapper<ShopDO> shopWrapper = new LambdaQueryWrapper<>();
-        shopWrapper.eq(ShopDO::getMerchantId, merchant.getId());
-        ShopDO shop = shopMapper.selectOne(shopWrapper);
-        if (shop == null) {
-            throw new BusinessException(403, "店铺不存在");
-        }
-        return shop.getId();
+        Long shopId = merchantService.getShopIdByUserId(userId);
+        return ApiResponse.success(orderService.getOrderDetailForShop(orderNo, shopId));
     }
 }

@@ -1,8 +1,9 @@
 package com.sim.shopping.interfaces.product;
 
 import com.sim.shopping.application.product.CategoryService;
-import com.sim.shopping.infrastructure.persistence.entity.CategoryDO;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
+import com.sim.shopping.interfaces.dto.product.CategoryRequest;
+import com.sim.shopping.interfaces.dto.product.CategoryResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -46,24 +47,26 @@ public class CategoryController {
 
     /**
      * 创建分类
-     * @param category category
+     * @param request request
      * @return 返回结果
      */
     @PostMapping("/admin/categories")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<CategoryDO> createCategory(@Valid @RequestBody CategoryDO category) {
-        return ApiResponse.success(categoryService.createCategory(category));
+    public ApiResponse<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest request) {
+        return ApiResponse.success(categoryService.createCategory(request));
     }
 
     /**
      * 更新分类
+     * @param categoryId categoryId
+     * @param request request
      * @return 返回结果
      */
     @PutMapping("/admin/categories/{categoryId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<CategoryDO> updateCategory(@PathVariable Long categoryId,
-                                                   @Valid @RequestBody CategoryDO category) {
-        return ApiResponse.success(categoryService.updateCategory(categoryId, category));
+    public ApiResponse<CategoryResponse> updateCategory(@PathVariable Long categoryId,
+                                                   @Valid @RequestBody CategoryRequest request) {
+        return ApiResponse.success(categoryService.updateCategory(categoryId, request));
     }
 
     /**

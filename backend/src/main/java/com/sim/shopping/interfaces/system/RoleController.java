@@ -1,11 +1,12 @@
 package com.sim.shopping.interfaces.system;
 
 import com.sim.shopping.application.system.RoleService;
-import com.sim.shopping.infrastructure.persistence.entity.SysMenuDO;
-import com.sim.shopping.infrastructure.persistence.entity.SysPermissionDO;
-import com.sim.shopping.infrastructure.persistence.entity.SysRoleDO;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
+import com.sim.shopping.interfaces.dto.system.MenuResponse;
+import com.sim.shopping.interfaces.dto.system.PermissionResponse;
+import com.sim.shopping.interfaces.dto.system.RoleRequest;
+import com.sim.shopping.interfaces.dto.system.RoleResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class RoleController {
      * @return 返回结果
      */
     @GetMapping
-    public ApiResponse<PageResponse<SysRoleDO>> getRoles(
+    public ApiResponse<PageResponse<RoleResponse>> getRoles(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
         return ApiResponse.success(roleService.getRoles(page, size));
@@ -43,23 +44,23 @@ public class RoleController {
 
     /**
      * 创建角色
-     * @param role role
+     * @param request request
      * @return 返回结果
      */
     @PostMapping
-    public ApiResponse<SysRoleDO> createRole(@RequestBody SysRoleDO role) {
-        return ApiResponse.success(roleService.createRole(role));
+    public ApiResponse<RoleResponse> createRole(@RequestBody RoleRequest request) {
+        return ApiResponse.success(roleService.createRole(request));
     }
 
     /**
      * 更新角色
      * @param roleId roleId
-     * @param role role
+     * @param request request
      * @return 返回结果
      */
     @PutMapping("/{roleId}")
-    public ApiResponse<SysRoleDO> updateRole(@PathVariable Long roleId, @RequestBody SysRoleDO role) {
-        return ApiResponse.success(roleService.updateRole(roleId, role));
+    public ApiResponse<RoleResponse> updateRole(@PathVariable Long roleId, @RequestBody RoleRequest request) {
+        return ApiResponse.success(roleService.updateRole(roleId, request));
     }
 
     /**
@@ -79,7 +80,7 @@ public class RoleController {
      * @return 返回结果
      */
     @GetMapping("/{roleId}/permissions")
-    public ApiResponse<List<SysPermissionDO>> getRolePermissions(@PathVariable Long roleId) {
+    public ApiResponse<List<PermissionResponse>> getRolePermissions(@PathVariable Long roleId) {
         return ApiResponse.success(roleService.getRolePermissions(roleId));
     }
 
@@ -101,7 +102,7 @@ public class RoleController {
      * @return 返回结果
      */
     @GetMapping("/{roleId}/menus")
-    public ApiResponse<List<SysMenuDO>> getRoleMenus(@PathVariable Long roleId) {
+    public ApiResponse<List<MenuResponse>> getRoleMenus(@PathVariable Long roleId) {
         return ApiResponse.success(roleService.getRoleMenus(roleId));
     }
 
