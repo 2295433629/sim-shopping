@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { loginApi, logoutApi, getUserInfoApi } from '@/api/modules/auth'
-import { getToken, setToken, removeToken, setUserInfo, getUserInfo as getStoredUserInfo, removeUserInfo } from '@/utils/storage'
+import { getToken, setToken, removeToken, setRefreshToken, removeRefreshToken, setUserInfo, getUserInfo as getStoredUserInfo, removeUserInfo } from '@/utils/storage'
 import type { UserInfo } from '@/types/common'
 
 export const useUserStore = defineStore('user', () => {
@@ -14,6 +14,9 @@ export const useUserStore = defineStore('user', () => {
     const res = await loginApi(username, password)
     token.value = res.token
     setToken(res.token)
+    if (res.refreshToken) {
+      setRefreshToken(res.refreshToken)
+    }
     const info: UserInfo = {
       userId: res.userId,
       username: res.username,
@@ -40,6 +43,7 @@ export const useUserStore = defineStore('user', () => {
       token.value = ''
       userInfo.value = null
       removeToken()
+      removeRefreshToken()
       removeUserInfo()
     }
   }

@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessageBox } from 'element-plus'
+import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue'
+import { getMenus } from '@/api/modules/system'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const changePasswordRef = ref<InstanceType<typeof ChangePasswordDialog>>()
 
 const isCollapse = ref(false)
 const activeMenu = computed(() => route.path)
 
-interface MenuItem {
+interface MenuNavItem {
   index: string
   title: string
   icon: string
@@ -19,10 +22,10 @@ interface MenuItem {
 
 interface MenuGroup {
   title: string
-  items: MenuItem[]
+  items: MenuNavItem[]
 }
 
-const menuGroups: MenuGroup[] = [
+const fallbackMenuGroups: MenuGroup[] = [
   {
     title: '系统管理',
     items: [
@@ -73,6 +76,41 @@ const menuGroups: MenuGroup[] = [
   },
 ]
 
+const menuGroups = ref<MenuGroup[]>([...fallbackMenuGroups])
+
+async function loadMenus() {
+  try {
+    const data = await getMenus()
+    if (data && data.length > 0) {
+      // 按 parentId 为 0 的作为根菜单
+      const rootMenus = data.filter(m => m.parentId === 0).sort((a, b) => a.sortOrder - b.sortOrder)
+      const groups = rootMenus
+        .map(root => ({
+          title: root.menuName,
+          items: (root.children || [])
+            .filter(c => c.visible !== 0 && c.menuType === 'MENU')
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .map(c => ({
+              index: c.path || '',
+              title: c.menuName,
+              icon: c.icon || 'Document',
+            })),
+        }))
+        .filter(g => g.items.length > 0)
+      if (groups.length > 0) {
+        menuGroups.value = groups
+      }
+    }
+    // fallback: data 为空时保留 menuGroups 已有的 fallbackMenuGroups
+  } catch {
+    // fallback to hardcoded
+  }
+}
+
+onMounted(() => {
+  loadMenus()
+})
+
 function handleSelect(index: string) {
   router.push(index)
 }
@@ -90,6 +128,22 @@ async function handleLogout() {
     // 用户取消
   }
 }
+
+function handleCommand(cmd: string) {
+  if (cmd === 'logout') {
+    handleLogout()
+  } else if (cmd === 'changePassword') {
+    changePasswordRef.value?.open()
+  }
+}
+
+function toggleFullscreen() {
+  if (document.fullscreenElement) {
+    document.exitFullscreen()
+  } else {
+    document.documentElement.requestFullscreen()
+  }
+}
 </script>
 
 <template>
@@ -97,8 +151,8 @@ async function handleLogout() {
     <!-- 左侧菜单 -->
     <el-aside :width="isCollapse ? '64px' : '220px'" class="layout-aside">
       <div class="aside-header">
-        <span v-if="!isCollapse" class="aside-title">⚡ 管理后台</span>
-        <span v-else class="aside-title-mini">⚡</span>
+        <span v-if="!isCollapse" class="aside-title">管理后台</span>
+        <span v-else class="aside-title-mini">M</span>
       </div>
       <el-scrollbar class="aside-scrollbar">
         <el-menu
@@ -148,11 +202,19 @@ async function handleLogout() {
           </el-icon>
           <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/dashboard' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item v-if="route.meta.parentTitle" :to="{ path: route.path.split('/').slice(0, -1).join('/') || route.path }">
+              {{ route.meta.parentTitle }}
+            </el-breadcrumb-item>
             <el-breadcrumb-item>{{ route.meta.title }}</el-breadcrumb-item>
           </el-breadcrumb>
         </div>
         <div class="header-right">
-          <el-dropdown @command="(cmd: string) => cmd === 'logout' ? handleLogout() : router.push(cmd)">
+          <el-tooltip content="全屏" placement="bottom">
+            <el-icon class="header-action" @click="toggleFullscreen">
+              <FullScreen />
+            </el-icon>
+          </el-tooltip>
+          <el-dropdown @command="handleCommand">
             <span class="user-name">
               <el-avatar :size="32" :src="userStore.userInfo?.avatar">
                 {{ (userStore.userInfo?.nickname || userStore.userInfo?.username || 'A')[0] }}
@@ -162,6 +224,7 @@ async function handleLogout() {
             </span>
             <template #dropdown>
               <el-dropdown-menu>
+                <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
                 <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -171,10 +234,17 @@ async function handleLogout() {
 
       <!-- 内容区 -->
       <el-main class="layout-main">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </el-main>
     </el-container>
   </el-container>
+
+  <!-- 修改密码弹窗 -->
+  <ChangePasswordDialog ref="changePasswordRef" />
 </template>
 
 <style scoped lang="scss">
@@ -249,6 +319,14 @@ async function handleLogout() {
     align-items: center;
     gap: var(--space-xl);
 
+    .header-action {
+      font-size: var(--font-size-heading-sm);
+      cursor: pointer;
+      color: var(--color-shade-50);
+      transition: color 0.2s;
+      &:hover { color: var(--color-ink); }
+    }
+
     .user-name {
       cursor: pointer;
       display: flex;
@@ -267,5 +345,14 @@ async function handleLogout() {
   background-color: var(--color-canvas-cream);
   padding: var(--space-xl);
   overflow-y: auto;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

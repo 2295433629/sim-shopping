@@ -1,7 +1,11 @@
-import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios'
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosResponse, type AxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
-import { getToken, removeToken } from '@/utils/storage'
+import { getToken, setToken, removeToken, getRefreshToken, setRefreshToken, removeRefreshToken } from '@/utils/storage'
+import { refreshTokenApi } from '@/api/modules/auth'
 import type { ApiResponse } from '@/types/common'
+
+let isRefreshing = false
+let pendingRequests: Array<(token: string) => void> = []
 
 const request: AxiosInstance = axios.create({
   baseURL: '/api',
@@ -33,9 +37,7 @@ request.interceptors.response.use(
       return res.data as unknown as AxiosResponse
     }
     if (res.code === 401) {
-      removeToken()
-      ElMessage.error('登录已过期，请重新登录')
-      window.location.href = import.meta.env.BASE_URL + 'login'
+      handleTokenExpired(response.config)
       return Promise.reject(new Error(res.message || '未认证'))
     }
     if (res.code === 403) {
@@ -50,14 +52,10 @@ request.interceptors.response.use(
     if (response) {
       switch (response.status) {
         case 401:
-          removeToken()
-          ElMessage.error('登录已过期，请重新登录')
-          window.location.href = import.meta.env.BASE_URL + 'login'
+          handleTokenExpired(response.config)
           break
         case 403:
-          removeToken()
-          ElMessage.error('登录已过期，请重新登录')
-          window.location.href = import.meta.env.BASE_URL + 'login'
+          ElMessage.error('无权限访问该资源')
           break
         case 404:
           ElMessage.error('请求的资源不存在')
@@ -74,5 +72,53 @@ request.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+function handleTokenExpired(config: AxiosRequestConfig | undefined) {
+  if (!config) {
+    removeToken()
+    removeRefreshToken()
+    window.location.href = import.meta.env.BASE_URL + 'login'
+    return
+  }
+
+  if (!isRefreshing) {
+    isRefreshing = true
+    const refreshToken = getRefreshToken()
+    if (refreshToken) {
+      refreshTokenApi(refreshToken)
+        .then((res) => {
+          setToken(res.token)
+          if (res.refreshToken) {
+            setRefreshToken(res.refreshToken)
+          }
+          pendingRequests.forEach((cb) => cb(res.token))
+          pendingRequests = []
+        })
+        .catch(() => {
+          removeToken()
+          removeRefreshToken()
+          ElMessage.error('登录已过期，请重新登录')
+          window.location.href = import.meta.env.BASE_URL + 'login'
+          pendingRequests.forEach((cb) => cb(''))
+          pendingRequests = []
+        })
+        .finally(() => {
+          isRefreshing = false
+        })
+    } else {
+      removeToken()
+      window.location.href = import.meta.env.BASE_URL + 'login'
+    }
+  }
+
+  return new Promise((resolve) => {
+    pendingRequests.push((token: string) => {
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`
+        resolve(axios(config))
+      }
+    })
+  })
+}
 
 export default request

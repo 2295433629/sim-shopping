@@ -13,13 +13,16 @@ import com.sim.shopping.interfaces.dto.auth.RegisterRequest;
 import com.sim.shopping.interfaces.dto.auth.TokenResponse;
 import com.sim.shopping.interfaces.dto.auth.UserInfoResponse;
 import io.jsonwebtoken.Claims;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 /**
- * 认证服务，处理用户注册、登录、Token生成和刷新
+ * 认证服务，处理用户注册、登录、Token生成和刷新，以及Token黑名单管理
  *
  * @author Sim Team
  * @since 1.0.0
@@ -31,15 +34,18 @@ public class AuthService {
     private final MerchantMapper merchantMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public AuthService(UserMapper userMapper,
                        MerchantMapper merchantMapper,
                        PasswordEncoder passwordEncoder,
-                       JwtTokenProvider jwtTokenProvider) {
+                       JwtTokenProvider jwtTokenProvider,
+                       RedisTemplate<String, Object> redisTemplate) {
         this.userMapper = userMapper;
         this.merchantMapper = merchantMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.redisTemplate = redisTemplate;
     }
 
     /**
@@ -122,12 +128,29 @@ public class AuthService {
     }
 
     /**
-     * 用户登出
+     * 用户登出，将当前Access Token加入Redis黑名单
+     * @param accessToken 当前请求的Access Token（不含Bearer前缀）
      */
-    public void logout() {
-        // Stateless JWT — client discards token
-        // Could add token blacklist via Redis in the future
+    public void logout(String accessToken) {
+        if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
+            long expiration = jwtTokenProvider.getAccessTokenExpiration();
+            redisTemplate.opsForValue().set(
+                    "jwt:blacklist:" + accessToken,
+                    "revoked",
+                    expiration,
+                    TimeUnit.MILLISECONDS
+            );
+        }
         SecurityContextHolder.clearContext();
+    }
+
+    /**
+     * 判断Token是否在黑名单中
+     * @param token token
+     * @return 如果在黑名单返回true
+     */
+    public boolean isTokenBlacklisted(String token) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey("jwt:blacklist:" + token));
     }
 
     /**

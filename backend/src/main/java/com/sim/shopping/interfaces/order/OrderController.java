@@ -5,6 +5,7 @@ import com.sim.shopping.infrastructure.security.SecurityUtils;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.order.*;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class OrderController {
      */
     @PostMapping
     @Log(module = "订单", type = "新增")
-    public ApiResponse<CreateOrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
+    public ApiResponse<CreateOrderResponse> createOrder(@Valid @RequestBody CreateOrderRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();
         List<OrderResponse> orders = orderService.createOrder(userId, request.getAddressId(), request.getRemark(), request.getCartItemIds());
         return ApiResponse.success(new CreateOrderResponse(orders));

@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * WebMvc配置类
+ * WebMvc配置类，仅公开公共上传目录，敏感文件通过控制器鉴权访问
  *
  * @author Sim Team
  * @since 1.0.0
@@ -22,13 +22,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
      * 添加Resource Handlers
+     * 仅注册公开目录 /uploads/public/**，敏感文件/private/** 不直接暴露
      * @param registry registry
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String location = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
-        registry.addResourceHandler(urlPrefix + "/**")
-                .addResourceLocations("file:" + location);
+        registry.addResourceHandler(urlPrefix + "/public/**")
+                .addResourceLocations("file:" + location + "public/");
     }
 
     /**

@@ -87,7 +87,12 @@ public class AuthController {
         } catch (Exception ignored) {
             // 登出日志记录失败不影响主业务
         }
-        authService.logout();
+        String bearerToken = request.getHeader("Authorization");
+        String accessToken = null;
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            accessToken = bearerToken.substring(7);
+        }
+        authService.logout(accessToken);
         return ApiResponse.success();
     }
 

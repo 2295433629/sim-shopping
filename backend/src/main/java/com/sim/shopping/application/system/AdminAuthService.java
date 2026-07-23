@@ -111,4 +111,27 @@ public class AdminAuthService {
         result.put("adminName", adminName);
         return result;
     }
+
+    /**
+     * 修改密码
+     * @param username username
+     * @param oldPassword oldPassword
+     * @param newPassword newPassword
+     */
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        LambdaQueryWrapper<UserDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserDO::getUsername, username).last("LIMIT 1");
+        UserDO user = userMapper.selectOne(wrapper);
+        if (user == null) {
+            throw new BusinessException(404, "用户不存在");
+        }
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException(400, "原密码不正确");
+        }
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new BusinessException(400, "新密码不能少于6位");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.updateById(user);
+    }
 }

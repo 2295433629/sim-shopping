@@ -1,5 +1,8 @@
 package com.sim.shopping.interfaces.dto.order;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 /**
@@ -9,8 +12,11 @@ import java.util.List;
  * @since 1.0.0
  */
 public class CreateOrderRequest {
+    @NotNull(message = "地址ID不能为空")
     private Long addressId;
     private String remark;
+
+    @NotEmpty(message = "购物车项ID列表不能为空")
     private List<Long> cartItemIds;
 
     /**

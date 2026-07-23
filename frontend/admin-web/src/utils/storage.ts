@@ -1,6 +1,7 @@
 import type { UserInfo } from '@/types/common'
 
 const TOKEN_KEY = 'token'
+const REFRESH_TOKEN_KEY = 'refresh_token'
 const USER_INFO_KEY = 'admin_web_user_info'
 
 export function getToken(): string | null {
@@ -33,7 +34,20 @@ export function removeUserInfo(): void {
   localStorage.removeItem(USER_INFO_KEY)
 }
 
+export function getRefreshToken(): string | null {
+  return localStorage.getItem(REFRESH_TOKEN_KEY)
+}
+
+export function setRefreshToken(token: string): void {
+  localStorage.setItem(REFRESH_TOKEN_KEY, token)
+}
+
+export function removeRefreshToken(): void {
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
+}
+
 export function clearAll(): void {
   removeToken()
+  removeRefreshToken()
   removeUserInfo()
 }

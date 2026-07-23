@@ -3,6 +3,7 @@ package com.sim.shopping.infrastructure.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,10 +32,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitFilter rateLimitFilter;
     private final ObjectMapper objectMapper;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, ObjectMapper objectMapper) {
+    @Value("${spring.profiles.active:local}")
+    private String activeProfile;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                         RateLimitFilter rateLimitFilter,
+                         ObjectMapper objectMapper) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.rateLimitFilter = rateLimitFilter;
         this.objectMapper = objectMapper;
     }
 
@@ -48,18 +56,21 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> {
+                        auth
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/common/register").permitAll()
                         .requestMatchers("/api/common/login").permitAll()
                         .requestMatchers("/api/common/refresh-token").permitAll()
                         .requestMatchers("/api/admin/login").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+                        if (!"prod".equals(activeProfile) && !"production".equals(activeProfile)) {
+                            auth.requestMatchers("/swagger-ui/**").permitAll()
+                               .requestMatchers("/v3/api-docs/**").permitAll();
+                        }
+                        auth.anyRequest().authenticated();
+                })
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -76,6 +87,7 @@ public class SecurityConfig {
                                     ApiResponse.error(403, "无权限访问该资源"));
                         })
                 )
+                .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
