@@ -5,11 +5,10 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { getMenus, createMenu, updateMenu, deleteMenu } from '@/api/modules/system'
 import type { MenuItem } from '@/api/modules/system'
 
-// 菜单类型选项
+// 菜单类型选项（与数据库对齐：MENU / BUTTON）
 const menuTypeOptions = [
-  { label: '目录', value: 'directory' },
-  { label: '菜单', value: 'menu' },
-  { label: '按钮', value: 'button' }
+  { label: '菜单', value: 'MENU' },
+  { label: '按钮', value: 'BUTTON' }
 ]
 
 // 菜单数据

@@ -9,9 +9,12 @@ import {
   deleteRole,
   getPermissions,
   getRolePermissions,
-  assignPermissions
+  assignPermissions,
+  getMenus,
+  getRoleMenus,
+  assignMenus,
 } from '@/api/modules/system'
-import type { RoleItem, PermissionItem } from '@/api/modules/system'
+import type { RoleItem, PermissionItem, MenuItem } from '@/api/modules/system'
 
 // ========== 列表相关 ==========
 const loading = ref(false)
@@ -162,6 +165,49 @@ async function handlePermSubmit() {
     permSubmitting.value = false
   }
 }
+
+// ========== 分配菜单弹窗 ==========
+const menuDialogVisible = ref(false)
+const menuLoading = ref(false)
+const menuSubmitting = ref(false)
+const allMenus = ref<MenuItem[]>([])
+const checkedMenuIds = ref<number[]>([])
+
+async function handleAssignMenu(row: RoleItem) {
+  currentRoleId.value = row.id
+  currentRoleName.value = row.roleName
+  checkedMenuIds.value = []
+  menuDialogVisible.value = true
+  menuLoading.value = true
+  try {
+    const [menuRes, roleMenuList] = await Promise.all([
+      getMenus(),
+      getRoleMenus(row.id)
+    ])
+    allMenus.value = menuRes || []
+    checkedMenuIds.value = roleMenuList?.map((m: MenuItem) => m.id) || []
+  } catch {
+    allMenus.value = []
+    checkedMenuIds.value = []
+    ElMessage.error('获取菜单数据失败')
+  } finally {
+    menuLoading.value = false
+  }
+}
+
+async function handleMenuSubmit() {
+  if (currentRoleId.value === null) return
+  menuSubmitting.value = true
+  try {
+    await assignMenus(currentRoleId.value, checkedMenuIds.value)
+    ElMessage.success('菜单分配成功')
+    menuDialogVisible.value = false
+  } catch {
+    ElMessage.error('菜单分配失败')
+  } finally {
+    menuSubmitting.value = false
+  }
+}
 </script>
 
 <template>
@@ -178,10 +224,11 @@ async function handlePermSubmit() {
       <el-table-column label="角色名称" prop="roleName" width="200" />
       <el-table-column label="角色编码" prop="roleCode" width="200" />
       <el-table-column label="描述" prop="description" min-width="200" />
-      <el-table-column label="操作" width="280" align="center" fixed="right">
+      <el-table-column label="操作" width="360" align="center" fixed="right">
         <template #default="{ row }">
           <el-button link type="primary" @click="handleEditRole(row)">编辑</el-button>
           <el-button link type="primary" @click="handleAssignPermission(row)">分配权限</el-button>
+          <el-button link type="primary" @click="handleAssignMenu(row)">分配菜单</el-button>
           <el-button link type="danger" @click="handleDeleteRole(row)">删除</el-button>
         </template>
       </el-table-column>
@@ -253,6 +300,40 @@ async function handlePermSubmit() {
         type="primary"
         :loading="permSubmitting"
         @click="handlePermSubmit"
+      >
+        确定
+      </el-button>
+    </template>
+  </el-dialog>
+
+  <!-- 分配菜单弹窗 -->
+  <el-dialog
+    v-model="menuDialogVisible"
+    :title="`分配菜单 - ${currentRoleName}`"
+    width="500px"
+    destroy-on-close
+  >
+    <div v-loading="menuLoading">
+      <el-tree
+        v-if="allMenus.length > 0"
+        :data="allMenus"
+        :props="{ label: 'menuName', children: 'children' }"
+        show-checkbox
+        node-key="id"
+        :default-checked-keys="checkedMenuIds"
+        @check="(_: any, checked: any) => { checkedMenuIds = checked.checkedKeys.concat(checked.halfCheckedKeys) }"
+      />
+      <el-empty
+        v-if="!menuLoading && allMenus.length === 0"
+        description="暂无菜单数据"
+      />
+    </div>
+    <template #footer>
+      <el-button @click="menuDialogVisible = false">取消</el-button>
+      <el-button
+        type="primary"
+        :loading="menuSubmitting"
+        @click="handleMenuSubmit"
       >
         确定
       </el-button>
