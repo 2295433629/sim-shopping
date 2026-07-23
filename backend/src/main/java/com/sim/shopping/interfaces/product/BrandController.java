@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 品牌管理控制器，处理品牌信息的增删改查
@@ -51,6 +52,7 @@ public class BrandController {
      * @return 返回结果
      */
     @PostMapping("/admin/brands")
+    @Log(module = "商品", type = "新增")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<BrandResponse> createBrand(@Valid @RequestBody BrandRequest request) {
         return ApiResponse.success(brandService.createBrand(request));
@@ -63,6 +65,7 @@ public class BrandController {
      * @return 返回结果
      */
     @PutMapping("/admin/brands/{brandId}")
+    @Log(module = "商品", type = "修改")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<BrandResponse> updateBrand(@PathVariable Long brandId,
                                              @Valid @RequestBody BrandRequest request) {
@@ -75,6 +78,7 @@ public class BrandController {
      * @return 返回结果
      */
     @DeleteMapping("/admin/brands/{brandId}")
+    @Log(module = "商品", type = "删除")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteBrand(@PathVariable Long brandId) {
         brandService.deleteBrand(brandId);

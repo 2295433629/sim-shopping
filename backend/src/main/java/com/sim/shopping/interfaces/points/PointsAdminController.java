@@ -11,6 +11,7 @@ import com.sim.shopping.interfaces.dto.points.PointsStatisticsVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * PointsAdmin控制器，处理相关业务请求
@@ -73,6 +74,7 @@ public class PointsAdminController {
      * @return 返回结果
      */
     @PostMapping("/products")
+    @Log(module = "营销", type = "新增")
     public ApiResponse<Void> createProduct(@RequestBody PointsProductDO product) {
         pointsAdminService.createProduct(product);
         return ApiResponse.success();
@@ -83,6 +85,7 @@ public class PointsAdminController {
      * @return 返回结果
      */
     @PutMapping("/products/{productId}")
+    @Log(module = "营销", type = "修改")
     public ApiResponse<Void> updateProduct(
             @PathVariable Long productId,
             @RequestBody PointsProductDO product) {
@@ -96,6 +99,7 @@ public class PointsAdminController {
      * @return 返回结果
      */
     @DeleteMapping("/products/{productId}")
+    @Log(module = "营销", type = "删除")
     public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
         pointsAdminService.deleteProduct(productId);
         return ApiResponse.success();

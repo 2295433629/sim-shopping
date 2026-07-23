@@ -1,7 +1,10 @@
 package com.sim.shopping.interfaces.dto.system;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * DictItem响应对象，封装接口出参
+ * 字段名与前端 DictItem 接口对齐
  *
  * @author Sim Team
  * @since 1.0.0
@@ -10,10 +13,18 @@ public class DictItemResponse {
 
     private Long id;
     private Long dictTypeId;
+
+    @JsonProperty("itemLabel")
     private String itemText;
+
+    @JsonProperty("itemValue")
     private String itemValue;
+
+    @JsonProperty("sort")
     private Integer sortOrder;
-    private String status;
+
+    @JsonProperty("status")
+    private Integer status;
 
     /** 获取Id */
     public Long getId() { return this.id; }
@@ -63,10 +74,10 @@ public class DictItemResponse {
      * 获取Status
      * @return 返回结果
      */
-    public String getStatus() { return this.status; }
+    public Integer getStatus() { return this.status; }
     /**
      * set Status
      * @param status status
      */
-    public void setStatus(String status) { this.status = status; }
+    public void setStatus(Integer status) { this.status = status; }
 }

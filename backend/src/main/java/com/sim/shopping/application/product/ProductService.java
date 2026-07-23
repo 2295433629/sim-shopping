@@ -633,6 +633,7 @@ public class ProductService {
         vo.setViewCount(p.getViewCount());
         vo.setCategoryId(p.getCategoryId());
         vo.setShopId(p.getShopId());
+        vo.setStatus(p.getStatus());
 
         // fetch images
         LambdaQueryWrapper<ProductImageDO> imgWrapper = new LambdaQueryWrapper<>();

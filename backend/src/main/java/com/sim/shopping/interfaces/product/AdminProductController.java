@@ -6,6 +6,7 @@ import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.product.ProductDetailVO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * AdminProduct控制器，处理相关业务请求
@@ -54,6 +55,7 @@ public class AdminProductController {
      * @return 返回结果
      */
     @PatchMapping("/{productId}/force-offline")
+    @Log(module = "商品", type = "修改")
     public ApiResponse<Void> forceOffline(@PathVariable Long productId) {
         productService.forceOffline(productId);
         return ApiResponse.success();

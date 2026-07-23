@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * MerchantReview控制器，处理相关业务请求
@@ -52,6 +53,7 @@ public class MerchantReviewController {
      * @return 返回结果
      */
     @PostMapping("/{reviewId}/reply")
+    @Log(module = "内容", type = "操作")
     public ApiResponse<Void> replyReview(@PathVariable Long reviewId, @RequestBody Map<String, String> body) {
         Long userId = SecurityUtils.getCurrentUserId();
         Long shopId = merchantService.getShopIdByUserId(userId);

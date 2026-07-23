@@ -1,6 +1,7 @@
 package com.sim.shopping.interfaces.system;
 
 import com.sim.shopping.application.system.AdminAuthService;
+import com.sim.shopping.infrastructure.aop.Log;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.system.AdminLoginRequest;
 import jakarta.annotation.security.PermitAll;
@@ -32,6 +33,7 @@ public class AdminAuthController {
      */
     @PostMapping("/login")
     @PermitAll
+    @Log(module = "认证", type = "操作")
     public ApiResponse<Map<String, Object>> login(@Valid @RequestBody AdminLoginRequest req) {
         return ApiResponse.success(adminAuthService.adminLogin(req));
     }

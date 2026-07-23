@@ -68,6 +68,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { index: '/logs/operation', title: '操作日志', icon: 'Document' },
       { index: '/logs/login', title: '登录日志', icon: 'Tickets' },
+      { index: '/scheduler', title: '定时任务', icon: 'Timer' },
     ],
   },
 ]

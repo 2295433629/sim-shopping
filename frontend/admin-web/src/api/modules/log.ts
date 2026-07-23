@@ -31,6 +31,14 @@ export function getOperationLogs(params: { page: number; size: number; module?: 
   return request.get('/admin/logs', { params })
 }
 
+export function getLogModuleDict() {
+  return request.get<any>('/admin/logs/modules')
+}
+
+export function getLogOperationTypes() {
+  return request.get<any>('/admin/logs/operation-types')
+}
+
 export function getLoginLogs(params: { page: number; size: number; username?: string; status?: number; userType?: string }) {
   return request.get('/admin/login-logs', { params })
 }

@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 专题活动管理控制器，处理专题活动的增删改查
@@ -46,6 +47,7 @@ public class ActivityAdminController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "营销", type = "新增")
     public ApiResponse<ActivityResponse> createActivity(@RequestBody ActivityCreateRequest request) {
         ActivityDO activity = new ActivityDO();
         activity.setActivityName(request.getName());
@@ -65,6 +67,7 @@ public class ActivityAdminController {
      * @return 返回结果
      */
     @PutMapping("/{activityId}")
+    @Log(module = "营销", type = "修改")
     public ApiResponse<ActivityResponse> updateActivity(@PathVariable Long activityId, @RequestBody ActivityCreateRequest request) {
         ActivityDO activity = new ActivityDO();
         activity.setActivityName(request.getName());
@@ -83,6 +86,7 @@ public class ActivityAdminController {
      * @return 返回结果
      */
     @DeleteMapping("/{activityId}")
+    @Log(module = "营销", type = "删除")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteActivity(@PathVariable Long activityId) {
         activityAdminService.deleteActivity(activityId);

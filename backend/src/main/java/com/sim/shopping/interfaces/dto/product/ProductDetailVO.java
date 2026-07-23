@@ -25,6 +25,7 @@ public class ProductDetailVO {
     private String categoryName;
     private Long shopId;
     private String shopName;
+    private String status;
     private List<SkuVO> skus;
     private ReviewSummaryVO reviewSummary;
 
@@ -172,6 +173,16 @@ public class ProductDetailVO {
      * @param shopName shopName
      */
     public void setShopName(String shopName) { this.shopName = shopName; }
+    /**
+     * 获取Status
+     * @return 返回结果
+     */
+    public String getStatus() { return this.status; }
+    /**
+     * set Status
+     * @param status status
+     */
+    public void setStatus(String status) { this.status = status; }
     /**
      * 获取Skus
      * @return 返回结果

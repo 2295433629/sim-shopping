@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 秒杀活动管理控制器，处理秒杀活动的创建和商品管理
@@ -32,6 +33,7 @@ public class FlashSaleController {
      * @return 返回结果
      */
     @PostMapping("/{saleId}/order")
+    @Log(module = "营销", type = "操作")
     public ApiResponse<FlashSaleOrderResponse> createFlashSaleOrder(
             @PathVariable Long saleId,
             @RequestBody FlashSaleOrderRequest request) {

@@ -9,6 +9,7 @@ import com.sim.shopping.interfaces.dto.points.ExchangeResponse;
 import com.sim.shopping.interfaces.dto.points.PointsBalanceVO;
 import com.sim.shopping.interfaces.dto.points.PointsRecordResponse;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 积分管理控制器，处理积分兑换商品和积分流水查询
@@ -62,6 +63,7 @@ public class PointsController {
      * @return 返回结果
      */
     @PostMapping("/products/{productId}/exchange")
+    @Log(module = "营销", type = "操作")
     public ApiResponse<ExchangeResponse> exchangeProduct(
             @PathVariable Long productId,
             @RequestParam(defaultValue = "1") Integer quantity) {

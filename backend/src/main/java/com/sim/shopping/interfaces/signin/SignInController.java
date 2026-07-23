@@ -7,6 +7,7 @@ import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.signin.SignInRecordResponse;
 import com.sim.shopping.interfaces.dto.signin.SignInResult;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 签到控制器，处理用户每日签到和签到记录查询
@@ -29,6 +30,7 @@ public class SignInController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "营销", type = "操作")
     public ApiResponse<SignInResult> signIn() {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(signInService.signIn(userId));

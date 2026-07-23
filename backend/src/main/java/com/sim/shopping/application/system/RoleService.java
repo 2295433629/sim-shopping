@@ -8,11 +8,13 @@ import com.sim.shopping.infrastructure.persistence.entity.SysPermissionDO;
 import com.sim.shopping.infrastructure.persistence.entity.SysRoleDO;
 import com.sim.shopping.infrastructure.persistence.entity.SysRoleMenuDO;
 import com.sim.shopping.infrastructure.persistence.entity.SysRolePermissionDO;
+import com.sim.shopping.infrastructure.persistence.entity.UserDO;
 import com.sim.shopping.infrastructure.persistence.mapper.SysMenuMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.SysPermissionMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.SysRoleMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.SysRoleMenuMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.SysRolePermissionMapper;
+import com.sim.shopping.infrastructure.persistence.mapper.UserMapper;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.system.MenuResponse;
 import com.sim.shopping.interfaces.dto.system.PermissionResponse;
@@ -39,17 +41,20 @@ public class RoleService {
     private final SysRoleMenuMapper sysRoleMenuMapper;
     private final SysPermissionMapper sysPermissionMapper;
     private final SysMenuMapper sysMenuMapper;
+    private final UserMapper userMapper;
 
     public RoleService(SysRoleMapper sysRoleMapper,
                        SysRolePermissionMapper sysRolePermissionMapper,
                        SysRoleMenuMapper sysRoleMenuMapper,
                        SysPermissionMapper sysPermissionMapper,
-                       SysMenuMapper sysMenuMapper) {
+                       SysMenuMapper sysMenuMapper,
+                       UserMapper userMapper) {
         this.sysRoleMapper = sysRoleMapper;
         this.sysRolePermissionMapper = sysRolePermissionMapper;
         this.sysRoleMenuMapper = sysRoleMenuMapper;
         this.sysPermissionMapper = sysPermissionMapper;
         this.sysMenuMapper = sysMenuMapper;
+        this.userMapper = userMapper;
     }
 
     /**
@@ -121,12 +126,19 @@ public class RoleService {
     }
 
     /**
-     * 删除角色
+     * 删除角色，检查是否仍有用户使用该角色
      * @param id id
      */
     @Transactional
     public void deleteRole(Long id) {
-        getRoleById(id);
+        SysRoleDO role = getRoleById(id);
+        // 检查是否有用户使用此角色编码
+        Long userCount = userMapper.selectCount(
+                Wrappers.<UserDO>lambdaQuery().eq(UserDO::getRole, role.getRoleCode())
+        );
+        if (userCount > 0) {
+            throw new BusinessException(400, "该角色仍有 " + userCount + " 个用户使用，无法删除");
+        }
         // Remove associated permissions and menus
         sysRolePermissionMapper.delete(
                 Wrappers.<SysRolePermissionDO>lambdaQuery().eq(SysRolePermissionDO::getRoleId, id)

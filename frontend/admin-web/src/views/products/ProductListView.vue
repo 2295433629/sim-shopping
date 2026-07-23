@@ -25,23 +25,54 @@
         </el-table-column>
         <el-table-column prop="sales" label="销量" width="80" />
         <el-table-column prop="status" label="状态" width="90">
-          <template #default="{ row }"><el-tag :type="row.status === 'PUBLISHED' ? 'success' : row.status === 'DRAFT' ? 'info' : 'warning'">{{ row.status }}</el-tag></template>
-        </el-table-column>
-        <el-table-column label="操作" width="150">
           <template #default="{ row }">
+            <el-tag :type="row.status === 'PUBLISHED' ? 'success' : row.status === 'DRAFT' ? 'info' : 'warning'">
+              {{ row.status === 'PUBLISHED' ? '已上架' : row.status === 'DRAFT' ? '草稿' : '已下架' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="180" fixed="right">
+          <template #default="{ row }">
+            <el-button size="small" type="primary" @click="openDetail(row)">查看</el-button>
             <el-button v-if="row.status === 'PUBLISHED'" size="small" type="danger" @click="handleForceOffline(row)">强制下架</el-button>
           </template>
         </el-table-column>
       </el-table>
       <el-pagination v-model:current-page="page" :page-size="size" :total="total" layout="prev, pager, next, total" @current-change="loadList" style="margin-top:16px;justify-content:flex-end" />
     </el-card>
+
+    <!-- 商品详情弹窗 -->
+    <el-dialog v-model="detailVisible" title="商品详情" width="700px">
+      <el-descriptions v-if="detail" :column="2" border>
+        <el-descriptions-item label="商品ID">{{ detail.productId }}</el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <el-tag :type="detail.status === 'PUBLISHED' ? 'success' : detail.status === 'DRAFT' ? 'info' : 'warning'">
+            {{ detail.status === 'PUBLISHED' ? '已上架' : detail.status === 'DRAFT' ? '草稿' : '已下架' }}
+          </el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="商品名称" :span="2">{{ detail.name }}</el-descriptions-item>
+        <el-descriptions-item label="副标题" :span="2">{{ detail.subtitle || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="价格">{{ formatPrice(detail.price) }}</el-descriptions-item>
+        <el-descriptions-item label="原价">{{ formatPrice(detail.originalPrice) }}</el-descriptions-item>
+        <el-descriptions-item label="库存">{{ detail.stock }}</el-descriptions-item>
+        <el-descriptions-item label="销量">{{ detail.sales }}</el-descriptions-item>
+        <el-descriptions-item label="浏览量">{{ detail.viewCount }}</el-descriptions-item>
+        <el-descriptions-item label="所属店铺">{{ detail.shopName || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="分类">{{ detail.categoryName || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="评分">{{ detail.reviewSummary?.avgRating }}</el-descriptions-item>
+        <el-descriptions-item label="评价数">{{ detail.reviewSummary?.reviewCount }}</el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <el-button @click="detailVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getProducts, forceOfflineProduct } from '@/api/modules/product'
+import { getProducts, getProductDetail, forceOfflineProduct } from '@/api/modules/product'
 
 const list = ref<any[]>([])
 const total = ref(0)
@@ -50,7 +81,10 @@ const size = ref(20)
 const loading = ref(false)
 const filter = reactive({ status: '', keyword: '' })
 
-function formatPrice(val: number) { return val != null ? '¥' + val.toFixed(2) : '¥0.00' }
+const detailVisible = ref(false)
+const detail = ref<any>(null)
+
+function formatPrice(val: number) { return val != null ? '¥' + Number(val).toFixed(2) : '¥0.00' }
 
 const loadList = async () => {
   loading.value = true
@@ -60,6 +94,16 @@ const loadList = async () => {
     total.value = res.total || 0
   } catch { ElMessage.error('加载失败') }
   loading.value = false
+}
+
+const openDetail = async (row: any) => {
+  try {
+    const res = await getProductDetail(row.productId)
+    detail.value = res
+    detailVisible.value = true
+  } catch {
+    ElMessage.error('获取详情失败')
+  }
 }
 
 const handleForceOffline = async (row: any) => {

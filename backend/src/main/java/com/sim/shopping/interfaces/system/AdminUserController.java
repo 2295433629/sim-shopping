@@ -6,6 +6,7 @@ import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.system.AdminUserItem;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * AdminUser控制器，处理相关业务请求
@@ -53,6 +54,7 @@ public class AdminUserController {
      * @return 返回结果
      */
     @PatchMapping("/users/{userId}/disable")
+    @Log(module = "用户", type = "修改")
     public ApiResponse<Void> disableUser(@PathVariable Long userId) {
         adminUserService.disableUser(userId);
         return ApiResponse.success();
@@ -64,6 +66,7 @@ public class AdminUserController {
      * @return 返回结果
      */
     @PatchMapping("/users/{userId}/enable")
+    @Log(module = "用户", type = "修改")
     public ApiResponse<Void> enableUser(@PathVariable Long userId) {
         adminUserService.enableUser(userId);
         return ApiResponse.success();

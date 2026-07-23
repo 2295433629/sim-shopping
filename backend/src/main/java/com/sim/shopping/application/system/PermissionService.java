@@ -4,11 +4,14 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
 import com.sim.shopping.infrastructure.persistence.entity.SysPermissionDO;
+import com.sim.shopping.infrastructure.persistence.entity.SysRolePermissionDO;
 import com.sim.shopping.infrastructure.persistence.mapper.SysPermissionMapper;
+import com.sim.shopping.infrastructure.persistence.mapper.SysRolePermissionMapper;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.system.PermissionRequest;
 import com.sim.shopping.interfaces.dto.system.PermissionResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,9 +26,12 @@ import java.util.stream.Collectors;
 public class PermissionService {
 
     private final SysPermissionMapper sysPermissionMapper;
+    private final SysRolePermissionMapper sysRolePermissionMapper;
 
-    public PermissionService(SysPermissionMapper sysPermissionMapper) {
+    public PermissionService(SysPermissionMapper sysPermissionMapper,
+                             SysRolePermissionMapper sysRolePermissionMapper) {
         this.sysPermissionMapper = sysPermissionMapper;
+        this.sysRolePermissionMapper = sysRolePermissionMapper;
     }
 
     /**
@@ -112,11 +118,16 @@ public class PermissionService {
     }
 
     /**
-     * 删除Permission
+     * 删除Permission，同时清理角色-权限关联
      * @param id id
      */
+    @Transactional
     public void deletePermission(Long id) {
         getPermissionById(id);
+        // 清理角色-权限关联，避免孤儿引用
+        sysRolePermissionMapper.delete(
+                Wrappers.<SysRolePermissionDO>lambdaQuery().eq(SysRolePermissionDO::getPermissionId, id)
+        );
         sysPermissionMapper.deleteById(id);
     }
 

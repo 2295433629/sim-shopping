@@ -8,6 +8,7 @@ import com.sim.shopping.interfaces.dto.refund.RefundRequest;
 import com.sim.shopping.interfaces.dto.refund.RefundVO;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 退款管理控制器，处理订单退款申请和审核
@@ -32,6 +33,7 @@ public class RefundController {
      * @return 返回结果
      */
     @PostMapping("/{orderNo}/refund")
+    @Log(module = "交易", type = "操作")
     public ApiResponse<RefundVO> applyRefund(@PathVariable String orderNo,
                                               @Valid @RequestBody RefundRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();

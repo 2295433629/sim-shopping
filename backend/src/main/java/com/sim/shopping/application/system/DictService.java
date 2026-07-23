@@ -97,7 +97,7 @@ public class DictService {
         dictItem.setLabel(req.getItemText());
         dictItem.setValue(req.getItemValue());
         dictItem.setSortOrder(req.getSortOrder() != null ? req.getSortOrder() : 0);
-        dictItem.setStatus(req.getStatus() != null ? req.getStatus() : "ACTIVE");
+        dictItem.setStatus(req.getDbStatus());
         sysDictItemMapper.insert(dictItem);
         return toItemResponse(dictItem);
     }
@@ -118,7 +118,7 @@ public class DictService {
         dictItem.setLabel(req.getItemText());
         dictItem.setValue(req.getItemValue());
         dictItem.setSortOrder(req.getSortOrder() != null ? req.getSortOrder() : 0);
-        dictItem.setStatus(req.getStatus() != null ? req.getStatus() : dictItem.getStatus());
+        dictItem.setStatus(req.getDbStatus());
         sysDictItemMapper.updateById(dictItem);
         return toItemResponse(dictItem);
     }
@@ -137,6 +137,25 @@ public class DictService {
         sysDictItemMapper.deleteById(itemId);
     }
 
+    /**
+     * 按字典编码查询字典项列表
+     * @param dictCode 字典编码
+     * @return 字典项列表
+     */
+    public List<DictItemResponse> getDictItemsByCode(String dictCode) {
+        SysDictTypeDO dictType = sysDictTypeMapper.selectOne(
+                new LambdaQueryWrapper<SysDictTypeDO>().eq(SysDictTypeDO::getDictCode, dictCode));
+        if (dictType == null) {
+            return List.of();
+        }
+        LambdaQueryWrapper<SysDictItemDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysDictItemDO::getDictTypeId, dictType.getId())
+               .eq(SysDictItemDO::getStatus, "ACTIVE")
+               .orderByAsc(SysDictItemDO::getSortOrder);
+        List<SysDictItemDO> list = sysDictItemMapper.selectList(wrapper);
+        return list.stream().map(this::toItemResponse).collect(Collectors.toList());
+    }
+
     private DictTypeResponse toTypeResponse(SysDictTypeDO dictType) {
         DictTypeResponse resp = new DictTypeResponse();
         resp.setId(dictType.getId());
@@ -151,10 +170,12 @@ public class DictService {
         DictItemResponse resp = new DictItemResponse();
         resp.setId(dictItem.getId());
         resp.setDictTypeId(dictItem.getDictTypeId());
+        // 与前端 DictItem 接口字段对齐：itemLabel、sort
         resp.setItemText(dictItem.getLabel());
         resp.setItemValue(dictItem.getValue());
         resp.setSortOrder(dictItem.getSortOrder());
-        resp.setStatus(dictItem.getStatus());
+        // status 统一为数字：1=正常，0=禁用
+        resp.setStatus("ACTIVE".equals(dictItem.getStatus()) ? 1 : 0);
         return resp;
     }
 }

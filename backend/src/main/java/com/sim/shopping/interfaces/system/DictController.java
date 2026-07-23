@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 字典管理控制器，处理数据字典类型和项的管理
@@ -45,6 +46,7 @@ public class DictController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "系统", type = "新增")
     public ApiResponse<DictTypeResponse> createDictType(@Valid @RequestBody DictTypeRequest req) {
         return ApiResponse.success(dictService.createDictType(req));
     }
@@ -60,10 +62,21 @@ public class DictController {
     }
 
     /**
+     * 按字典编码查询字典项
+     * @param dictCode 字典编码
+     * @return 返回结果
+     */
+    @GetMapping("/code/{dictCode}/items")
+    public ApiResponse<List<DictItemResponse>> getDictItemsByCode(@PathVariable String dictCode) {
+        return ApiResponse.success(dictService.getDictItemsByCode(dictCode));
+    }
+
+    /**
      * 创建Dict Item
      * @return 返回结果
      */
     @PostMapping("/{dictTypeId}/items")
+    @Log(module = "系统", type = "新增")
     public ApiResponse<DictItemResponse> createDictItem(@PathVariable Long dictTypeId,
                                                          @Valid @RequestBody DictItemCreateRequest req) {
         return ApiResponse.success(dictService.createDictItem(dictTypeId, req));
@@ -74,6 +87,7 @@ public class DictController {
      * @return 返回结果
      */
     @PutMapping("/{dictTypeId}/items/{itemId}")
+    @Log(module = "系统", type = "修改")
     public ApiResponse<DictItemResponse> updateDictItem(@PathVariable Long dictTypeId,
                                                          @PathVariable Long itemId,
                                                          @Valid @RequestBody DictItemCreateRequest req) {
@@ -85,6 +99,7 @@ public class DictController {
      * @return 返回结果
      */
     @DeleteMapping("/{dictTypeId}/items/{itemId}")
+    @Log(module = "系统", type = "删除")
     public ApiResponse<Void> deleteDictItem(@PathVariable Long dictTypeId,
                                              @PathVariable Long itemId) {
         dictService.deleteDictItem(dictTypeId, itemId);

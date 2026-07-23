@@ -33,7 +33,7 @@ public class AdminUserService {
      * @param page page
      * @param size size
      * @param keyword keyword
-     * @param status status
+     * @param status status（前端传1=正常/0=禁用，需转为数据库的ACTIVE/DISABLED）
      * @return 返回结果
      */
     public PageResponse<AdminUserItem> getUserList(int page, int size, String keyword, Integer status) {
@@ -46,7 +46,9 @@ public class AdminUserService {
                     .or().like(UserDO::getPhone, keyword));
         }
         if (status != null) {
-            wrapper.eq(UserDO::getStatus, status);
+            // 前端传1=正常，0=禁用；数据库存ACTIVE/DISABLED
+            String dbStatus = status == 1 ? "ACTIVE" : "DISABLED";
+            wrapper.eq(UserDO::getStatus, dbStatus);
         }
         wrapper.orderByDesc(UserDO::getCreatedAt);
 

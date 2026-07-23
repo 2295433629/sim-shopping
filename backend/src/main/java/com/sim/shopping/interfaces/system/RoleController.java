@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 角色管理控制器，处理角色和权限分配
@@ -48,6 +49,7 @@ public class RoleController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "系统", type = "新增")
     public ApiResponse<RoleResponse> createRole(@RequestBody RoleRequest request) {
         return ApiResponse.success(roleService.createRole(request));
     }
@@ -59,6 +61,7 @@ public class RoleController {
      * @return 返回结果
      */
     @PutMapping("/{roleId}")
+    @Log(module = "系统", type = "修改")
     public ApiResponse<RoleResponse> updateRole(@PathVariable Long roleId, @RequestBody RoleRequest request) {
         return ApiResponse.success(roleService.updateRole(roleId, request));
     }
@@ -69,6 +72,7 @@ public class RoleController {
      * @return 返回结果
      */
     @DeleteMapping("/{roleId}")
+    @Log(module = "系统", type = "删除")
     public ApiResponse<Void> deleteRole(@PathVariable Long roleId) {
         roleService.deleteRole(roleId);
         return ApiResponse.success(null);
@@ -91,6 +95,7 @@ public class RoleController {
      * @return 返回结果
      */
     @PutMapping("/{roleId}/permissions")
+    @Log(module = "系统", type = "修改")
     public ApiResponse<Void> assignPermissions(@PathVariable Long roleId, @RequestBody Map<String, List<Long>> body) {
         roleService.assignPermissions(roleId, body.get("permissionIds"));
         return ApiResponse.success(null);
@@ -113,6 +118,7 @@ public class RoleController {
      * @return 返回结果
      */
     @PutMapping("/{roleId}/menus")
+    @Log(module = "系统", type = "修改")
     public ApiResponse<Void> assignMenus(@PathVariable Long roleId, @RequestBody Map<String, List<Long>> body) {
         roleService.assignMenus(roleId, body.get("menuIds"));
         return ApiResponse.success(null);

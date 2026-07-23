@@ -7,6 +7,7 @@ import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.payment.PaymentRequest;
 import com.sim.shopping.interfaces.dto.payment.PaymentResponse;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * Payment控制器，处理相关业务请求
@@ -31,6 +32,7 @@ public class PaymentController {
      * @return 返回结果
      */
     @PostMapping("/{orderNo}")
+    @Log(module = "交易", type = "操作")
     public ApiResponse<PaymentResponse> createPayment(@PathVariable String orderNo,
                                                        @RequestBody PaymentRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();

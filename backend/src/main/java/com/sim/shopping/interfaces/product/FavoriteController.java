@@ -6,6 +6,7 @@ import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.product.ProductCardVO;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 商品收藏控制器，处理用户收藏/取消收藏商品
@@ -29,6 +30,7 @@ public class FavoriteController {
      * @return 返回结果
      */
     @PostMapping("/{productId}")
+    @Log(module = "商品", type = "新增")
     public ApiResponse<Void> addFavorite(@PathVariable Long productId) {
         Long userId = SecurityUtils.getCurrentUserId();
         favoriteService.addFavorite(userId, productId);
@@ -41,6 +43,7 @@ public class FavoriteController {
      * @return 返回结果
      */
     @DeleteMapping("/{productId}")
+    @Log(module = "商品", type = "删除")
     public ApiResponse<Void> removeFavorite(@PathVariable Long productId) {
         Long userId = SecurityUtils.getCurrentUserId();
         favoriteService.removeFavorite(userId, productId);

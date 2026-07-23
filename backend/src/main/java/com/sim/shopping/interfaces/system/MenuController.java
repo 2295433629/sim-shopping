@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 菜单管理控制器，处理系统菜单树的配置
@@ -42,6 +43,7 @@ public class MenuController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "系统", type = "新增")
     public ApiResponse<MenuResponse> createMenu(@Valid @RequestBody MenuRequest req) {
         return ApiResponse.success(menuService.createMenu(req));
     }
@@ -51,6 +53,7 @@ public class MenuController {
      * @return 返回结果
      */
     @PutMapping("/{menuId}")
+    @Log(module = "系统", type = "修改")
     public ApiResponse<MenuResponse> updateMenu(@PathVariable Long menuId,
                                                  @Valid @RequestBody MenuRequest req) {
         return ApiResponse.success(menuService.updateMenu(menuId, req));
@@ -62,6 +65,7 @@ public class MenuController {
      * @return 返回结果
      */
     @DeleteMapping("/{menuId}")
+    @Log(module = "系统", type = "删除")
     public ApiResponse<Void> deleteMenu(@PathVariable Long menuId) {
         menuService.deleteMenu(menuId);
         return ApiResponse.success();

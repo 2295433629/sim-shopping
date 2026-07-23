@@ -1029,7 +1029,6 @@ CREATE TABLE `t_activity_product` (
 -- 默认管理员 (密码: admin123, BCrypt加密)
 INSERT INTO `t_user` (`username`, `password`, `nickname`, `role`, `status`, `phone`, `email`, `points`) VALUES
 ('admin', '$2a$10$7MaASWMlYItDrcW.KLnGYOqklzVZ9mlIIJToy0EVzCLZ0jFkwegJ2', '超级管理员', 'ADMIN', 'ACTIVE', '13000000000', 'admin@sim.com', 0);
-
 -- 测试商家用户 (密码各不相同)
 INSERT INTO `t_user` (`username`, `password`, `nickname`, `role`, `status`, `phone`, `email`, `points`) VALUES
 ('merchant1', '$2a$10$CIAvymesYwLeArEOQ9fDWO.SEANZ91QLNjC7lF3JfyZw8PyMZPFgS', '模拟商城官方', 'MERCHANT', 'ACTIVE', '13800138001', 'merchant1@test.com', 0),
@@ -1040,70 +1039,168 @@ INSERT INTO `t_user` (`username`, `password`, `nickname`, `role`, `status`, `pho
 ('merchant6', '$2a$10$vCxO.jCsVNC8FLycmsxpq.lTY25vCWNgPl3MaDD.gJKjWN72de1aW', '运动达人', 'MERCHANT', 'ACTIVE', '13800138006', 'merchant6@test.com', 0),
 ('merchant7', '$2a$10$zP.bfYapZZCb7MJjG6Qr5OeYR/Jzs8151IbI6bJaZaCz6zbX2POhK', '书虫书屋', 'MERCHANT', 'ACTIVE', '13800138007', 'merchant7@test.com', 0),
 ('merchant8', '$2a$10$XG/dwyF3nyAjKF1.tXPb.Ojn9.9eQ2O3XN7QsrkfAt70j2ZiCTwwK', '宝贝乐园', 'MERCHANT', 'ACTIVE', '13800138008', 'merchant8@test.com', 0);
-
 -- 测试普通用户 (密码各不相同)
 INSERT INTO `t_user` (`username`, `password`, `nickname`, `role`, `status`, `phone`, `email`, `points`) VALUES
 ('user1', '$2a$10$4h91VahjMi/2.WJgf/oahOfZ7hFuHbiOdwofu9P/DeKLnImJ/QvmS', '测试用户', 'USER', 'ACTIVE', '13900139001', 'user1@test.com', 100),
 ('user2', '$2a$10$DTbmtBHH3NgOFo0.LMrWPevSejyO068I4oClVweVBidjjoEzIJbf2', '购物达人', 'USER', 'ACTIVE', '13900139002', 'user2@test.com', 200);
-
 -- 默认角色
 INSERT INTO `t_sys_role` (`role_code`, `role_name`, `description`, `status`) VALUES
-('SUPER_ADMIN', '超级管理员', '拥有所有权限', 'ACTIVE'),
-('ADMIN', '平台管理员', '拥有管理后台权限', 'ACTIVE'),
-('MERCHANT', '商家', '拥有商家端权限', 'ACTIVE'),
-('USER', '普通用户', '拥有用户端权限', 'ACTIVE');
+('SUPER_ADMIN', '超级管理员', '拥有所有权限'),
+('ADMIN', '平台管理员', '拥有管理后台权限'),
+('MERCHANT', '商家', '拥有商家端权限'),
+('USER', '普通用户', '拥有用户端权限');
+-- 默认权限数据
+INSERT INTO `t_sys_permission` (`permission_code`, `permission_name`, `permission_type`, `module`, `description`) VALUES
+-- 系统管理模块
+('system:user:list', '用户列表', 3, '系统管理', '查看用户列表'),
+('system:user:disable', '禁用用户', 2, '系统管理', '禁用用户账号'),
+('system:user:enable', '启用用户', 2, '系统管理', '启用用户账号'),
+('system:merchant:list', '商家列表', 3, '系统管理', '查看商家列表'),
+('system:merchant:approve', '审核商家', 2, '系统管理', '审核商家入驻'),
+('system:role:list', '角色列表', 3, '系统管理', '查看角色列表'),
+('system:role:add', '新增角色', 2, '系统管理', '创建新角色'),
+('system:role:edit', '编辑角色', 2, '系统管理', '修改角色信息'),
+('system:role:delete', '删除角色', 2, '系统管理', '删除角色'),
+('system:role:assign', '分配权限', 2, '系统管理', '为角色分配权限'),
+('system:permission:list', '权限列表', 3, '系统管理', '查看权限列表'),
+('system:permission:add', '新增权限', 2, '系统管理', '创建新权限'),
+('system:permission:edit', '编辑权限', 2, '系统管理', '修改权限信息'),
+('system:permission:delete', '删除权限', 2, '系统管理', '删除权限'),
+('system:menu:list', '菜单列表', 3, '系统管理', '查看菜单树'),
+('system:menu:add', '新增菜单', 2, '系统管理', '创建新菜单'),
+('system:menu:edit', '编辑菜单', 2, '系统管理', '修改菜单信息'),
+('system:menu:delete', '删除菜单', 2, '系统管理', '删除菜单'),
+('system:dict:list', '字典列表', 3, '系统管理', '查看字典列表'),
+('system:dict:add', '新增字典', 2, '系统管理', '创建新字典'),
+('system:dict:edit', '编辑字典', 2, '系统管理', '修改字典信息'),
+('system:dict:delete', '删除字典', 2, '系统管理', '删除字典'),
+-- 商品管理模块
+('product:list', '商品列表', 3, '商品管理', '查看商品列表'),
+('product:audit', '商品审核', 2, '商品管理', '审核商品上下架'),
+('product:category:list', '分类列表', 3, '商品管理', '查看商品分类'),
+('product:category:add', '新增分类', 2, '商品管理', '创建商品分类'),
+('product:category:edit', '编辑分类', 2, '商品管理', '修改商品分类'),
+('product:category:delete', '删除分类', 2, '商品管理', '删除商品分类'),
+('product:brand:list', '品牌列表', 3, '商品管理', '查看品牌列表'),
+('product:brand:add', '新增品牌', 2, '商品管理', '创建品牌'),
+('product:brand:edit', '编辑品牌', 2, '商品管理', '修改品牌信息'),
+('product:brand:delete', '删除品牌', 2, '商品管理', '删除品牌'),
+-- 订单管理模块
+('order:list', '订单列表', 3, '订单管理', '查看订单列表'),
+('order:detail', '订单详情', 3, '订单管理', '查看订单详情'),
+-- 内容管理模块
+('content:review:list', '评价列表', 3, '内容管理', '查看评价列表'),
+('content:review:audit', '评价审核', 2, '内容管理', '审核评价'),
+('content:review:delete', '删除评价', 2, '内容管理', '删除评价'),
+('content:banner:list', 'Banner列表', 3, '内容管理', '查看Banner列表'),
+('content:banner:add', '新增Banner', 2, '内容管理', '创建Banner'),
+('content:banner:edit', '编辑Banner', 2, '内容管理', '修改Banner信息'),
+('content:banner:delete', '删除Banner', 2, '内容管理', '删除Banner'),
+-- 营销管理模块
+('marketing:coupon:list', '优惠券列表', 3, '营销管理', '查看优惠券列表'),
+('marketing:coupon:add', '新增优惠券', 2, '营销管理', '创建优惠券'),
+('marketing:coupon:edit', '编辑优惠券', 2, '营销管理', '修改优惠券'),
+('marketing:coupon:delete', '删除优惠券', 2, '营销管理', '删除优惠券'),
+('marketing:points:list', '积分商品列表', 3, '营销管理', '查看积分商品'),
+('marketing:flashsale:list', '秒杀活动列表', 3, '营销管理', '查看秒杀活动'),
+('marketing:activity:list', '专题活动列表', 3, '营销管理', '查看专题活动'),
+-- 系统监控模块
+('monitor:log:operation', '操作日志', 3, '系统监控', '查看操作日志'),
+('monitor:log:login', '登录日志', 3, '系统监控', '查看登录日志'),
+('monitor:scheduler:list', '定时任务列表', 3, '系统监控', '查看定时任务'),
+('monitor:scheduler:edit', '编辑定时任务', 2, '系统监控', '修改定时任务配置'),
+('monitor:scheduler:execute', '执行定时任务', 2, '系统监控', '手动执行定时任务');
+-- 默认菜单数据（与前端路由对应）
+INSERT INTO `t_sys_menu` (`parent_id`, `name`, `path`, `component`, `icon`, `sort_order`, `type`, `permission`, `visible`) VALUES
+-- 一级菜单：系统管理
+(0, '系统管理', '/system', NULL, 'Setting', 1, 'MENU', NULL, 1),
+(0, '商品管理', '/product', NULL, 'Goods', 2, 'MENU', NULL, 1),
+(0, '订单管理', '/order', NULL, 'Document', 3, 'MENU', NULL, 1),
+(0, '内容管理', '/content', NULL, 'Picture', 4, 'MENU', NULL, 1),
+(0, '营销管理', '/marketing', NULL, 'Ticket', 5, 'MENU', NULL, 1),
+(0, '系统监控', '/monitor', NULL, 'Monitor', 6, 'MENU', NULL, 1),
+-- 二级菜单：系统管理
+(1, '用户管理', '/users', 'users/UserListView', 'User', 1, 'MENU', 'system:user:list', 1),
+(1, '商家管理', '/merchants', 'merchants/MerchantListView', 'Shop', 2, 'MENU', 'system:merchant:list', 1),
+(1, '角色管理', '/roles', 'roles/RoleListView', 'UserFilled', 3, 'MENU', 'system:role:list', 1),
+(1, '权限管理', '/permissions', 'permissions/PermissionListView', 'Key', 4, 'MENU', 'system:permission:list', 1),
+(1, '菜单管理', '/menus', 'menus/MenuListView', 'Menu', 5, 'MENU', 'system:menu:list', 1),
+(1, '字典管理', '/dicts', 'dicts/DictListView', 'Collection', 6, 'MENU', 'system:dict:list', 1),
+-- 二级菜单：商品管理
+(2, '商品列表', '/products', 'products/ProductListView', 'Goods', 1, 'MENU', 'product:list', 1),
+(2, '分类管理', '/categories', 'products/CategoryManageView', 'Grid', 2, 'MENU', 'product:category:list', 1),
+(2, '品牌管理', '/brands', 'products/BrandManageView', 'Stamp', 3, 'MENU', 'product:brand:list', 1),
+-- 二级菜单：订单管理
+(3, '订单列表', '/orders', 'orders/OrderListView', 'Document', 1, 'MENU', 'order:list', 1),
+-- 二级菜单：内容管理
+(4, '评价管理', '/reviews', 'reviews/ReviewManageView', 'ChatDotRound', 1, 'MENU', 'content:review:list', 1),
+(4, 'Banner管理', '/banners', 'banners/BannerManageView', 'Picture', 2, 'MENU', 'content:banner:list', 1),
+-- 二级菜单：营销管理
+(5, '优惠券管理', '/coupons', 'coupons/CouponListView', 'Ticket', 1, 'MENU', 'marketing:coupon:list', 1),
+(5, '积分商品', '/points/products', 'points/PointsProductListView', 'Goods', 2, 'MENU', 'marketing:points:list', 1),
+(5, '积分流水', '/points/records', 'points/PointsRecordListView', 'Document', 3, 'MENU', 'marketing:points:list', 1),
+(5, '秒杀活动', '/flash-sales', 'flashsale/FlashSaleListView', 'AlarmClock', 4, 'MENU', 'marketing:flashsale:list', 1),
+(5, '专题活动', '/activities', 'activity/ActivityListView', 'Star', 5, 'MENU', 'marketing:activity:list', 1),
+-- 二级菜单：系统监控
+(6, '操作日志', '/logs/operation', 'logs/OperationLogView', 'Document', 1, 'MENU', 'monitor:log:operation', 1),
+(6, '登录日志', '/logs/login', 'logs/LoginLogView', 'Tickets', 2, 'MENU', 'monitor:log:login', 1),
+(6, '定时任务', '/scheduler', 'scheduler/ScheduleJobListView', 'Timer', 3, 'MENU', 'monitor:scheduler:list', 1);
+-- 为ADMIN角色(id=2)分配全部权限
+INSERT INTO `t_sys_role_permission` (`role_id`, `permission_id`)
+SELECT 2, id FROM `t_sys_permission`;
+
+-- 为ADMIN角色(id=2)分配全部菜单
+INSERT INTO `t_sys_role_menu` (`role_id`, `menu_id`)
+SELECT 2, id FROM `t_sys_menu` WHERE `deleted` = 0;
 
 -- 默认商品分类（一级）
 INSERT INTO `t_category` (`parent_id`, `name`, `sort_order`, `level`, `status`) VALUES
-(0, '服装', 1, 1, 'ACTIVE'),
-(0, '数码', 2, 1, 'ACTIVE'),
-(0, '美妆', 3, 1, 'ACTIVE'),
-(0, '食品', 4, 1, 'ACTIVE'),
-(0, '家居', 5, 1, 'ACTIVE'),
-(0, '运动', 6, 1, 'ACTIVE'),
-(0, '图书', 7, 1, 'ACTIVE'),
-(0, '母婴', 8, 1, 'ACTIVE');
-
+(0, '服装', 1, 1),
+(0, '数码', 2, 1),
+(0, '美妆', 3, 1),
+(0, '食品', 4, 1),
+(0, '家居', 5, 1),
+(0, '运动', 6, 1),
+(0, '图书', 7, 1),
+(0, '母婴', 8, 1);
 -- 二级子分类
 INSERT INTO `t_category` (`parent_id`, `name`, `icon`, `sort_order`, `level`, `status`) VALUES
 -- 数码电子
-(2, '手机', 'Phone', 1, 2, 'ACTIVE'),
-(2, '电脑', 'Computer', 2, 2, 'ACTIVE'),
-(2, '耳机音响', 'Headset', 3, 2, 'ACTIVE'),
+(2, '手机', 'Phone', 1, 2),
+(2, '电脑', 'Computer', 2, 2),
+(2, '耳机音响', 'Headset', 3, 2),
 -- 美妆护肤
-(3, '护肤', 'SkinCare', 1, 2, 'ACTIVE'),
-(3, '彩妆', 'Makeup', 2, 2, 'ACTIVE'),
-(3, '个护', 'PersonalCare', 3, 2, 'ACTIVE'),
+(3, '护肤', 'SkinCare', 1, 2),
+(3, '彩妆', 'Makeup', 2, 2),
+(3, '个护', 'PersonalCare', 3, 2),
 -- 服装
-(1, '男装', 'Tshirt', 1, 2, 'ACTIVE'),
-(1, '女装', 'Dress', 2, 2, 'ACTIVE'),
-(1, '鞋靴', 'Shoes', 3, 2, 'ACTIVE'),
+(1, '男装', 'Tshirt', 1, 2),
+(1, '女装', 'Dress', 2, 2),
+(1, '鞋靴', 'Shoes', 3, 2),
 -- 食品
-(4, '零食', 'Snack', 1, 2, 'ACTIVE'),
-(4, '饮料', 'Drink', 2, 2, 'ACTIVE'),
-(4, '生鲜', 'Fresh', 3, 2, 'ACTIVE'),
+(4, '零食', 'Snack', 1, 2),
+(4, '饮料', 'Drink', 2, 2),
+(4, '生鲜', 'Fresh', 3, 2),
 -- 家居
-(5, '家纺', 'Textile', 1, 2, 'ACTIVE'),
-(5, '厨具', 'Kitchen', 2, 2, 'ACTIVE'),
-(5, '收纳', 'Storage', 3, 2, 'ACTIVE'),
+(5, '家纺', 'Textile', 1, 2),
+(5, '厨具', 'Kitchen', 2, 2),
+(5, '收纳', 'Storage', 3, 2),
 -- 运动
-(6, '运动鞋', 'Sneaker', 1, 2, 'ACTIVE'),
-(6, '运动服', 'Sportswear', 2, 2, 'ACTIVE'),
-(6, '健身器材', 'Fitness', 3, 2, 'ACTIVE'),
+(6, '运动鞋', 'Sneaker', 1, 2),
+(6, '运动服', 'Sportswear', 2, 2),
+(6, '健身器材', 'Fitness', 3, 2),
 -- 图书
-(7, '文学', 'Book', 1, 2, 'ACTIVE'),
-(7, '科技', 'Tech', 2, 2, 'ACTIVE'),
-(7, '教育', 'Edu', 3, 2, 'ACTIVE'),
+(7, '文学', 'Book', 1, 2),
+(7, '科技', 'Tech', 2, 2),
+(7, '教育', 'Edu', 3, 2),
 -- 母婴
-(8, '奶粉', 'Milk', 1, 2, 'ACTIVE'),
-(8, '纸尿裤', 'Diaper', 2, 2, 'ACTIVE'),
-(8, '玩具', 'Toy', 3, 2, 'ACTIVE');
-
+(8, '奶粉', 'Milk', 1, 2),
+(8, '纸尿裤', 'Diaper', 2, 2),
+(8, '玩具', 'Toy', 3, 2);
 -- 默认 Banner
 INSERT INTO `t_banner` (`title`, `image_url`, `link_url`, `sort_order`, `status`, `start_time`, `end_time`) VALUES
 ('欢迎来到模拟商城', '', '/', 1, 'ACTIVE', NOW(), DATE_ADD(NOW(), INTERVAL 365 DAY)),
 ('新品上市 限时优惠', '', '/category/2', 2, 'ACTIVE', NOW(), DATE_ADD(NOW(), INTERVAL 365 DAY));
-
 -- 商家
 INSERT INTO `t_merchant` (`user_id`, `merchant_name`, `contact_phone`, `contact_email`, `status`, `approved_at`, `approved_by`) VALUES
 (2, '模拟商城旗舰店', '13800138001', 'merchant1@test.com', 'ACTIVE', NOW(), 1),
@@ -1114,47 +1211,45 @@ INSERT INTO `t_merchant` (`user_id`, `merchant_name`, `contact_phone`, `contact_
 (7, '运动达人旗舰店', '13800138006', 'merchant6@test.com', 'ACTIVE', NOW(), 1),
 (8, '书虫书屋', '13800138007', 'merchant7@test.com', 'ACTIVE', NOW(), 1),
 (9, '宝贝乐园', '13800138008', 'merchant8@test.com', 'ACTIVE', NOW(), 1);
-
 -- 店铺
 INSERT INTO `t_shop` (`merchant_id`, `shop_name`, `shop_logo`, `description`, `status`) VALUES
-(1, '模拟商城旗舰店', '', '模拟商城官方自营店铺，全品类商品，品质保障', 'ACTIVE'),
-(2, '花漾美妆专营店', '', '正品美妆，呵护你的美丽', 'ACTIVE'),
-(3, '潮流服饰旗舰店', '', '时尚穿搭，品质生活', 'ACTIVE'),
-(4, '美食天下旗舰店', '', '精选美味，产地直供', 'ACTIVE'),
-(5, '居家好物旗舰店', '', '打造温馨舒适的家', 'ACTIVE'),
-(6, '运动达人旗舰店', '', '专业运动装备，释放你的活力', 'ACTIVE'),
-(7, '书虫书屋', '', '百万图书，正版保障', 'ACTIVE'),
-(8, '宝贝乐园', '', '用心呵护每一个宝贝', 'ACTIVE');
-
+(1, '模拟商城旗舰店', '', '模拟商城官方自营店铺，全品类商品，品质保障'),
+(2, '花漾美妆专营店', '', '正品美妆，呵护你的美丽'),
+(3, '潮流服饰旗舰店', '', '时尚穿搭，品质生活'),
+(4, '美食天下旗舰店', '', '精选美味，产地直供'),
+(5, '居家好物旗舰店', '', '打造温馨舒适的家'),
+(6, '运动达人旗舰店', '', '专业运动装备，释放你的活力'),
+(7, '书虫书屋', '', '百万图书，正版保障'),
+(8, '宝贝乐园', '', '用心呵护每一个宝贝');
 -- 品牌
 INSERT INTO `t_brand` (`brand_name`, `brand_logo`, `brand_description`, `status`) VALUES
-('Apple', '', '全球领先的科技品牌', 'ACTIVE'),
-('华为', '', '中国科技领军品牌', 'ACTIVE'),
-('雅诗兰黛', '', '高端护肤彩妆品牌', 'ACTIVE'),
-('兰蔻', '', '法国奢华美妆品牌', 'ACTIVE'),
-('小米', '', '让每个人都能享受科技的乐趣', 'ACTIVE'),
-('SK-II', '', '日本高端护肤品牌', 'ACTIVE'),
-('优衣库', '', '高品质基本款', 'ACTIVE'),
-('Nike', '', '全球运动品牌', 'ACTIVE'),
-('ZARA', '', '快时尚品牌', 'ACTIVE'),
-('三只松鼠', '', '互联网零食品牌', 'ACTIVE'),
-('农夫山泉', '', '天然饮用水品牌', 'ACTIVE'),
-('无印良品', '', '简约生活方式品牌', 'ACTIVE'),
-('宜家', '', '瑞典家居品牌', 'ACTIVE'),
-('Adidas', '', '德国运动品牌', 'ACTIVE'),
-('李宁', '', '中国运动品牌', 'ACTIVE'),
-('人民文学出版社', '', '经典文学出版品牌', 'ACTIVE'),
-('机械工业出版社', '', '专业科技图书出版', 'ACTIVE'),
-('飞鹤', '', '中国奶粉品牌', 'ACTIVE'),
-('乐高', '', '丹麦积木玩具品牌', 'ACTIVE');
-
+('Apple', '', '全球领先的科技品牌'),
+('华为', '', '中国科技领军品牌'),
+('雅诗兰黛', '', '高端护肤彩妆品牌'),
+('兰蔻', '', '法国奢华美妆品牌'),
+('小米', '', '让每个人都能享受科技的乐趣'),
+('SK-II', '', '日本高端护肤品牌'),
+('优衣库', '', '高品质基本款'),
+('Nike', '', '全球运动品牌'),
+('ZARA', '', '快时尚品牌'),
+('三只松鼠', '', '互联网零食品牌'),
+('农夫山泉', '', '天然饮用水品牌'),
+('无印良品', '', '简约生活方式品牌'),
+('宜家', '', '瑞典家居品牌'),
+('Adidas', '', '德国运动品牌'),
+('李宁', '', '中国运动品牌'),
+('人民文学出版社', '', '经典文学出版品牌'),
+('机械工业出版社', '', '专业科技图书出版'),
+('飞鹤', '', '中国奶粉品牌'),
+('乐高', '', '丹麦积木玩具品牌');
 -- 默认字典类型
 INSERT INTO `t_sys_dict_type` (`dict_name`, `dict_code`, `status`) VALUES
-('订单状态', 'ORDER_STATUS', 'ACTIVE'),
-('支付方式', 'PAYMENT_METHOD', 'ACTIVE'),
-('商品状态', 'PRODUCT_STATUS', 'ACTIVE'),
-('用户角色', 'USER_ROLE', 'ACTIVE');
-
+('订单状态', 'ORDER_STATUS'),
+('支付方式', 'PAYMENT_METHOD'),
+('商品状态', 'PRODUCT_STATUS'),
+('用户角色', 'USER_ROLE'),
+('操作日志模块', 'OPERATION_LOG_MODULE'),
+('操作日志类型', 'OPERATION_LOG_TYPE');
 -- 默认系统配置
 INSERT INTO `t_sys_config` (`config_key`, `config_value`, `config_name`, `config_type`, `module`, `is_system`) VALUES
 ('site.name', '模拟商城', '站点名称', 'string', 'system', 1),
@@ -1164,32 +1259,104 @@ INSERT INTO `t_sys_config` (`config_key`, `config_value`, `config_name`, `config
 ('recommend.home.size', '10', '首页推荐数量', 'number', 'ai', 1),
 ('search.hot.size', '10', '热门搜索数量', 'number', 'ai', 1),
 ('file.upload.max.image', '5242880', '图片上传最大值(字节)', 'number', 'file', 1);
-
 -- 管理员账户
 INSERT INTO `t_sys_admin` (`user_id`, `admin_name`, `role`) VALUES
 (1, '超级管理员', 'SUPER_ADMIN');
-
 -- 默认字典项
 INSERT INTO `t_sys_dict_item` (`dict_type_id`, `label`, `value`, `sort_order`, `status`) VALUES
 -- 订单状态字典
-(1, '待支付', 'CREATED', 1, 'ACTIVE'),
-(1, '已支付', 'PAID', 2, 'ACTIVE'),
-(1, '已发货', 'SHIPPED', 3, 'ACTIVE'),
-(1, '运输中', 'IN_TRANSIT', 4, 'ACTIVE'),
-(1, '已签收', 'DELIVERED', 5, 'ACTIVE'),
-(1, '已完成', 'COMPLETED', 6, 'ACTIVE'),
-(1, '已取消', 'CANCELLED', 7, 'ACTIVE'),
+(1, '待支付', 'CREATED', 1),
+(1, '已支付', 'PAID', 2),
+(1, '已发货', 'SHIPPED', 3),
+(1, '运输中', 'IN_TRANSIT', 4),
+(1, '已签收', 'DELIVERED', 5),
+(1, '已完成', 'COMPLETED', 6),
+(1, '已取消', 'CANCELLED', 7),
 -- 支付方式字典
-(2, '模拟支付宝', 'MOCK_ALIPAY', 1, 'ACTIVE'),
-(2, '模拟微信支付', 'MOCK_WECHAT', 2, 'ACTIVE'),
+(2, '模拟支付宝', 'MOCK_ALIPAY', 1),
+(2, '模拟微信支付', 'MOCK_WECHAT', 2),
 -- 商品状态字典
-(3, '草稿', 'DRAFT', 1, 'ACTIVE'),
-(3, '已发布', 'PUBLISHED', 2, 'ACTIVE'),
-(3, '已下架', 'OFFLINE', 3, 'ACTIVE'),
-(3, '已删除', 'DELETED', 4, 'ACTIVE'),
+(3, '草稿', 'DRAFT', 1),
+(3, '已发布', 'PUBLISHED', 2),
+(3, '已下架', 'OFFLINE', 3),
+(3, '已删除', 'DELETED', 4),
 -- 用户角色字典
-(4, '管理员', 'ADMIN', 1, 'ACTIVE'),
-(4, '商家', 'MERCHANT', 2, 'ACTIVE'),
-(4, '普通用户', 'USER', 3, 'ACTIVE');
+(4, '管理员', 'ADMIN', 1),
+(4, '商家', 'MERCHANT', 2),
+(4, '普通用户', 'USER', 3),
+-- 操作日志模块字典
+(5, '认证', '认证', 1),
+(5, '用户', '用户', 2),
+(5, '商家', '商家', 3),
+(5, '商品', '商品', 4),
+(5, '订单', '订单', 5),
+(5, '交易', '交易', 6),
+(5, '营销', '营销', 7),
+(5, '内容', '内容', 8),
+(5, '系统', '系统', 9),
+(5, '店铺', '店铺', 10),
+-- 操作日志类型字典
+(6, '新增', '新增', 1),
+(6, '修改', '修改', 2),
+(6, '删除', '删除', 3),
+(6, '审核', '审核', 4),
+(6, '执行', '执行', 5),
+(6, '操作', '操作', 6);
+-- ============================================================
+-- 13. 定时任务领域 (Schedule Domain)
+-- ============================================================
 
+-- 定时任务表
+CREATE TABLE IF NOT EXISTS `t_schedule_job` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `job_name` VARCHAR(100) NOT NULL COMMENT '任务名称',
+  `job_group` VARCHAR(50) DEFAULT 'default' COMMENT '任务分组',
+  `bean_name` VARCHAR(200) NOT NULL COMMENT '执行Bean名称（Spring Bean名）',
+  `method_name` VARCHAR(100) NOT NULL COMMENT '执行方法名',
+  `params` VARCHAR(500) DEFAULT NULL COMMENT '参数（JSON格式）',
+  `cron_expression` VARCHAR(100) DEFAULT NULL COMMENT 'Cron表达式',
+  `fixed_delay` BIGINT DEFAULT NULL COMMENT '固定延迟（毫秒），与cron二选一',
+  `fixed_rate` BIGINT DEFAULT NULL COMMENT '固定频率（毫秒），与cron二选一',
+  `description` VARCHAR(500) DEFAULT NULL COMMENT '任务描述',
+  `status` VARCHAR(20) DEFAULT 'ACTIVE' COMMENT '状态：ACTIVE/RUNNING/PAUSED/ERROR',
+  `concurrent` TINYINT DEFAULT 0 COMMENT '是否允许并发执行',
+  `last_run_time` DATETIME DEFAULT NULL COMMENT '上次执行时间',
+  `next_run_time` DATETIME DEFAULT NULL COMMENT '下次执行时间',
+  `last_run_status` VARCHAR(20) DEFAULT NULL COMMENT '上次执行状态：SUCCESS/FAIL',
+  `last_error_msg` TEXT DEFAULT NULL COMMENT '上次错误信息',
+  `created_by` BIGINT DEFAULT NULL COMMENT '创建人',
+  `updated_by` BIGINT DEFAULT NULL COMMENT '更新人',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_job_name` (`job_name`, `deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='定时任务';
+
+-- 定时任务执行日志表
+CREATE TABLE IF NOT EXISTS `t_schedule_log` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `job_id` BIGINT NOT NULL COMMENT '任务ID',
+  `job_name` VARCHAR(100) NOT NULL COMMENT '任务名称',
+  `status` VARCHAR(20) NOT NULL COMMENT '执行状态：SUCCESS/FAIL',
+  `duration_ms` BIGINT DEFAULT 0 COMMENT '执行耗时（毫秒）',
+  `error_msg` TEXT DEFAULT NULL COMMENT '错误信息',
+  `result` TEXT DEFAULT NULL COMMENT '执行结果',
+  `start_time` DATETIME NOT NULL COMMENT '开始时间',
+  `end_time` DATETIME DEFAULT NULL COMMENT '结束时间',
+  `created_by` BIGINT DEFAULT NULL COMMENT '创建人',
+  `updated_by` BIGINT DEFAULT NULL COMMENT '更新人',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` TINYINT DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_job_id` (`job_id`),
+  KEY `idx_start_time` (`start_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='定时任务执行日志';
+
+-- 初始化3个现有任务
+INSERT INTO `t_schedule_job` (`job_name`, `job_group`, `bean_name`, `method_name`, `cron_expression`, `fixed_delay`, `description`, `status`) VALUES
+('物流状态推进', 'logistics', 'logisticsScheduler', 'advanceLogisticsStatus', NULL, 30000, '每30秒检查并推进物流状态（CREATED→PICKED_UP→SORTING→IN_TRANSIT→OUT_FOR_DELIVERY→DELIVERED）'),
+('自动发货', 'logistics', 'logisticsScheduler', 'autoShipPaidOrders', NULL, 30000, '每30秒检查已支付超过1分钟的订单并自动发货'),
+('自动退款审批', 'refund', 'logisticsScheduler', 'autoApproveRefunds', NULL, 30000, '每30秒检查申请超过3分钟的退款并自动审批');
 -- ============================================================

@@ -82,7 +82,7 @@ function toggleMode() {
           <el-input v-model="loginForm.username" placeholder="请输入用户名" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="loginForm.password" type="password" show-password placeholder="请输入密码" />
+          <el-input v-model="loginForm.password" type="password" show-password placeholder="请输入密码" @keyup.enter="handleSubmit" />
         </el-form-item>
         <el-form-item v-if="isRegister" label="昵称" prop="nickname">
           <el-input v-model="loginForm.nickname" placeholder="请输入昵称" />

@@ -35,6 +35,8 @@ const routes: RouteRecordRaw[] = [
       { path: 'activities', name: 'Activities', component: () => import('@/views/activity/ActivityListView.vue'), meta: { title: '专题活动管理', requiresAuth: true } },
       { path: 'logs/operation', name: 'OperationLog', component: () => import('@/views/logs/OperationLogView.vue'), meta: { title: '操作日志', requiresAuth: true } },
       { path: 'logs/login', name: 'LoginLog', component: () => import('@/views/logs/LoginLogView.vue'), meta: { title: '登录日志', requiresAuth: true } },
+      { path: 'scheduler', name: 'ScheduleJobs', component: () => import('@/views/scheduler/ScheduleJobListView.vue'), meta: { title: '定时任务', requiresAuth: true } },
+      { path: 'scheduler/:jobId/logs', name: 'ScheduleLogs', component: () => import('@/views/scheduler/ScheduleLogView.vue'), meta: { title: '执行历史', requiresAuth: true } },
     ],
   },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/common/NotFoundView.vue'), meta: { title: '页面不存在' } },

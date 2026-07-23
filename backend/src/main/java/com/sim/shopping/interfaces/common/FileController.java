@@ -1,5 +1,6 @@
 package com.sim.shopping.interfaces.common;
 
+import com.sim.shopping.infrastructure.aop.Log;
 import com.sim.shopping.infrastructure.storage.LocalFileStorage;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ public class FileController {
      * @return 返回结果
      */
     @PostMapping("/upload")
+    @Log(module = "系统", type = "操作")
     public ApiResponse<Map<String, Object>> upload(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "type", defaultValue = "product") String type) {

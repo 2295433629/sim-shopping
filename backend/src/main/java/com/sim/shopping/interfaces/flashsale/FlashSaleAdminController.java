@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * FlashSaleAdmin控制器，处理相关业务请求
@@ -53,6 +54,7 @@ public class FlashSaleAdminController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "营销", type = "新增")
     public ApiResponse<Void> createFlashSale(@RequestBody FlashSaleDO sale) {
         flashSaleAdminService.createFlashSale(sale);
         return ApiResponse.success();
@@ -63,6 +65,7 @@ public class FlashSaleAdminController {
      * @return 返回结果
      */
     @PutMapping("/{saleId}")
+    @Log(module = "营销", type = "修改")
     public ApiResponse<Void> updateFlashSale(
             @PathVariable Long saleId,
             @RequestBody FlashSaleDO sale) {
@@ -76,6 +79,7 @@ public class FlashSaleAdminController {
      * @return 返回结果
      */
     @DeleteMapping("/{saleId}")
+    @Log(module = "营销", type = "删除")
     public ApiResponse<Void> deleteFlashSale(@PathVariable Long saleId) {
         flashSaleAdminService.deleteFlashSale(saleId);
         return ApiResponse.success();

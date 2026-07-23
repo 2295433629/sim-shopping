@@ -12,6 +12,7 @@ import com.sim.shopping.interfaces.dto.shop.ShopResponse;
 import com.sim.shopping.interfaces.dto.shop.ShopUpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 店铺管理控制器，处理店铺信息的增删改查
@@ -46,6 +47,7 @@ public class ShopController {
      * @return 返回结果
      */
     @PutMapping("/api/merchant/shop")
+    @Log(module = "店铺", type = "修改")
     public ApiResponse<ShopResponse> updateShopInfo(@Valid @RequestBody ShopUpdateRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(shopService.updateShopInfo(userId, req));
@@ -67,6 +69,7 @@ public class ShopController {
      * @return 返回结果
      */
     @PostMapping("/api/merchant/shop/banners")
+    @Log(module = "店铺", type = "新增")
     public ApiResponse<ShopBannerResponse> addBanner(@Valid @RequestBody ShopBannerRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(shopService.addBanner(userId, req));
@@ -78,6 +81,7 @@ public class ShopController {
      * @return 返回结果
      */
     @DeleteMapping("/api/merchant/shop/banners/{bannerId}")
+    @Log(module = "店铺", type = "删除")
     public ApiResponse<Void> removeBanner(@PathVariable Long bannerId) {
         Long userId = SecurityUtils.getCurrentUserId();
         shopService.removeBanner(userId, bannerId);

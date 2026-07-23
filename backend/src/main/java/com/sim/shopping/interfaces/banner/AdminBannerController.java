@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * AdminBanner控制器，处理相关业务请求
@@ -41,6 +42,7 @@ public class AdminBannerController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "内容", type = "新增")
     public ApiResponse<BannerResponse> createBanner(@RequestBody BannerDO banner) {
         return ApiResponse.success(bannerService.createBanner(banner));
     }
@@ -52,6 +54,7 @@ public class AdminBannerController {
      * @return 返回结果
      */
     @PutMapping("/{bannerId}")
+    @Log(module = "内容", type = "修改")
     public ApiResponse<BannerResponse> updateBanner(@PathVariable Long bannerId, @RequestBody BannerDO banner) {
         return ApiResponse.success(bannerService.updateBanner(bannerId, banner));
     }
@@ -62,6 +65,7 @@ public class AdminBannerController {
      * @return 返回结果
      */
     @DeleteMapping("/{bannerId}")
+    @Log(module = "内容", type = "删除")
     public ApiResponse<Void> deleteBanner(@PathVariable Long bannerId) {
         bannerService.deleteBanner(bannerId);
         return ApiResponse.success();

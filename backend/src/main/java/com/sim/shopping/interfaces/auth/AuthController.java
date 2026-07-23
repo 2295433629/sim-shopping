@@ -6,6 +6,9 @@ import com.sim.shopping.interfaces.dto.auth.LoginRequest;
 import com.sim.shopping.interfaces.dto.auth.RefreshTokenRequest;
 import com.sim.shopping.interfaces.dto.auth.RegisterRequest;
 import com.sim.shopping.interfaces.dto.auth.TokenResponse;
+import com.sim.shopping.infrastructure.aop.Log;
+import com.sim.shopping.infrastructure.security.SecurityUtils;
+import com.sim.shopping.infrastructure.security.SecurityUser;
 import com.sim.shopping.interfaces.dto.auth.UserInfoResponse;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +43,7 @@ public class AuthController {
      * @return 返回结果
      */
     @PostMapping("/register")
+    @Log(module = "认证", type = "新增")
     public ApiResponse<TokenResponse> register(@Valid @RequestBody RegisterRequest request) {
         TokenResponse tokenResponse = authService.register(request);
         return ApiResponse.success(tokenResponse);
@@ -50,6 +54,7 @@ public class AuthController {
      * @return 返回结果
      */
     @PostMapping("/login")
+    @Log(module = "认证", type = "操作")
     public ApiResponse<TokenResponse> login(@Valid @RequestBody LoginRequest request,
                                             HttpServletRequest httpRequest) {
         String ip = httpRequest.getRemoteAddr();
@@ -58,11 +63,11 @@ public class AuthController {
             TokenResponse tokenResponse = authService.login(request);
             loginLogService.recordLoginLog(
                     tokenResponse.getUserId(), request.getUsername(),
-                    tokenResponse.getRole(), 0, ip, userAgent, null);
+                    tokenResponse.getRole(), 1, ip, userAgent, null);
             return ApiResponse.success(tokenResponse);
         } catch (Exception e) {
             loginLogService.recordLoginLog(
-                    null, request.getUsername(), "USER", 1, ip, userAgent, e.getMessage());
+                    null, request.getUsername(), "USER", 0, ip, userAgent, e.getMessage());
             throw e;
         }
     }
@@ -72,7 +77,16 @@ public class AuthController {
      * @return 返回结果
      */
     @PostMapping("/logout")
-    public ApiResponse<Void> logout() {
+    @Log(module = "认证", type = "操作")
+    public ApiResponse<Void> logout(HttpServletRequest request) {
+        try {
+            SecurityUser user = SecurityUtils.getCurrentUser();
+            String ip = request.getRemoteAddr();
+            String userAgent = request.getHeader("User-Agent");
+            loginLogService.recordLoginLog(user.getUserId(), user.getUsername(), user.getUserType(), 2, ip, userAgent, null);
+        } catch (Exception ignored) {
+            // 登出日志记录失败不影响主业务
+        }
         authService.logout();
         return ApiResponse.success();
     }
@@ -83,6 +97,7 @@ public class AuthController {
      * @return 返回结果
      */
     @PostMapping("/refresh-token")
+    @Log(module = "认证", type = "操作")
     public ApiResponse<TokenResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         TokenResponse tokenResponse = authService.refreshToken(request.getRefreshToken());
         return ApiResponse.success(tokenResponse);

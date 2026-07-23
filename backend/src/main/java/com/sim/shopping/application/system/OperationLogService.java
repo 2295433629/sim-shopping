@@ -30,6 +30,28 @@ public class OperationLogService {
     }
 
     /**
+     * 保存操作日志
+     */
+    public void saveOperationLog(Long operatorId, String operatorName, String operatorType,
+                                  String module, String operationType, String method,
+                                  String requestUrl, String requestParams, String responseResult,
+                                  Long costTime, String ip) {
+        SysOperationLogDO log = new SysOperationLogDO();
+        log.setOperatorId(operatorId);
+        log.setOperatorName(operatorName);
+        log.setOperatorType(operatorType);
+        log.setModule(module);
+        log.setOperationType(operationType);
+        log.setMethod(method);
+        log.setRequestUrl(requestUrl);
+        log.setRequestParams(requestParams);
+        log.setResponseResult(responseResult);
+        log.setCostTime(costTime);
+        log.setIp(ip);
+        sysOperationLogMapper.insert(log);
+    }
+
+    /**
      * 查询操作日志
      * @return 返回结果
      */

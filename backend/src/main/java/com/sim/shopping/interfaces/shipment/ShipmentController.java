@@ -11,6 +11,7 @@ import com.sim.shopping.interfaces.dto.shipment.CreateShipmentRequest;
 import com.sim.shopping.interfaces.dto.shipment.ShipmentResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 物流管理控制器，处理物流信息查询和轨迹追踪
@@ -41,6 +42,7 @@ public class ShipmentController {
      * @return 返回结果
      */
     @PostMapping("/shipments")
+    @Log(module = "交易", type = "操作")
     public ApiResponse<ShipmentResponse> createShipment(@RequestBody CreateShipmentRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         Long shopId = merchantService.getShopIdByUserId(userId);

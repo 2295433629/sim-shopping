@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 用户管理控制器，处理用户信息修改、收货地址管理
@@ -36,6 +37,7 @@ public class UserController {
      * @return 返回结果
      */
     @PutMapping("/profile")
+    @Log(module = "用户", type = "修改")
     public ApiResponse<Void> updateProfile(@Valid @RequestBody UpdateProfileRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         userService.updateProfile(userId, req);
@@ -48,6 +50,7 @@ public class UserController {
      * @return 返回结果
      */
     @PutMapping("/password")
+    @Log(module = "用户", type = "修改")
     public ApiResponse<Void> changePassword(@Valid @RequestBody ChangePasswordRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         userService.changePassword(userId, req);
@@ -70,6 +73,7 @@ public class UserController {
      * @return 返回结果
      */
     @PostMapping("/addresses")
+    @Log(module = "用户", type = "新增")
     public ApiResponse<AddressResponse> createAddress(@Valid @RequestBody AddressRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(userService.createAddress(userId, req));
@@ -80,6 +84,7 @@ public class UserController {
      * @return 返回结果
      */
     @PutMapping("/addresses/{addressId}")
+    @Log(module = "用户", type = "修改")
     public ApiResponse<AddressResponse> updateAddress(@PathVariable Long addressId,
                                                        @Valid @RequestBody AddressRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -92,6 +97,7 @@ public class UserController {
      * @return 返回结果
      */
     @DeleteMapping("/addresses/{addressId}")
+    @Log(module = "用户", type = "删除")
     public ApiResponse<Void> deleteAddress(@PathVariable Long addressId) {
         Long userId = SecurityUtils.getCurrentUserId();
         userService.deleteAddress(userId, addressId);
@@ -104,6 +110,7 @@ public class UserController {
      * @return 返回结果
      */
     @PutMapping("/addresses/{addressId}/default")
+    @Log(module = "用户", type = "修改")
     public ApiResponse<Void> setDefaultAddress(@PathVariable Long addressId) {
         Long userId = SecurityUtils.getCurrentUserId();
         userService.setDefaultAddress(userId, addressId);
@@ -125,6 +132,7 @@ public class UserController {
      * @return 返回结果
      */
     @DeleteMapping("/search-history")
+    @Log(module = "用户", type = "删除")
     public ApiResponse<Void> clearSearchHistory() {
         Long userId = SecurityUtils.getCurrentUserId();
         userService.clearSearchHistory(userId);
@@ -146,6 +154,7 @@ public class UserController {
      * @return 返回结果
      */
     @DeleteMapping("/history")
+    @Log(module = "用户", type = "删除")
     public ApiResponse<Void> clearBrowseHistory() {
         Long userId = SecurityUtils.getCurrentUserId();
         userService.clearBrowseHistory(userId);

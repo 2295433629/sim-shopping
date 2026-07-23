@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 商品分类管理控制器，处理分类的增删改查和层级管理
@@ -51,6 +52,7 @@ public class CategoryController {
      * @return 返回结果
      */
     @PostMapping("/admin/categories")
+    @Log(module = "商品", type = "新增")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest request) {
         return ApiResponse.success(categoryService.createCategory(request));
@@ -63,6 +65,7 @@ public class CategoryController {
      * @return 返回结果
      */
     @PutMapping("/admin/categories/{categoryId}")
+    @Log(module = "商品", type = "修改")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<CategoryResponse> updateCategory(@PathVariable Long categoryId,
                                                    @Valid @RequestBody CategoryRequest request) {
@@ -75,6 +78,7 @@ public class CategoryController {
      * @return 返回结果
      */
     @DeleteMapping("/admin/categories/{categoryId}")
+    @Log(module = "商品", type = "删除")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteCategory(@PathVariable Long categoryId) {
         categoryService.deleteCategory(categoryId);

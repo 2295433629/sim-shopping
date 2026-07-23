@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 用户优惠券控制器，处理用户领取优惠券和使用
@@ -32,6 +33,7 @@ public class UserCouponController {
      * @return 返回结果
      */
     @PostMapping("/{couponId}/claim")
+    @Log(module = "营销", type = "新增")
     public ApiResponse<UserCouponResponse> claimCoupon(@PathVariable Long couponId) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(userCouponService.claimCoupon(userId, couponId));
@@ -65,6 +67,7 @@ public class UserCouponController {
      * @return 返回结果
      */
     @PostMapping("/{userCouponId}/use")
+    @Log(module = "营销", type = "操作")
     public ApiResponse<UserCouponResponse> useCoupon(
             @PathVariable Long userCouponId,
             @RequestBody Map<String, String> request) {

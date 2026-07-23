@@ -8,6 +8,7 @@ import com.sim.shopping.interfaces.dto.coupon.CouponResponse;
 import com.sim.shopping.interfaces.dto.coupon.CouponStatisticsVO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 优惠券管理控制器，处理优惠券的创建、发放、查询
@@ -55,6 +56,7 @@ public class CouponController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "营销", type = "新增")
     public ApiResponse<CouponResponse> createCoupon(@RequestBody CouponDO coupon) {
         return ApiResponse.success(couponService.createCoupon(coupon));
     }
@@ -66,6 +68,7 @@ public class CouponController {
      * @return 返回结果
      */
     @PutMapping("/{couponId}")
+    @Log(module = "营销", type = "修改")
     public ApiResponse<CouponResponse> updateCoupon(@PathVariable Long couponId, @RequestBody CouponDO coupon) {
         return ApiResponse.success(couponService.updateCoupon(couponId, coupon));
     }
@@ -76,6 +79,7 @@ public class CouponController {
      * @return 返回结果
      */
     @DeleteMapping("/{couponId}")
+    @Log(module = "营销", type = "删除")
     public ApiResponse<Void> deleteCoupon(@PathVariable Long couponId) {
         couponService.deleteCoupon(couponId);
         return ApiResponse.success();

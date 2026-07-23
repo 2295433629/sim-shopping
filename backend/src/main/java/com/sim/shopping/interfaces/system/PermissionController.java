@@ -8,6 +8,7 @@ import com.sim.shopping.interfaces.dto.system.PermissionResponse;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 权限管理控制器，处理权限的增删改查
@@ -43,6 +44,7 @@ public class PermissionController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "系统", type = "新增")
     public ApiResponse<PermissionResponse> createPermission(@RequestBody PermissionRequest request) {
         return ApiResponse.success(permissionService.createPermission(request));
     }
@@ -54,6 +56,7 @@ public class PermissionController {
      * @return 返回结果
      */
     @PutMapping("/{permissionId}")
+    @Log(module = "系统", type = "修改")
     public ApiResponse<PermissionResponse> updatePermission(@PathVariable Long permissionId, @RequestBody PermissionRequest request) {
         return ApiResponse.success(permissionService.updatePermission(permissionId, request));
     }
@@ -64,6 +67,7 @@ public class PermissionController {
      * @return 返回结果
      */
     @DeleteMapping("/{permissionId}")
+    @Log(module = "系统", type = "删除")
     public ApiResponse<Void> deletePermission(@PathVariable Long permissionId) {
         permissionService.deletePermission(permissionId);
         return ApiResponse.success(null);

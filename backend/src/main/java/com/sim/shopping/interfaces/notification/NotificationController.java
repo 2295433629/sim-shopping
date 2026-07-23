@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 消息通知控制器，处理系统消息和用户通知
@@ -59,6 +60,7 @@ public class NotificationController {
      * @return 返回结果
      */
     @PutMapping("/{notificationId}/read")
+    @Log(module = "系统", type = "修改")
     public ApiResponse<Void> markRead(@PathVariable Long notificationId) {
         Long userId = SecurityUtils.getCurrentUserId();
         notificationService.markRead(userId, notificationId);
@@ -70,6 +72,7 @@ public class NotificationController {
      * @return 返回结果
      */
     @PutMapping("/read-all")
+    @Log(module = "系统", type = "修改")
     public ApiResponse<Void> markAllRead() {
         Long userId = SecurityUtils.getCurrentUserId();
         notificationService.markAllRead(userId);
@@ -82,6 +85,7 @@ public class NotificationController {
      * @return 返回结果
      */
     @DeleteMapping("/{notificationId}")
+    @Log(module = "系统", type = "删除")
     public ApiResponse<Void> deleteNotification(@PathVariable Long notificationId) {
         Long userId = SecurityUtils.getCurrentUserId();
         notificationService.deleteNotification(userId, notificationId);

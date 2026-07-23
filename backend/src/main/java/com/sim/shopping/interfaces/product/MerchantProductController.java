@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * MerchantProduct控制器，处理相关业务请求
@@ -36,6 +37,7 @@ public class MerchantProductController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "商品", type = "新增")
     public ApiResponse<Long> createProduct(@Valid @RequestBody ProductCreateRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         Long merchantId = merchantService.getMerchantIdByUserId(userId);
@@ -47,6 +49,7 @@ public class MerchantProductController {
      * @return 返回结果
      */
     @PutMapping("/{productId}")
+    @Log(module = "商品", type = "修改")
     public ApiResponse<Void> updateProduct(@PathVariable Long productId,
                                             @Valid @RequestBody ProductUpdateRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -61,6 +64,7 @@ public class MerchantProductController {
      * @return 返回结果
      */
     @PatchMapping("/{productId}/publish")
+    @Log(module = "商品", type = "修改")
     public ApiResponse<Void> publishProduct(@PathVariable Long productId) {
         Long userId = SecurityUtils.getCurrentUserId();
         Long merchantId = merchantService.getMerchantIdByUserId(userId);
@@ -74,6 +78,7 @@ public class MerchantProductController {
      * @return 返回结果
      */
     @PatchMapping("/{productId}/offline")
+    @Log(module = "商品", type = "修改")
     public ApiResponse<Void> offlineProduct(@PathVariable Long productId) {
         Long userId = SecurityUtils.getCurrentUserId();
         Long merchantId = merchantService.getMerchantIdByUserId(userId);
@@ -87,6 +92,7 @@ public class MerchantProductController {
      * @return 返回结果
      */
     @DeleteMapping("/{productId}")
+    @Log(module = "商品", type = "删除")
     public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
         Long userId = SecurityUtils.getCurrentUserId();
         Long merchantId = merchantService.getMerchantIdByUserId(userId);

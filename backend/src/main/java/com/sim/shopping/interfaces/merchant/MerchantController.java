@@ -1,6 +1,7 @@
 package com.sim.shopping.interfaces.merchant;
 
 import com.sim.shopping.application.merchant.MerchantService;
+import com.sim.shopping.infrastructure.aop.Log;
 import com.sim.shopping.infrastructure.security.SecurityUtils;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
@@ -35,6 +36,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PostMapping("/api/merchant/apply")
+    @Log(module = "商家", type = "新增")
     @PreAuthorize("isAuthenticated()")
     public ApiResponse<MerchantInfoResponse> apply(@Valid @RequestBody MerchantApplyRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -47,6 +49,7 @@ public class MerchantController {
      * - 新增 /api/user/merchant-application 作为别名，避免前后端/文档不一致
      */
     @PostMapping("/api/user/merchant-application")
+    @Log(module = "商家", type = "新增")
     public ApiResponse<MerchantInfoResponse> applyFromUser(@Valid @RequestBody MerchantApplyRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(merchantService.apply(userId, req));
@@ -69,6 +72,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PutMapping("/api/merchant/info")
+    @Log(module = "商家", type = "修改")
     @PreAuthorize("hasRole('MERCHANT')")
     public ApiResponse<MerchantInfoResponse> updateMerchantInfo(@Valid @RequestBody MerchantApplyRequest req) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -121,6 +125,7 @@ public class MerchantController {
      */
     @PatchMapping("/api/admin/merchants/{merchantId}/approve")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log(module = "商家", type = "审核")
     public ApiResponse<Void> approveMerchant(@PathVariable Long merchantId) {
         Long adminId = SecurityUtils.getCurrentUserId();
         merchantService.approveMerchant(merchantId, adminId);
@@ -133,6 +138,7 @@ public class MerchantController {
      */
     @PatchMapping("/api/admin/merchants/{merchantId}/reject")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log(module = "商家", type = "审核")
     public ApiResponse<Void> rejectMerchant(@PathVariable Long merchantId,
                                              @Valid @RequestBody AuditRequest req) {
         Long adminId = SecurityUtils.getCurrentUserId();
@@ -146,6 +152,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PatchMapping("/api/admin/merchants/{merchantId}/disable")
+    @Log(module = "商家", type = "修改")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> disableMerchant(@PathVariable Long merchantId) {
         merchantService.disableMerchant(merchantId);
@@ -158,6 +165,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PatchMapping("/api/admin/merchants/{merchantId}/enable")
+    @Log(module = "商家", type = "修改")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> enableMerchant(@PathVariable Long merchantId) {
         merchantService.enableMerchant(merchantId);

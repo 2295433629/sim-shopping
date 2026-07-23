@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,7 +98,6 @@ public class LogisticsScheduler {
     /**
      * 推进物流状态（定时任务）
      */
-    @Scheduled(fixedDelay = 30000)
     @Transactional
     public void advanceLogisticsStatus() {
         // 查找所有未完成的物流记录
@@ -215,7 +213,6 @@ public class LogisticsScheduler {
     /**
      * 自动发货：每30秒检查一次，对已支付超过1分钟的订单自动发货
      */
-    @Scheduled(fixedDelay = 30000)
     public void autoShipPaidOrders() {
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(1);
 
@@ -237,7 +234,6 @@ public class LogisticsScheduler {
     /**
      * 自动退款审批：每30秒检查一次，对申请超过3分钟的退款自动同意
      */
-    @Scheduled(fixedDelay = 30000)
     public void autoApproveRefunds() {
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(3);
 

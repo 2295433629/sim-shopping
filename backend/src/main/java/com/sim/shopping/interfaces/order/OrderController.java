@@ -8,6 +8,7 @@ import com.sim.shopping.interfaces.dto.order.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * 用户订单管理控制器，处理用户下单、查询、取消、确认收货等操作
@@ -31,6 +32,7 @@ public class OrderController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "订单", type = "新增")
     public ApiResponse<CreateOrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();
         List<OrderResponse> orders = orderService.createOrder(userId, request.getAddressId(), request.getRemark(), request.getCartItemIds());
@@ -67,6 +69,7 @@ public class OrderController {
      * @return 返回结果
      */
     @PatchMapping("/{orderNo}/cancel")
+    @Log(module = "订单", type = "修改")
     public ApiResponse<Void> cancelOrder(@PathVariable String orderNo) {
         Long userId = SecurityUtils.getCurrentUserId();
         orderService.cancelOrder(userId, orderNo);
@@ -79,6 +82,7 @@ public class OrderController {
      * @return 返回结果
      */
     @PatchMapping("/{orderNo}/confirm")
+    @Log(module = "订单", type = "修改")
     public ApiResponse<Void> confirmReceive(@PathVariable String orderNo) {
         Long userId = SecurityUtils.getCurrentUserId();
         orderService.confirmReceive(userId, orderNo);

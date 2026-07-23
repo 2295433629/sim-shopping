@@ -7,6 +7,7 @@ import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.review.CreateReviewRequest;
 import com.sim.shopping.interfaces.dto.review.ReviewResponse;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * UserReview控制器，处理相关业务请求
@@ -30,6 +31,7 @@ public class UserReviewController {
      * @return 返回结果
      */
     @PostMapping
+    @Log(module = "内容", type = "新增")
     public ApiResponse<ReviewResponse> submitReview(@RequestBody CreateReviewRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.success(reviewService.submitReview(userId, request));
@@ -53,6 +55,7 @@ public class UserReviewController {
      * @return 返回结果
      */
     @DeleteMapping("/{reviewId}")
+    @Log(module = "内容", type = "删除")
     public ApiResponse<Void> deleteReview(@PathVariable Long reviewId) {
         Long userId = SecurityUtils.getCurrentUserId();
         reviewService.deleteReview(userId, reviewId);

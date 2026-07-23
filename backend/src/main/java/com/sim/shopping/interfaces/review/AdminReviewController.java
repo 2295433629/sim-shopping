@@ -6,6 +6,7 @@ import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.review.ReviewResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.sim.shopping.infrastructure.aop.Log;
 
 /**
  * AdminReview控制器，处理相关业务请求
@@ -45,6 +46,7 @@ public class AdminReviewController {
      * @return 返回结果
      */
     @PatchMapping("/{reviewId}/hide")
+    @Log(module = "内容", type = "修改")
     public ApiResponse<Void> hideReview(@PathVariable Long reviewId) {
         reviewService.hideReview(reviewId);
         return ApiResponse.success();
@@ -56,6 +58,7 @@ public class AdminReviewController {
      * @return 返回结果
      */
     @PatchMapping("/{reviewId}/show")
+    @Log(module = "内容", type = "修改")
     public ApiResponse<Void> showReview(@PathVariable Long reviewId) {
         reviewService.showReview(reviewId);
         return ApiResponse.success();
@@ -67,6 +70,7 @@ public class AdminReviewController {
      * @return 返回结果
      */
     @DeleteMapping("/{reviewId}")
+    @Log(module = "内容", type = "删除")
     public ApiResponse<Void> deleteReview(@PathVariable Long reviewId) {
         reviewService.deleteReviewByAdmin(reviewId);
         return ApiResponse.success();
