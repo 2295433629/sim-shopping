@@ -67,8 +67,9 @@ function goToProducts() {
 }
 
 function onBannerClick(banner: BannerItem) {
-  if (banner.linkUrl) {
-    router.push(banner.linkUrl)
+  const url = banner.linkUrl
+  if (url && url !== '/' && url !== '/home') {
+    router.push(url)
   } else if (banner.productId) {
     router.push(`/products/${banner.productId}`)
   } else {

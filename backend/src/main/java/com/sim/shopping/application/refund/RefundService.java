@@ -6,15 +6,25 @@ import com.sim.shopping.domain.common.exception.BusinessException;
 import com.sim.shopping.domain.common.exception.OrderException;
 import com.sim.shopping.infrastructure.persistence.entity.OrderDO;
 import com.sim.shopping.infrastructure.persistence.entity.OrderItemDO;
+import com.sim.shopping.infrastructure.persistence.entity.PointsRecordDO;
 import com.sim.shopping.infrastructure.persistence.entity.ProductDO;
 import com.sim.shopping.infrastructure.persistence.entity.ProductSkuDO;
 import com.sim.shopping.infrastructure.persistence.entity.RefundDO;
+import com.sim.shopping.infrastructure.persistence.entity.UserCouponDO;
+import com.sim.shopping.infrastructure.persistence.entity.UserDO;
 import com.sim.shopping.infrastructure.persistence.mapper.OrderItemMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.OrderMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.ProductMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.ProductSkuMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.RefundMapper;
+import com.sim.shopping.infrastructure.persistence.mapper.UserCouponMapper;
+import com.sim.shopping.infrastructure.persistence.mapper.UserMapper;
+import com.sim.shopping.infrastructure.persistence.mapper.UserPointsMapper;
+import com.sim.shopping.infrastructure.persistence.mapper.PointsRecordMapper;
+import com.sim.shopping.infrastructure.persistence.entity.PointsRecordDO;
 import com.sim.shopping.application.settlement.SettlementService;
+import com.sim.shopping.application.points.PointsService;
+import com.sim.shopping.application.coupon.UserCouponService;
 import com.sim.shopping.interfaces.dto.refund.RefundRequest;
 import com.sim.shopping.interfaces.dto.refund.RefundVO;
 import org.slf4j.Logger;
@@ -44,16 +54,31 @@ public class RefundService {
     private final ProductSkuMapper productSkuMapper;
     private final ProductMapper productMapper;
     private final SettlementService settlementService;
+    private final PointsService pointsService;
+    private final UserCouponService userCouponService;
+    private final UserCouponMapper userCouponMapper;
+    private final UserMapper userMapper;
+    private final UserPointsMapper userPointsMapper;
+    private final PointsRecordMapper pointsRecordMapper;
 
     public RefundService(RefundMapper refundMapper, OrderMapper orderMapper,
                           OrderItemMapper orderItemMapper, ProductSkuMapper productSkuMapper,
-                          ProductMapper productMapper, SettlementService settlementService) {
+                          ProductMapper productMapper, SettlementService settlementService,
+                          PointsService pointsService, UserCouponService userCouponService,
+                          UserCouponMapper userCouponMapper, UserMapper userMapper,
+                          UserPointsMapper userPointsMapper, PointsRecordMapper pointsRecordMapper) {
         this.refundMapper = refundMapper;
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.productSkuMapper = productSkuMapper;
         this.productMapper = productMapper;
         this.settlementService = settlementService;
+        this.pointsService = pointsService;
+        this.userCouponService = userCouponService;
+        this.userCouponMapper = userCouponMapper;
+        this.userMapper = userMapper;
+        this.userPointsMapper = userPointsMapper;
+        this.pointsRecordMapper = pointsRecordMapper;
     }
 
     /**
@@ -170,7 +195,7 @@ public class RefundService {
                             new LambdaUpdateWrapper<ProductDO>()
                                     .eq(ProductDO::getId, item.getProductId())
                                     .setSql("stock = stock + " + item.getQuantity())
-                                    .setSql("sales = sales - " + item.getQuantity()));
+                                    .setSql("sales = GREATEST(sales - " + item.getQuantity() + ", 0)"));
                 }
             }
 
@@ -179,6 +204,49 @@ public class RefundService {
             // 退款结算扣减：从商户余额扣减退款金额
             BigDecimal refundAmount = refund.getAmount() != null ? refund.getAmount() : BigDecimal.ZERO;
             settlementService.reverseSettlement(order.getId(), orderNo, order.getShopId(), refundAmount);
+
+            // 回退确认收货时发放的积分：扣减 payAmount/10 的积分
+            BigDecimal payAmount = order.getPayAmount() != null ? order.getPayAmount() : BigDecimal.ZERO;
+            int pointsToRevoke = payAmount.divideToIntegralValue(BigDecimal.TEN).intValue();
+            if (pointsToRevoke > 0) {
+                // 先查询该订单是否有已发放的积分记录（避免重复扣减）
+                LambdaQueryWrapper<PointsRecordDO> pointsCheckWrapper = new LambdaQueryWrapper<>();
+                pointsCheckWrapper.eq(PointsRecordDO::getUserId, order.getUserId())
+                        .eq(PointsRecordDO::getSource, "ORDER_REWARD")
+                        .eq(PointsRecordDO::getRelatedId, order.getId());
+                if (pointsRecordMapper.selectCount(pointsCheckWrapper) > 0) {
+                    // 原子扣减积分
+                    userPointsMapper.deductPoints(order.getUserId(), pointsToRevoke);
+                    // 同步更新 t_user.points
+                    userMapper.update(null,
+                            new LambdaUpdateWrapper<UserDO>()
+                                    .eq(UserDO::getId, order.getUserId())
+                                    .setSql("points = GREATEST(points - " + pointsToRevoke + ", 0)"));
+                    // 记录积分扣减明细
+                    PointsRecordDO revokeRecord = new PointsRecordDO();
+                    revokeRecord.setUserId(order.getUserId());
+                    revokeRecord.setPoints(pointsToRevoke);
+                    revokeRecord.setType("SPEND");
+                    revokeRecord.setSource("REFUND_REVOKE");
+                    revokeRecord.setDescription("退款扣减积分：订单 " + orderNo + " 退款，扣减" + pointsToRevoke + "积分");
+                    revokeRecord.setRelatedId(order.getId());
+                    pointsRecordMapper.insert(revokeRecord);
+                    log.info("退款积分回退: orderNo={}, userId={}, 扣减积分={}", orderNo, order.getUserId(), pointsToRevoke);
+                }
+            }
+
+            // 退款后恢复已使用的优惠券状态（USED -> CLAIMED）
+            LambdaQueryWrapper<UserCouponDO> couponWrapper = new LambdaQueryWrapper<>();
+            couponWrapper.eq(UserCouponDO::getOrderNo, orderNo)
+                    .eq(UserCouponDO::getStatus, "USED");
+            List<UserCouponDO> usedCoupons = userCouponMapper.selectList(couponWrapper);
+            for (UserCouponDO usedCoupon : usedCoupons) {
+                usedCoupon.setStatus("CLAIMED");
+                usedCoupon.setUsedAt(null);
+                usedCoupon.setOrderNo(null);
+                userCouponMapper.updateById(usedCoupon);
+                log.info("退款优惠券回退: orderNo={}, userId={}, couponId={}", orderNo, order.getUserId(), usedCoupon.getCouponId());
+            }
         }
 
         return toVO(refund);

@@ -21,6 +21,7 @@ public class MerchantDO extends BaseEntity {
     private String contactEmail;
     private String businessLicense;
     private Long approvedBy;
+    private String rejectReason;
 
     /**
      * 获取Merchant Name
@@ -102,4 +103,14 @@ public class MerchantDO extends BaseEntity {
      * @param approvedBy approvedBy
      */
     public void setApprovedBy(Long approvedBy) { this.approvedBy = approvedBy; }
+    /**
+     * 获取Reject Reason
+     * @return 返回结果
+     */
+    public String getRejectReason() { return this.rejectReason; }
+    /**
+     * set Reject Reason
+     * @param rejectReason rejectReason
+     */
+    public void setRejectReason(String rejectReason) { this.rejectReason = rejectReason; }
 }

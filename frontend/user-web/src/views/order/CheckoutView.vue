@@ -198,24 +198,32 @@ function formatAddress(addr: AddressInfo) {
 
     <el-card v-if="selectedItems.length > 0" shadow="never" class="section-card">
       <template #header><span class="section-title">收货地址</span></template>
-      <el-select
-        v-model="selectedAddressId"
-        placeholder="请选择收货地址"
-        style="width: 100%"
-        size="large"
-      >
-        <el-option
-          v-for="addr in addressList"
-          :key="addr.id"
-          :label="formatAddress(addr)"
-          :value="addr.id"
-        />
-      </el-select>
-      <div v-if="selectedAddress" class="address-preview">
-        <el-icon><Location /></el-icon>
-        <span>{{ formatAddress(selectedAddress) }}</span>
-      </div>
-      <el-button text type="primary" @click="router.push('/addresses')">管理收货地址</el-button>
+      <template v-if="addressList.length === 0">
+        <div class="no-address-tip">
+          <span>暂无收货地址</span>
+          <el-button type="primary" link @click="router.push('/addresses')">去添加</el-button>
+        </div>
+      </template>
+      <template v-else>
+        <el-select
+          v-model="selectedAddressId"
+          placeholder="请选择收货地址"
+          style="width: 100%"
+          size="large"
+        >
+          <el-option
+            v-for="addr in addressList"
+            :key="addr.id"
+            :label="formatAddress(addr)"
+            :value="addr.id"
+          />
+        </el-select>
+        <div v-if="selectedAddress" class="address-preview">
+          <el-icon><Location /></el-icon>
+          <span>{{ formatAddress(selectedAddress) }}</span>
+        </div>
+        <el-button text type="primary" @click="router.push('/addresses')">管理收货地址</el-button>
+      </template>
     </el-card>
 
     <el-card v-for="group in shopGroups" :key="group.shopId" shadow="never" class="section-card">
@@ -306,7 +314,7 @@ function formatAddress(addr: AddressInfo) {
         type="primary"
         size="large"
         :loading="submitting"
-        :disabled="selectedItems.length === 0"
+        :disabled="selectedItems.length === 0 || addressList.length === 0"
         @click="handleSubmit"
       >
         提交订单
@@ -344,6 +352,16 @@ function formatAddress(addr: AddressInfo) {
     border-radius: 4px;
     font-size: 14px;
     color: var(--color-ink);
+  }
+
+  .no-address-tip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 0;
+    font-size: 14px;
+    color: var(--color-shade-40);
   }
 
   .coupon-discount-info {

@@ -326,6 +326,14 @@ public class OrderService {
                 product.setSales(Math.max(0, product.getSales() - item.getQuantity()));
                 productMapper.updateById(product);
             }
+            // 恢复SKU库存（下单时扣减了SKU库存，取消时需要恢复）
+            if (item.getSkuId() != null && item.getQuantity() != null) {
+                ProductSkuDO sku = productSkuMapper.selectById(item.getSkuId());
+                if (sku != null) {
+                    sku.setStock(sku.getStock() + item.getQuantity());
+                    productSkuMapper.updateById(sku);
+                }
+            }
         }
 
         // Publish event

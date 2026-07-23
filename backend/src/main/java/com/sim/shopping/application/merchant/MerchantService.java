@@ -200,6 +200,7 @@ public class MerchantService {
         merchant.setStatus("REJECTED");
         merchant.setApprovedBy(adminId);
         merchant.setApprovedAt(LocalDateTime.now());
+        merchant.setRejectReason(reason);
         merchantMapper.updateById(merchant);
     }
 
@@ -343,6 +344,8 @@ public class MerchantService {
         resp.setContactPhone(m.getContactPhone());
         resp.setContactEmail(m.getContactEmail());
         resp.setStatus(m.getStatus());
+        resp.setBusinessLicense(m.getBusinessLicense());
+        resp.setRejectReason(m.getRejectReason());
         if (shop != null) {
             resp.setShopId(shop.getId());
             resp.setShopName(shop.getShopName());

@@ -17,6 +17,8 @@ const tabs = [
   { label: '待付款', value: 'CREATED' },
   { label: '已付款', value: 'PAID' },
   { label: '已发货', value: 'SHIPPED' },
+  { label: '运输中', value: 'IN_TRANSIT' },
+  { label: '配送中', value: 'OUT_FOR_DELIVERY' },
   { label: '已送达', value: 'DELIVERED' },
   { label: '已完成', value: 'COMPLETED' },
   { label: '已取消', value: 'CANCELLED' },
@@ -26,6 +28,8 @@ const statusTagType: Record<string, string> = {
   CREATED: 'warning',
   PAID: 'primary',
   SHIPPED: 'info',
+  IN_TRANSIT: 'primary',
+  OUT_FOR_DELIVERY: 'warning',
   DELIVERED: 'success',
   COMPLETED: 'success',
   CANCELLED: 'danger',
@@ -66,6 +70,10 @@ function handlePageChange(p: number) {
 function handleDetail(row: OrderListVO) {
   router.push(`/orders/${row.orderNo}`)
 }
+
+function handleShip(row: OrderListVO) {
+  router.push(`/merchant/orders/shipping?orderNo=${row.orderNo}`)
+}
 </script>
 
 <template>
@@ -105,9 +113,10 @@ function handleDetail(row: OrderListVO) {
           </template>
         </el-table-column>
         <el-table-column label="下单时间" prop="createdAt" width="180" />
-        <el-table-column label="操作" width="100" align="center" fixed="right">
+        <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleDetail(row)">详情</el-button>
+            <el-button v-if="row.status === 'PAID'" link type="success" @click="handleShip(row)">发货</el-button>
           </template>
         </el-table-column>
       </el-table>

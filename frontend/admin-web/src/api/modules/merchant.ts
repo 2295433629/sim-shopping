@@ -20,6 +20,8 @@ export interface MerchantDetailInfo {
   status: string
   shopId: number
   shopName: string
+  businessLicense: string
+  rejectReason: string
 }
 
 export function getMerchants(params: { page: number; size: number; status?: string; keyword?: string }) {

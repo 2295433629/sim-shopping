@@ -242,6 +242,11 @@ public class FlashSaleService {
         return convertToFlashSaleOrderResponse(order, saleId, flashPrice);
     }
 
+    /**
+     * 检查用户购买限制（已知限制：读-判断-写非原子操作，并发下可能突破限购）。
+     * 库存层面已通过 FlashSaleMapper.deductStock 的 WHERE stock >= #{quantity} 条件保证不会超卖。
+     * 限购检查的原子化需依赖分布式锁或数据库唯一索引，后续版本优化。
+     */
     private void checkUserPurchaseLimit(Long userId, FlashSaleDO flashSale, Integer quantity) {
         int limitPerUser = flashSale.getLimitPerUser() != null ? flashSale.getLimitPerUser() : 1;
 

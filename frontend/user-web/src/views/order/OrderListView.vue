@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getOrders, cancelOrder, confirmReceive, type OrderListVO } from '@/api/modules/order'
+import { getOrders, cancelOrder, confirmReceive, applyRefund, type OrderListVO } from '@/api/modules/order'
 
 const router = useRouter()
 const loading = ref(false)
@@ -115,6 +115,22 @@ function handlePay(order: OrderListVO) {
 function handleDetail(order: OrderListVO) {
   router.push(`/orders/${order.orderNo}`)
 }
+
+async function handleRefund(order: OrderListVO) {
+  try {
+    const { value: reason } = await ElMessageBox.prompt('请输入退款原因', '申请退款', {
+      confirmButtonText: '提交',
+      cancelButtonText: '取消',
+      inputType: 'textarea',
+      inputValidator: (val: string) => (val && val.trim() ? true : '请输入退款原因'),
+    })
+    await applyRefund(order.orderNo, { refundType: 'REFUND_ONLY', reason: reason.trim(), amount: order.payAmount })
+    ElMessage.success('退款申请已提交')
+    loadOrders()
+  } catch {
+    // cancelled or error
+  }
+}
 </script>
 
 <template>
@@ -171,6 +187,9 @@ function handleDetail(order: OrderListVO) {
             </el-button>
             <el-button v-if="order.status === 'CREATED'" size="small" @click="handleCancel(order)">
               取消订单
+            </el-button>
+            <el-button v-if="order.status === 'PAID'" size="small" type="warning" @click="handleRefund(order)">
+              申请退款
             </el-button>
             <el-button v-if="order.status === 'DELIVERED'" type="success" size="small" @click="handleConfirmReceive(order)">
               确认收货

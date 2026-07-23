@@ -96,6 +96,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @GetMapping("/api/admin/merchants/pending")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<PageResponse<MerchantListResponse>> getPendingMerchants(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
@@ -108,6 +109,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @GetMapping("/api/admin/merchants/{merchantId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<MerchantInfoResponse> getMerchantDetail(@PathVariable Long merchantId) {
         return ApiResponse.success(merchantService.getMerchantDetail(merchantId));
     }
@@ -118,6 +120,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PatchMapping("/api/admin/merchants/{merchantId}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> approveMerchant(@PathVariable Long merchantId) {
         Long adminId = SecurityUtils.getCurrentUserId();
         merchantService.approveMerchant(merchantId, adminId);
@@ -129,6 +132,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PatchMapping("/api/admin/merchants/{merchantId}/reject")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> rejectMerchant(@PathVariable Long merchantId,
                                              @Valid @RequestBody AuditRequest req) {
         Long adminId = SecurityUtils.getCurrentUserId();
@@ -142,6 +146,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PatchMapping("/api/admin/merchants/{merchantId}/disable")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> disableMerchant(@PathVariable Long merchantId) {
         merchantService.disableMerchant(merchantId);
         return ApiResponse.success();
@@ -153,6 +158,7 @@ public class MerchantController {
      * @return 返回结果
      */
     @PatchMapping("/api/admin/merchants/{merchantId}/enable")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> enableMerchant(@PathVariable Long merchantId) {
         merchantService.enableMerchant(merchantId);
         return ApiResponse.success();

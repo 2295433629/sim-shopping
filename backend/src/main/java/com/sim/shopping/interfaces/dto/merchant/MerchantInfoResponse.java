@@ -15,6 +15,8 @@ public class MerchantInfoResponse {
     private String status;
     private Long shopId;
     private String shopName;
+    private String businessLicense;
+    private String rejectReason;
 
     /**
      * 获取Merchant Id
@@ -86,4 +88,24 @@ public class MerchantInfoResponse {
      * @param shopName shopName
      */
     public void setShopName(String shopName) { this.shopName = shopName; }
+    /**
+     * 获取Business License
+     * @return 返回结果
+     */
+    public String getBusinessLicense() { return this.businessLicense; }
+    /**
+     * set Business License
+     * @param businessLicense businessLicense
+     */
+    public void setBusinessLicense(String businessLicense) { this.businessLicense = businessLicense; }
+    /**
+     * 获取Reject Reason
+     * @return 返回结果
+     */
+    public String getRejectReason() { return this.rejectReason; }
+    /**
+     * set Reject Reason
+     * @param rejectReason rejectReason
+     */
+    public void setRejectReason(String rejectReason) { this.rejectReason = rejectReason; }
 }

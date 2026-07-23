@@ -46,6 +46,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'activities', name: 'ActivityList', component: () => import('@/views/activity/ActivityListView.vue'), meta: { title: '专题活动' } },
       { path: 'activities/:id', name: 'ActivityDetail', component: () => import('@/views/activity/ActivityDetailView.vue'), meta: { title: '活动详情' } },
       { path: 'rankings', name: 'Rankings', component: () => import('@/views/ranking/RankingView.vue'), meta: { title: '排行榜' } },
+      { path: 'merchant/apply', name: 'MerchantApply', component: () => import('@/views/merchant/MerchantApplyView.vue'), meta: { title: '申请入驻', requiresAuth: true } },
     ],
   },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/common/NotFoundView.vue'), meta: { title: '页面不存在' } },

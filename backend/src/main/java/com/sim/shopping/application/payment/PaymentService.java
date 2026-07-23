@@ -58,8 +58,8 @@ public class PaymentService {
         LambdaQueryWrapper<PaymentDO> existWrapper = new LambdaQueryWrapper<>();
         existWrapper.eq(PaymentDO::getOrderNo, orderNo);
         PaymentDO existingPayment = paymentMapper.selectOne(existWrapper);
-        if (existingPayment != null && "SUCCESS".equals(existingPayment.getStatus())) {
-            throw new BusinessException(400, "订单已支付");
+        if (existingPayment != null) {
+            throw new BusinessException(400, "该订单已存在支付记录");
         }
 
         // Generate payment number: PAY + yyyyMMddHHmmss + 3-digit random

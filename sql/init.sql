@@ -70,6 +70,7 @@ CREATE TABLE `t_merchant` (
   `status` VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT '状态(PENDING/APPROVED/ACTIVE/DISABLED/REJECTED)',
   `approved_at` DATETIME DEFAULT NULL COMMENT '审核通过时间',
   `approved_by` BIGINT DEFAULT NULL COMMENT '审核人ID',
+  `reject_reason` VARCHAR(500) DEFAULT NULL COMMENT '拒绝原因',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_by` BIGINT DEFAULT NULL,
@@ -1190,3 +1191,5 @@ INSERT INTO `t_sys_dict_item` (`dict_type_id`, `label`, `value`, `sort_order`, `
 (4, '管理员', 'ADMIN', 1, 'ACTIVE'),
 (4, '商家', 'MERCHANT', 2, 'ACTIVE'),
 (4, '普通用户', 'USER', 3, 'ACTIVE');
+
+-- ============================================================

@@ -62,28 +62,37 @@ async function loadAddresses() {
   }
 }
 
+function isStarted(): boolean {
+  if (!detail.value) return false
+  const now = Date.now()
+  const start = new Date(detail.value.startTime).getTime()
+  return now >= start
+}
+
 function updateCountdown() {
   if (!detail.value) {
     countdownText.value = '--:--:--'
     return
   }
   const now = Date.now()
+  const start = new Date(detail.value.startTime).getTime()
   const end = new Date(detail.value.endTime).getTime()
-  const diff = end - now
-  if (diff <= 0) {
+  if (now < start) {
+    countdownText.value = formatCountdown(start - now, '距开始')
+  } else if (end - now <= 0) {
     countdownText.value = '已结束'
   } else {
-    countdownText.value = formatCountdown(diff)
+    countdownText.value = formatCountdown(end - now, '距结束')
   }
 }
 
-function formatCountdown(ms: number): string {
+function formatCountdown(ms: number, prefix: string): string {
   const seconds = Math.floor(ms / 1000)
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const secs = seconds % 60
   const pad = (n: number) => String(n).padStart(2, '0')
-  return `距结束 ${pad(hours)}:${pad(minutes)}:${pad(secs)}`
+  return `${prefix} ${pad(hours)}:${pad(minutes)}:${pad(secs)}`
 }
 
 function formatPrice(price: number): string {
@@ -99,9 +108,11 @@ function soldPercent(): number {
 
 function isEnded(): boolean {
   if (!detail.value) return true
-  const now = Date.now()
-  const end = new Date(detail.value.endTime).getTime()
-  return end - now <= 0 || detail.value.stock <= 0
+  return detail.value.stock <= 0
+}
+
+function canOrder(): boolean {
+  return isStarted() && !isEnded()
 }
 
 async function handleOrder() {
@@ -164,7 +175,7 @@ function goBack() {
 
             <div class="countdown-box">
               <el-icon><Timer /></el-icon>
-              <span class="countdown-text" :class="{ expired: countdownText === '已结束' }">
+              <span class="countdown-text" :class="{ expired: countdownText === '已结束', pending: !isStarted() }">
                 {{ countdownText }}
               </span>
             </div>
@@ -200,7 +211,7 @@ function goBack() {
                 v-model="quantity"
                 :min="1"
                 :max="Math.min(detail.limitPerUser, detail.stock)"
-                :disabled="isEnded()"
+                :disabled="!canOrder()"
               />
             </div>
 
@@ -210,7 +221,7 @@ function goBack() {
                 v-model="selectedAddressId"
                 placeholder="请选择收货地址"
                 style="width: 320px"
-                :disabled="isEnded()"
+                :disabled="!canOrder()"
               >
                 <el-option
                   v-for="addr in addressList"
@@ -227,11 +238,11 @@ function goBack() {
                 type="danger"
                 size="large"
                 :loading="ordering"
-                :disabled="isEnded()"
+                :disabled="!canOrder()"
                 @click="handleOrder"
               >
                 <el-icon><Lightning /></el-icon>
-                {{ isEnded() ? (detail.stock <= 0 ? '已售罄' : '已结束') : '立即抢购' }}
+                {{ !isStarted() ? '即将开始' : (isEnded() ? (detail.stock <= 0 ? '已售罄' : '已结束') : '立即抢购') }}
               </el-button>
             </div>
           </div>
@@ -299,6 +310,13 @@ function goBack() {
 
         &.expired {
           opacity: 0.8;
+        }
+
+        &.pending {
+          background: linear-gradient(135deg, #e6a23c, #f0c040);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
         }
       }
     }

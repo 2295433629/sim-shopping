@@ -47,8 +47,12 @@
         <el-descriptions-item label="联系电话">{{ detail?.contactPhone }}</el-descriptions-item>
         <el-descriptions-item label="邮箱">{{ detail?.contactEmail ?? '-' }}</el-descriptions-item>
         <el-descriptions-item label="关联店铺">{{ detail?.shopName ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="营业执照号">{{ detail?.businessLicense || '-' }}</el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag v-if="detail" :type="statusType(detail.status)">{{ statusLabel(detail.status) }}</el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item v-if="detail?.rejectReason" label="拒绝原因">
+          <span style="color: #f56c6c">{{ detail.rejectReason }}</span>
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
@@ -120,7 +124,7 @@ const handleApprove = async (row: MerchantListItem) => {
 }
 const handleReject = async (row: MerchantListItem) => {
   try {
-    const { value } = await ElMessageBox.prompt('拒绝原因', '拒绝', { inputType: 'textarea' })
+    const { value } = await ElMessageBox.prompt('拒绝原因', '拒绝', { inputType: 'textarea', inputValidator: (val: string) => (val && val.trim() ? true : '请输入拒绝原因') })
     await rejectMerchant(row.merchantId, value)
     ElMessage.success('已拒绝')
     loadList()

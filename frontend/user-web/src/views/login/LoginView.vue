@@ -41,6 +41,7 @@ async function handleSubmit() {
   try {
     if (isRegister.value) {
       await userStore.register(loginForm.username, loginForm.password, loginForm.nickname)
+      await userStore.fetchUserInfo()
       ElMessage.success('注册成功')
       const redirect = (route.query.redirect as string) || '/home'
       router.push(redirect)
@@ -92,9 +93,14 @@ function toggleMode() {
           </el-button>
         </el-form-item>
         <el-form-item>
-          <el-link type="primary" @click="toggleMode">
-            {{ isRegister ? '已有账号？去登录' : '没有账号？去注册' }}
-          </el-link>
+          <div style="display: flex; width: 100%; justify-content: space-between">
+            <el-link type="primary" @click="toggleMode">
+              {{ isRegister ? '已有账号？去登录' : '没有账号？去注册' }}
+            </el-link>
+            <el-link type="primary" @click="router.push('/merchant/apply')">
+              想开店？申请入驻
+            </el-link>
+          </div>
         </el-form-item>
       </el-form>
     </el-card>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
@@ -12,6 +12,7 @@ import {
   ChatDotSquare,
   Clock,
   Setting,
+  Shop,
 } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
@@ -64,16 +65,23 @@ const passwordRules = reactive<FormRules>({
 })
 
 /** 快捷功能入口配置 */
-const shortcuts = [
-  { icon: ShoppingBag, label: '我的订单', path: '/orders' },
-  { icon: Location, label: '收货地址', path: '/addresses' },
-  { icon: Star, label: '我的收藏', path: '/favorites' },
-  { icon: Ticket, label: '我的优惠券', path: '/coupons' },
-  { icon: Coin, label: '积分商城', path: '/points/mall' },
-  { icon: ChatDotSquare, label: '评价记录', path: '/reviews' },
-  { icon: Clock, label: '浏览历史', path: '/history' },
-  { icon: Setting, label: '设置', path: '/profile' },
-]
+const shortcuts = computed(() => {
+  const items = [
+    { icon: ShoppingBag, label: '我的订单', path: '/orders' },
+    { icon: Location, label: '收货地址', path: '/addresses' },
+    { icon: Star, label: '我的收藏', path: '/favorites' },
+    { icon: Ticket, label: '我的优惠券', path: '/coupons' },
+    { icon: Coin, label: '积分商城', path: '/points/mall' },
+    { icon: ChatDotSquare, label: '评价记录', path: '/reviews' },
+    { icon: Clock, label: '浏览历史', path: '/history' },
+  ]
+  // 非商家用户才显示"申请入驻"入口
+  if (userStore.userInfo?.role !== 'MERCHANT') {
+    items.push({ icon: Shop, label: '申请入驻', path: '/merchant/apply' })
+  }
+  items.push({ icon: Setting, label: '设置', path: '/profile' })
+  return items
+})
 
 function navigateTo(path: string) {
   router.push(path)
