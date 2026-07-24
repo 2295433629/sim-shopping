@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { signIn, getTodaySignInStatus, getSignInRecords, type SignInResult, type SignInRecord } from '@/api/modules/signin'
+import { signIn, getTodaySignInStatus, getSignInRecords, type SignInRecord } from '@/api/modules/signin'
 import { ElMessage } from 'element-plus'
 
 const loading = ref(false)
@@ -20,7 +20,7 @@ onMounted(() => {
 async function loadStatus() {
   loading.value = true
   try {
-    const data = await getTodaySignInStatus() as any
+    const data = await getTodaySignInStatus()
     signedToday.value = data.signed || false
     consecutiveDays.value = data.consecutiveDays || 0
     points.value = data.points || 0
@@ -33,7 +33,7 @@ async function loadStatus() {
 
 async function loadRecords() {
   try {
-    const data = await getSignInRecords({ page: page.value, size: pageSize.value }) as any
+    const data = await getSignInRecords({ page: page.value, size: pageSize.value })
     records.value = data.list || []
     totalRecords.value = data.total || 0
   } catch {
@@ -45,15 +45,14 @@ async function handleSignIn() {
   if (signedToday.value) return
   loading.value = true
   try {
-    const data = await signIn() as any
-    const result = data as SignInResult
+    const result = await signIn()
     signedToday.value = true
     consecutiveDays.value = result.consecutiveDays || consecutiveDays.value + 1
     points.value = result.points || points.value
     ElMessage.success(`签到成功！获得 ${result.points} 积分，已连续签到 ${result.consecutiveDays} 天`)
     loadRecords()
-  } catch (e: any) {
-    ElMessage.error(e.message || '签到失败')
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '签到失败')
   } finally {
     loading.value = false
   }

@@ -3,6 +3,7 @@ package com.sim.shopping.application.system;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.UserDO;
 import com.sim.shopping.infrastructure.persistence.mapper.UserMapper;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
@@ -47,7 +48,7 @@ public class AdminUserService {
         }
         if (status != null) {
             // 前端传1=正常，0=禁用；数据库存ACTIVE/DISABLED
-            String dbStatus = status == 1 ? "ACTIVE" : "DISABLED";
+            String dbStatus = status == 1 ? SystemConstants.STATUS_ACTIVE : SystemConstants.STATUS_DISABLED;
             wrapper.eq(UserDO::getStatus, dbStatus);
         }
         wrapper.orderByDesc(UserDO::getCreatedAt);
@@ -84,7 +85,7 @@ public class AdminUserService {
         if (user == null) {
             throw new BusinessException(404, "用户不存在: " + userId);
         }
-        user.setStatus("DISABLED");
+        user.setStatus(SystemConstants.STATUS_DISABLED);
         userMapper.updateById(user);
     }
 
@@ -98,7 +99,7 @@ public class AdminUserService {
         if (user == null) {
             throw new BusinessException(404, "用户不存在: " + userId);
         }
-        user.setStatus("ACTIVE");
+        user.setStatus(SystemConstants.STATUS_ACTIVE);
         userMapper.updateById(user);
     }
 

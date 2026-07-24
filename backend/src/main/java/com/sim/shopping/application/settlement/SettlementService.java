@@ -3,6 +3,7 @@ package com.sim.shopping.application.settlement;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.SettlementRecordDO;
 import com.sim.shopping.infrastructure.persistence.mapper.SettlementRecordMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.ShopMapper;
@@ -44,8 +45,8 @@ public class SettlementService {
         record.setOrderId(orderId);
         record.setOrderNo(orderNo);
         record.setAmount(amount);
-        record.setType("ORDER");
-        record.setStatus("SETTLED");
+        record.setType(SystemConstants.SETTLEMENT_TYPE_ORDER);
+        record.setStatus(SystemConstants.SETTLEMENT_STATUS_SETTLED);
         record.setDescription("订单结算: " + orderNo);
         settlementRecordMapper.insert(record);
 
@@ -64,8 +65,8 @@ public class SettlementService {
         record.setOrderId(orderId);
         record.setOrderNo(orderNo);
         record.setAmount(amount.negate());
-        record.setType("REFUND");
-        record.setStatus("SETTLED");
+        record.setType(SystemConstants.REFUND_TYPE_REFUND_ONLY);
+        record.setStatus(SystemConstants.SETTLEMENT_STATUS_SETTLED);
         record.setDescription("退款扣减: " + orderNo);
         settlementRecordMapper.insert(record);
 

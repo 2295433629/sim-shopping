@@ -4,6 +4,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getMerchantOrderDetail, type OrderDetailVO } from '@/api/modules/order'
 import { createShipment, getLogisticsInfo, type CreateShipmentParams } from '@/api/modules/shipment'
+import { ORDER_STATUS_TAG_TYPE, ORDER_STATUS_TEXT } from '@/constants/order'
+
+type ElTagType = 'success' | 'warning' | 'info' | 'danger' | 'primary'
 
 const route = useRoute()
 const router = useRouter()
@@ -12,24 +15,8 @@ const order = ref<OrderDetailVO | null>(null)
 
 const orderNo = route.params.orderNo as string
 
-const statusTagType: Record<string, string> = {
-  CREATED: 'warning',
-  PAID: 'primary',
-  SHIPPED: 'info',
-  DELIVERED: 'success',
-  COMPLETED: 'success',
-  CANCELLED: 'danger',
-}
-
-const statusTextMap: Record<string, string> = {
-  CREATED: '待付款',
-  PAID: '已付款',
-  SHIPPED: '已发货',
-  IN_TRANSIT: '运输中',
-  DELIVERED: '已送达',
-  COMPLETED: '已完成',
-  CANCELLED: '已取消',
-}
+const statusTagType = ORDER_STATUS_TAG_TYPE
+const statusTextMap = ORDER_STATUS_TEXT
 
 // 发货对话框
 const shipDialogVisible = ref(false)
@@ -52,7 +39,19 @@ const logisticsOptions = [
 // 物流信息对话框
 const logisticsDialogVisible = ref(false)
 const logisticsLoading = ref(false)
-const logisticsData = ref<any>(null)
+
+interface LogisticsTrace {
+  occurredAt: string
+  description: string
+}
+
+interface LogisticsData {
+  logisticsCompany?: string
+  trackingNo?: string
+  traces?: LogisticsTrace[]
+}
+
+const logisticsData = ref<LogisticsData | null>(null)
 
 onMounted(() => {
   loadDetail()
@@ -114,7 +113,7 @@ async function openLogisticsDialog() {
   logisticsDialogVisible.value = true
   logisticsLoading.value = true
   try {
-    logisticsData.value = await getLogisticsInfo(orderNo)
+    logisticsData.value = await getLogisticsInfo(orderNo) as unknown as LogisticsData
   } catch {
     logisticsData.value = null
   } finally {
@@ -132,7 +131,7 @@ async function openLogisticsDialog() {
         <template #header>
           <div class="card-header">
             <span class="section-title">订单信息</span>
-            <el-tag :type="(statusTagType[order.status] as any) || 'info'" size="large">
+            <el-tag :type="(statusTagType[order.status] as ElTagType) || 'info'" size="large">
               {{ statusTextMap[order.status] || order.status }}
             </el-tag>
           </div>
@@ -173,12 +172,12 @@ async function openLogisticsDialog() {
           <el-table-column label="商品" prop="productName" min-width="200" />
           <el-table-column label="规格" prop="skuName" width="150" />
           <el-table-column label="单价" width="100" align="right">
-            <template #default="{ row }">¥{{ row.price.toFixed(2) }}</template>
+            <template #default="{ row }">¥{{ (row.price ?? 0).toFixed(2) }}</template>
           </el-table-column>
           <el-table-column label="数量" prop="quantity" width="80" align="center" />
           <el-table-column label="小计" width="120" align="right">
             <template #default="{ row }">
-              <span style="color: #e4393c; font-weight: 600;">¥{{ row.subtotal.toFixed(2) }}</span>
+              <span style="color: #e4393c; font-weight: 600;">¥{{ (row.subtotal ?? 0).toFixed(2) }}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -255,7 +254,7 @@ async function openLogisticsDialog() {
             <el-timeline>
               <el-timeline-item
                 v-for="(trace, idx) in logisticsData.traces"
-                :key="idx"
+                :key="trace.occurredAt + '-' + idx"
                 :timestamp="trace.occurredAt"
                 placement="top"
               >

@@ -1,4 +1,5 @@
 import request from '@/api/request'
+import type { PageResponse } from '@/types/common'
 
 export interface SignInResult {
   points: number
@@ -15,15 +16,15 @@ export interface SignInRecord {
 
 /** 每日签到 */
 export function signIn() {
-  return request.post('/user/sign-in')
+  return request.post<unknown, SignInResult>('/user/sign-in')
 }
 
 /** 查询今日签到状态 */
 export function getTodaySignInStatus() {
-  return request.get('/user/sign-in/today')
+  return request.get<unknown, SignInResult>('/user/sign-in/today')
 }
 
 /** 签到记录 */
 export function getSignInRecords(params: { page: number; size: number }) {
-  return request.get('/user/sign-in/records', { params })
+  return request.get<unknown, PageResponse<SignInRecord>>('/user/sign-in/records', { params })
 }

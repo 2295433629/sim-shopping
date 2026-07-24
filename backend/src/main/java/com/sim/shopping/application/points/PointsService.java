@@ -4,13 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.sim.shopping.infrastructure.persistence.entity.PointsProductDO;
 import com.sim.shopping.infrastructure.persistence.entity.PointsRecordDO;
 import com.sim.shopping.infrastructure.persistence.entity.UserDO;
 import com.sim.shopping.infrastructure.persistence.entity.UserPointsDO;
 import com.sim.shopping.infrastructure.persistence.mapper.PointsProductMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.PointsRecordMapper;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.mapper.UserMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.UserPointsMapper;
 import com.sim.shopping.interfaces.dto.points.ExchangeResponse;
@@ -68,18 +68,15 @@ public class PointsService {
         // 原子增加积分
         userPointsMapper.addPoints(userId, points);
 
-        // 同步更新 t_user.points
-        userMapper.update(null,
-                new LambdaUpdateWrapper<UserDO>()
-                        .eq(UserDO::getId, userId)
-                        .setSql("points = points + " + points));
+        // 同步更新 t_user.points（使用参数绑定，避免SQL拼接）
+        userMapper.addPoints(userId, points);
 
         // 记录积分明细
         PointsRecordDO record = new PointsRecordDO();
         record.setUserId(userId);
         record.setPoints(points);
-        record.setType("EARN");
-        record.setSource("ORDER_REWARD");
+        record.setType(SystemConstants.POINTS_TYPE_EARN);
+        record.setSource(SystemConstants.POINTS_SOURCE_ORDER_REWARD);
         record.setDescription("购物返积分：订单 " + orderNo + " 确认收货，实付" +
                 (points * 10) + "元，获得" + points + "积分");
         record.setRelatedId(orderId);
@@ -112,14 +109,14 @@ public class PointsService {
         Integer currentPoints = userPoints.getAvailablePoints() != null ? userPoints.getAvailablePoints() : 0;
 
         LambdaQueryWrapper<PointsRecordDO> earnWrapper = new LambdaQueryWrapper<>();
-        earnWrapper.eq(PointsRecordDO::getUserId, userId).eq(PointsRecordDO::getType, "EARN");
+        earnWrapper.eq(PointsRecordDO::getUserId, userId).eq(PointsRecordDO::getType, SystemConstants.POINTS_TYPE_EARN);
         List<PointsRecordDO> earnRecords = pointsRecordMapper.selectList(earnWrapper);
         int totalEarned = earnRecords.stream()
                 .mapToInt(r -> r.getPoints() != null ? r.getPoints() : 0)
                 .sum();
 
         LambdaQueryWrapper<PointsRecordDO> spendWrapper = new LambdaQueryWrapper<>();
-        spendWrapper.eq(PointsRecordDO::getUserId, userId).eq(PointsRecordDO::getType, "SPEND");
+        spendWrapper.eq(PointsRecordDO::getUserId, userId).eq(PointsRecordDO::getType, SystemConstants.POINTS_TYPE_SPEND);
         List<PointsRecordDO> spendRecords = pointsRecordMapper.selectList(spendWrapper);
         int totalSpent = spendRecords.stream()
                 .mapToInt(r -> r.getPoints() != null ? r.getPoints() : 0)
@@ -179,7 +176,7 @@ public class PointsService {
         if (product == null) {
             throw new BusinessException(404, "商品不存在");
         }
-        if (!"ACTIVE".equals(product.getStatus())) {
+        if (!SystemConstants.STATUS_ACTIVE.equals(product.getStatus())) {
             throw new BusinessException(400, "商品未上架或已下架");
         }
         Integer stock = product.getStock() != null ? product.getStock() : 0;
@@ -220,11 +217,8 @@ public class PointsService {
             throw new BusinessException(400, "积分不足或积分账户异常");
         }
 
-        // 同步更新 t_user.points
-        userMapper.update(null,
-                new LambdaUpdateWrapper<UserDO>()
-                        .eq(UserDO::getId, userId)
-                        .setSql("points = points - " + totalPointsNeeded));
+        // 同步更新 t_user.points（使用参数绑定，避免SQL拼接）
+        userMapper.deductPoints(userId, totalPointsNeeded);
 
         // 生成积分记录
         PointsRecordDO record = new PointsRecordDO();

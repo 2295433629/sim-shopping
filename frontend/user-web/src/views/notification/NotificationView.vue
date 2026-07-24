@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   getNotifications,
@@ -9,40 +9,22 @@ import {
   deleteNotification,
   type NotificationItem,
 } from '@/api/modules/notification'
+import { usePagination } from '@/composables/usePagination'
 
-const loading = ref(false)
-const notifications = ref<NotificationItem[]>([])
-const page = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
 const unreadCount = ref(0)
 
+const { loading, page, pageSize, total, list: notifications, loadList, handlePageChange } = usePagination<NotificationItem>({
+  fetchFn: (page, pageSize) => getNotifications({ pageNum: page, pageSize }),
+})
+
 onMounted(() => {
-  loadNotifications()
   loadUnreadCount()
 })
 
-watch([page], () => {
-  loadNotifications()
-})
-
-async function loadNotifications() {
-  loading.value = true
-  try {
-    const data = await getNotifications({ pageNum: page.value, pageSize: pageSize.value }) as any
-    notifications.value = data.list || []
-    total.value = data.total || 0
-  } catch {
-    notifications.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
 async function loadUnreadCount() {
   try {
-    const data = await getUnreadCount() as any
-    unreadCount.value = (data as any).unreadCount || 0
+    const data = await getUnreadCount()
+    unreadCount.value = data.unreadCount || 0
   } catch {
     unreadCount.value = 0
   }
@@ -87,14 +69,10 @@ async function handleDelete(notification: NotificationItem) {
       unreadCount.value = Math.max(0, unreadCount.value - 1)
     }
     ElMessage.success('消息已删除')
-    loadNotifications()
+    loadList()
   } catch {
     // cancelled or error
   }
-}
-
-function handlePageChange(p: number) {
-  page.value = p
 }
 
 const typeMap: Record<string, string> = {
@@ -107,7 +85,7 @@ const typeMap: Record<string, string> = {
   SYSTEM: '系统消息',
 }
 
-const typeTagMap: Record<string, string> = {
+const typeTagMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
   ORDER: 'primary',
   PAYMENT: 'success',
   SHIPMENT: 'warning',
@@ -149,7 +127,7 @@ const typeTagMap: Record<string, string> = {
           <div class="notification-dot" v-if="notification.isRead === 0"></div>
           <div class="notification-content">
             <div class="notification-header">
-              <el-tag :type="(typeTagMap[notification.notificationType] as any) || 'info'" size="small">
+              <el-tag :type="typeTagMap[notification.notificationType] || 'info'" size="small">
                 {{ typeMap[notification.notificationType] || notification.notificationType }}
               </el-tag>
               <span class="notification-title">{{ notification.title }}</span>

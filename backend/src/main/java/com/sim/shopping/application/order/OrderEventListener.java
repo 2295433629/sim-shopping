@@ -6,6 +6,7 @@ import com.sim.shopping.domain.event.OrderCancelledEvent;
 import com.sim.shopping.domain.event.OrderCreatedEvent;
 import com.sim.shopping.domain.event.ReviewCreatedEvent;
 import com.sim.shopping.domain.event.ShipmentCreatedEvent;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.MerchantDO;
 import com.sim.shopping.infrastructure.persistence.entity.OrderDO;
 import com.sim.shopping.infrastructure.persistence.entity.ShopDO;
@@ -57,9 +58,9 @@ public class OrderEventListener {
         try {
             Long merchantUserId = getMerchantUserIdByShopId(event.getShopId());
             if (merchantUserId != null) {
-                createNotification(merchantUserId, "MERCHANT", "ORDER",
+                createNotification(merchantUserId, SystemConstants.NOTIFICATION_TARGET_MERCHANT, SystemConstants.NOTIFICATION_TOPIC_ORDER,
                         "新订单通知", "您有一笔新订单 " + event.getOrderNo() + "，金额: " + event.getTotalAmount() + "元",
-                        event.getShopId(), "SHOP");
+                        event.getShopId(), SystemConstants.NOTIFICATION_RELATED_TYPE_SHOP);
             }
         } catch (Exception e) {
             log.error("通知商家新订单失败: orderNo={}, error={}", event.getOrderNo(), e.getMessage());
@@ -78,9 +79,9 @@ public class OrderEventListener {
         try {
             Long merchantUserId = getMerchantUserIdByShopId(event.getShopId());
             if (merchantUserId != null) {
-                createNotification(merchantUserId, "MERCHANT", "ORDER",
+                createNotification(merchantUserId, SystemConstants.NOTIFICATION_TARGET_MERCHANT, SystemConstants.NOTIFICATION_TOPIC_ORDER,
                         "订单取消通知", "订单 " + event.getOrderNo() + " 已被用户取消",
-                        event.getShopId(), "SHOP");
+                        event.getShopId(), SystemConstants.NOTIFICATION_RELATED_TYPE_SHOP);
             }
         } catch (Exception e) {
             log.error("通知商家订单取消失败: orderNo={}, error={}", event.getOrderNo(), e.getMessage());
@@ -99,9 +100,9 @@ public class OrderEventListener {
         try {
             Long userId = getUserIdByOrderNo(event.getOrderNo());
             if (userId != null) {
-                createNotification(userId, "USER", "SHIPMENT",
+                createNotification(userId, SystemConstants.NOTIFICATION_TARGET_USER, SystemConstants.NOTIFICATION_TOPIC_SHIPMENT,
                         "发货通知", "您的订单 " + event.getOrderNo() + " 已发货，物流公司: " + event.getLogisticsCompany() + "，运单号: " + event.getTrackingNo(),
-                        event.getShipmentId(), "SHIPMENT");
+                        event.getShipmentId(), SystemConstants.NOTIFICATION_RELATED_TYPE_SHIPMENT);
             }
         } catch (Exception e) {
             log.error("通知用户发货失败: orderNo={}, error={}", event.getOrderNo(), e.getMessage());
@@ -120,9 +121,9 @@ public class OrderEventListener {
         try {
             Long userId = getUserIdByOrderNo(event.getOrderNo());
             if (userId != null) {
-                createNotification(userId, "USER", "LOGISTICS",
+                createNotification(userId, SystemConstants.NOTIFICATION_TARGET_USER, SystemConstants.NOTIFICATION_TOPIC_LOGISTICS,
                         "签收通知", "您的订单 " + event.getOrderNo() + " 已签收，请确认收货",
-                        event.getOrderId(), "ORDER");
+                        event.getOrderId(), SystemConstants.NOTIFICATION_RELATED_TYPE_ORDER);
             }
         } catch (Exception e) {
             log.error("通知用户签收失败: orderNo={}, error={}", event.getOrderNo(), e.getMessage());

@@ -55,7 +55,7 @@
         :page-size="size"
         :total="total"
         layout="prev, pager, next, total"
-        @current-change="loadList"
+        @current-change="handlePageChange"
         style="margin-top: 16px; justify-content: flex-end"
       />
     </el-card>
@@ -153,16 +153,29 @@ import {
   type ActivityFormData,
 } from '@/api/modules/activity'
 import { getProducts, type ProductListItem } from '@/api/modules/product'
+import { usePagination } from '@/composables/usePagination'
 
 /** 商品卡片简要信息 — 复用 ProductListItem */
 type ProductOption = ProductListItem
 
-const list = ref<Activity[]>([])
-const total = ref(0)
-const page = ref(1)
-const size = ref(20)
-const loading = ref(false)
 const filter = reactive({ status: '', keyword: '' })
+
+const {
+  loading,
+  page,
+  pageSize: size,
+  total,
+  list,
+  loadList,
+  handlePageChange,
+} = usePagination<Activity>({
+  fetch: (page, size) =>
+    getAdminActivities({ page, size, status: filter.status, keyword: filter.keyword }),
+  onError: (err) => {
+    const msg = err instanceof Error ? err.message : String(err)
+    ElMessage.error(msg || '加载失败')
+  },
+})
 
 const dialogVisible = ref(false)
 const isEdit = ref(false)
@@ -308,32 +321,14 @@ async function handleDelete(row: Activity) {
     await deleteAdminActivity(row.id)
     ElMessage.success('删除成功')
     loadList()
-  } catch (e: any) {
-    if (e !== 'cancel') ElMessage.error('删除失败')
+  } catch (e: unknown) {
+    if (e === 'cancel') return
+    const msg = e instanceof Error ? e.message : String(e)
+    ElMessage.error(msg || '删除失败')
   }
 }
 
-const loadList = async () => {
-  loading.value = true
-  try {
-    const data = await getAdminActivities({
-      page: page.value,
-      size: size.value,
-      status: filter.status,
-      keyword: filter.keyword,
-    })
-    list.value = data.list || []
-    total.value = data.total || 0
-  } catch {
-    list.value = []
-    total.value = 0
-    ElMessage.error('加载失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(loadList)
+onMounted(() => loadList())
 </script>
 
 <style scoped>

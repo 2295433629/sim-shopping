@@ -3,6 +3,7 @@ package com.sim.shopping.application.cart;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.OrderConstants;
 import com.sim.shopping.infrastructure.cache.CacheProvider;
 import com.sim.shopping.infrastructure.cache.CacheProviderFactory;
 import com.sim.shopping.infrastructure.persistence.entity.*;
@@ -107,8 +108,8 @@ public class CartService {
 
         if (existingItem != null) {
             existingItem.setQuantity(existingItem.getQuantity() + quantity);
-            if (existingItem.getQuantity() > 99) {
-                throw new BusinessException(400, "单个商品数量不能超过99件");
+            if (existingItem.getQuantity() > OrderConstants.MAX_CART_ITEM_QUANTITY) {
+                throw new BusinessException(400, "单个商品数量不能超过" + OrderConstants.MAX_CART_ITEM_QUANTITY + "件");
             }
             cartItemMapper.updateById(existingItem);
         } else {

@@ -23,7 +23,7 @@ const stats = [
     </el-card>
 
     <el-row :gutter="20">
-      <el-col :xs="24" :sm="12" :md="8" v-for="(stat, i) in stats" :key="i">
+      <el-col :xs="24" :sm="12" :md="8" v-for="(stat, si) in stats" :key="stat.label || si">
         <el-card shadow="hover" class="stat-card">
           <div class="stat-content">
             <div class="stat-icon" :style="{ backgroundColor: stat.color }">

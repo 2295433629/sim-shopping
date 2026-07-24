@@ -8,6 +8,7 @@ import com.sim.shopping.infrastructure.persistence.entity.OrderItemDO;
 import com.sim.shopping.infrastructure.persistence.entity.ProductDO;
 import com.sim.shopping.infrastructure.persistence.entity.ShopDO;
 import com.sim.shopping.infrastructure.persistence.entity.UserDO;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.mapper.*;
 import com.sim.shopping.interfaces.dto.order.OrderItemVO;
 import com.sim.shopping.interfaces.dto.order.OrderListItemVO;
@@ -85,7 +86,7 @@ public class AdminDashboardService {
 
         // Pending merchants
         Long pendingMerchants = merchantMapper.selectCount(
-                Wrappers.<MerchantDO>lambdaQuery().eq(MerchantDO::getStatus, "PENDING")
+                Wrappers.<MerchantDO>lambdaQuery().eq(MerchantDO::getStatus, SystemConstants.MERCHANT_STATUS_PENDING)
         );
         vo.setPendingMerchants(pendingMerchants);
 

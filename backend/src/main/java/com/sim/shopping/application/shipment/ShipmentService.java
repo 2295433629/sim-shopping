@@ -3,6 +3,7 @@ package com.sim.shopping.application.shipment;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sim.shopping.domain.common.exception.BusinessException;
 import com.sim.shopping.domain.common.exception.OrderException;
+import com.sim.shopping.infrastructure.common.OrderNoGenerator;
 import com.sim.shopping.domain.event.ShipmentCreatedEvent;
 import com.sim.shopping.infrastructure.persistence.entity.LogisticsRecordDO;
 import com.sim.shopping.infrastructure.persistence.entity.LogisticsTrackDO;
@@ -318,19 +319,7 @@ public class ShipmentService {
     }
 
     private String generateShipmentNo() {
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String random = randomAlphanumeric(4);
-        return "SH" + timestamp + random;
-    }
-
-    private String randomAlphanumeric(int length) {
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        java.util.concurrent.ThreadLocalRandom random = java.util.concurrent.ThreadLocalRandom.current();
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
-        }
-        return sb.toString();
+        return OrderNoGenerator.generateOrderNo("SH");
     }
 
     private ShipmentResponse convertToShipmentResponse(ShipmentDO shipment) {

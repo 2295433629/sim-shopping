@@ -1,13 +1,30 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getShippingOrders, createShipment, type CreateShipmentParams } from '@/api/modules/shipment'
+import { usePagination } from '@/composables/usePagination'
+import type { PageResponse } from '@/types/common'
 
-const loading = ref(false)
-const orderList = ref<any[]>([])
-const page = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
+interface ShippingOrderItem {
+  orderNo: string
+  totalAmount: number | string
+  createdAt: string
+}
+
+const {
+  loading,
+  page,
+  pageSize,
+  total,
+  list: orderList,
+  loadList: loadOrders,
+  handlePageChange,
+} = usePagination<ShippingOrderItem>(
+  async () => {
+    const data = await getShippingOrders({ page: page.value, size: pageSize.value }) as unknown as PageResponse<ShippingOrderItem>
+    return { list: data.list || [], total: data.total || 0 }
+  }
+)
 
 // 发货对话框
 const shipDialogVisible = ref(false)
@@ -31,28 +48,7 @@ onMounted(() => {
   loadOrders()
 })
 
-watch(page, () => {
-  loadOrders()
-})
-
-async function loadOrders() {
-  loading.value = true
-  try {
-    const data = await getShippingOrders({ page: page.value, size: pageSize.value })
-    orderList.value = (data as any).list || []
-    total.value = (data as any).total || 0
-  } catch {
-    orderList.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-function handlePageChange(p: number) {
-  page.value = p
-}
-
-function openShipDialog(row: any) {
+function openShipDialog(row: ShippingOrderItem) {
   shipForm.value = {
     orderNo: row.orderNo,
     logisticsCompany: '',

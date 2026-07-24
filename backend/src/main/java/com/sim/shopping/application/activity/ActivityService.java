@@ -2,6 +2,7 @@ package com.sim.shopping.application.activity;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.ActivityDO;
 import com.sim.shopping.infrastructure.persistence.entity.ActivityProductQueryResult;
 import com.sim.shopping.infrastructure.persistence.entity.ActivityQueryResult;
@@ -29,7 +30,7 @@ public class ActivityService {
     private final ActivityMapper activityMapper;
     private final ActivityProductMapper activityProductMapper;
 
-    private static final String ACTIVITY_STATUS_ACTIVE = "ACTIVE";
+
 
     public ActivityService(ActivityMapper activityMapper, ActivityProductMapper activityProductMapper) {
         this.activityMapper = activityMapper;
@@ -45,7 +46,7 @@ public class ActivityService {
     public PageResponse<ActivityResponse> getActiveActivities(int page, int size) {
         Page<ActivityQueryResult> pageParam = new Page<>(page, size);
         LocalDateTime now = LocalDateTime.now();
-        Page<ActivityQueryResult> result = activityMapper.selectActiveActivityPage(pageParam, ACTIVITY_STATUS_ACTIVE, now);
+        Page<ActivityQueryResult> result = activityMapper.selectActiveActivityPage(pageParam, SystemConstants.ACTIVITY_STATUS_ACTIVE, now);
         List<ActivityResponse> records = result.getRecords().stream()
                 .map(this::toActivityResponse)
                 .collect(Collectors.toList());

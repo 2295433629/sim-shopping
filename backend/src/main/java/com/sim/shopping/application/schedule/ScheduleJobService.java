@@ -3,6 +3,7 @@ package com.sim.shopping.application.schedule;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.ScheduleJobDO;
 import com.sim.shopping.infrastructure.persistence.entity.ScheduleLogDO;
 import com.sim.shopping.infrastructure.persistence.mapper.ScheduleJobMapper;
@@ -32,10 +33,10 @@ public class ScheduleJobService {
     private static final Map<String, String> LOG_STATUS_TEXT_MAP = new HashMap<>();
 
     static {
-        STATUS_TEXT_MAP.put("ACTIVE", "运行中");
-        STATUS_TEXT_MAP.put("RUNNING", "执行中");
-        STATUS_TEXT_MAP.put("PAUSED", "已暂停");
-        STATUS_TEXT_MAP.put("ERROR", "异常");
+        STATUS_TEXT_MAP.put(SystemConstants.SCHEDULE_JOB_STATUS_ACTIVE, "运行中");
+        STATUS_TEXT_MAP.put(SystemConstants.SCHEDULE_JOB_STATUS_RUNNING, "执行中");
+        STATUS_TEXT_MAP.put(SystemConstants.SCHEDULE_JOB_STATUS_PAUSED, "已暂停");
+        STATUS_TEXT_MAP.put(SystemConstants.SCHEDULE_JOB_STATUS_ERROR, "异常");
 
         LOG_STATUS_TEXT_MAP.put("SUCCESS", "成功");
         LOG_STATUS_TEXT_MAP.put("FAIL", "失败");
@@ -117,7 +118,7 @@ public class ScheduleJobService {
         job.setFixedDelay(request.getFixedDelay());
         job.setFixedRate(request.getFixedRate());
         job.setDescription(request.getDescription());
-        job.setStatus("ACTIVE");
+        job.setStatus(SystemConstants.SCHEDULE_JOB_STATUS_ACTIVE);
         job.setConcurrent(request.getConcurrent() != null ? request.getConcurrent() : 0);
 
         scheduleJobMapper.insert(job);
@@ -162,7 +163,7 @@ public class ScheduleJobService {
         scheduleJobMapper.updateById(job);
 
         // 如果任务状态为ACTIVE，重新注册调度
-        if ("ACTIVE".equals(job.getStatus())) {
+        if (SystemConstants.SCHEDULE_JOB_STATUS_ACTIVE.equals(job.getStatus())) {
             scheduleManager.schedule(jobId);
         }
 
@@ -203,7 +204,7 @@ public class ScheduleJobService {
         // 取消调度
         scheduleManager.cancel(jobId);
 
-        job.setStatus("PAUSED");
+        job.setStatus(SystemConstants.SCHEDULE_JOB_STATUS_PAUSED);
         scheduleJobMapper.updateById(job);
     }
 
@@ -219,7 +220,7 @@ public class ScheduleJobService {
             throw new BusinessException(404, "任务不存在: " + jobId);
         }
 
-        job.setStatus("ACTIVE");
+        job.setStatus(SystemConstants.SCHEDULE_JOB_STATUS_ACTIVE);
         scheduleJobMapper.updateById(job);
 
         // 重新注册调度

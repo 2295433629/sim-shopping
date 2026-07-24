@@ -8,6 +8,7 @@ import {
   getOrderDetail,
   type OrderDetailVO,
 } from '@/api/modules/order'
+import { ORDER_STATUS_TEXT } from '@/constants/order'
 
 const route = useRoute()
 const router = useRouter()
@@ -21,16 +22,7 @@ const orderNo = ref(route.params.orderNo as string)
 
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
-const statusTextMap: Record<string, string> = {
-  CREATED: '待付款',
-  PAID: '已付款',
-  SHIPPED: '已发货',
-  IN_TRANSIT: '运输中',
-  OUT_FOR_DELIVERY: '配送中',
-  DELIVERED: '已送达',
-  COMPLETED: '已完成',
-  CANCELLED: '已取消',
-}
+const statusTextMap = ORDER_STATUS_TEXT
 
 onMounted(() => {
   loadOrder()

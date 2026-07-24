@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getMerchantOrders, type OrderListVO } from '@/api/modules/order'
+import { getMerchantOrders, type OrderListVO, type OrderQueryParams } from '@/api/modules/order'
+import { ORDER_STATUS_TAG_TYPE } from '@/constants/order'
+import { usePagination } from '@/composables/usePagination'
+
+type ElTagType = 'success' | 'warning' | 'info' | 'danger' | 'primary'
 
 const router = useRouter()
-const loading = ref(false)
-const orderList = ref<OrderListVO[]>([])
 const activeTab = ref('all')
 const keyword = ref('')
-const page = ref(1)
-const pageSize = ref(20)
-const total = ref(0)
 
 const tabs = [
   { label: '全部', value: 'all' },
@@ -24,48 +23,36 @@ const tabs = [
   { label: '已取消', value: 'CANCELLED' },
 ]
 
-const statusTagType: Record<string, string> = {
-  CREATED: 'warning',
-  PAID: 'primary',
-  SHIPPED: 'info',
-  IN_TRANSIT: 'primary',
-  OUT_FOR_DELIVERY: 'warning',
-  DELIVERED: 'success',
-  COMPLETED: 'success',
-  CANCELLED: 'danger',
-}
+const statusTagType = ORDER_STATUS_TAG_TYPE
 
-onMounted(() => {
-  loadOrders()
-})
-
-watch([activeTab, page], () => {
-  loadOrders()
-})
-
-async function loadOrders() {
-  loading.value = true
-  try {
-    const params: Record<string, unknown> = { page: page.value, size: pageSize.value }
+const pagination = usePagination<OrderListVO>(
+  async () => {
+    const params: OrderQueryParams & { keyword?: string } = { page: pagination.page.value, size: pagination.pageSize.value }
     if (activeTab.value !== 'all') {
       params.status = activeTab.value
     }
     if (keyword.value.trim()) {
       params.keyword = keyword.value.trim()
     }
-    const data = await getMerchantOrders(params as any)
-    orderList.value = data.list || []
-    total.value = data.total || 0
-  } catch {
-    orderList.value = []
-  } finally {
-    loading.value = false
-  }
-}
+    const data = await getMerchantOrders(params)
+    return { list: data.list || [], total: data.total || 0 }
+  },
+  { watchSources: [activeTab], defaultPageSize: 20 }
+)
 
-function handlePageChange(p: number) {
-  page.value = p
-}
+const {
+  loading,
+  page,
+  pageSize,
+  total,
+  list: orderList,
+  loadList: loadOrders,
+  handlePageChange,
+} = pagination
+
+onMounted(() => {
+  loadOrders()
+})
 
 function handleDetail(row: OrderListVO) {
   router.push(`/orders/${row.orderNo}`)
@@ -99,7 +86,7 @@ function handleShip(row: OrderListVO) {
         <el-table-column label="订单号" prop="orderNo" width="200" />
         <el-table-column label="状态" width="120">
           <template #default="{ row }">
-            <el-tag :type="(statusTagType[row.status] as any) || 'info'" size="small">
+            <el-tag :type="(statusTagType[row.status] as ElTagType) || 'info'" size="small">
               {{ row.statusText }}
             </el-tag>
           </template>

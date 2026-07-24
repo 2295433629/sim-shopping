@@ -47,7 +47,13 @@ async function loadBanners() {
   loading.value = true
   try {
     const data = await getAdminBanners()
-    bannerList.value = Array.isArray(data) ? data : (data as any).list || []
+    if (Array.isArray(data)) {
+      bannerList.value = data as BannerItem[]
+    } else if (data && typeof data === 'object' && 'list' in data) {
+      bannerList.value = ((data as Record<string, unknown>).list as BannerItem[]) || []
+    } else {
+      bannerList.value = []
+    }
   } catch {
     bannerList.value = []
   } finally {

@@ -207,8 +207,8 @@ sim-shopping/
 - 管理接口（需管理员角色）：`/api/admin/**` — 全平台运营管理
 - 统一响应格式：`{ "code": 200, "message": "...", "data": {...}, "timestamp": "..." }`
 - JWT Token 认证，角色权限控制（USER / MERCHANT / ADMIN / SUPER_ADMIN）
-- Token 过期返回 403，前端自动清除 token 并跳转登录页
-- Swagger UI 文档：`http://localhost:8080/swagger-ui.html`
+- Token 过期返回 401，前端自动刷新 Token（并发请求排队等待），刷新失败则跳转登录页
+- Swagger UI 文档（非生产环境）：`http://localhost:8080/swagger-ui.html`
 
 ---
 
@@ -359,15 +359,15 @@ Nginx 统一入口 `http://localhost:80`，通过路径区分三个前端。
 
 ### 敏感配置（环境变量）
 
-| 变量 | 说明 | 生产环境 |
-|------|------|---------|
-| `JWT_SECRET` | JWT 签名密钥 | 建议设置，有默认值 |
-| `DB_HOST` | 数据库主机 | 默认 127.0.0.1 |
-| `DB_PORT` | 数据库端口 | 默认 3306 |
-| `DB_USERNAME` | 数据库用户名 | 默认 root |
-| `DB_PASSWORD` | 数据库密码 | 默认 root123 |
-| `REDIS_HOST` | Redis 主机 | 默认 127.0.0.1 |
-| `REDIS_PASSWORD` | Redis 密码 | 默认空 |
+| 变量 | 说明 | 本地开发 | 生产环境 |
+|------|------|---------|---------|
+| `JWT_SECRET` | JWT 签名密钥 | 有默认值 | **必须设置，无默认值** |
+| `DB_HOST` | 数据库主机 | 默认 127.0.0.1 | 默认 127.0.0.1 |
+| `DB_PORT` | 数据库端口 | 默认 3306 | 默认 3306 |
+| `DB_USERNAME` | 数据库用户名 | 默认 shop | 默认 shop |
+| `DB_PASSWORD` | 数据库密码 | 默认 shop | **必须设置，无默认值** |
+| `REDIS_HOST` | Redis 主机 | 默认 127.0.0.1 | 默认 127.0.0.1 |
+| `REDIS_PASSWORD` | Redis 密码 | 默认空 | 默认空 |
 
 ### 缓存模式切换
 
@@ -394,8 +394,12 @@ Nginx 统一入口 `http://localhost:80`，通过路径区分三个前端。
 12. **安全防护** — DOMPurify XSS 防护、JWT Token 认证、密码 BCrypt 加密、接口权限校验（订单归属/支付归属）
 13. **优惠券并发安全** — CAS 条件更新防止同一优惠券被重复使用
 14. **SKU 库存管理** — 下单扣减 SKU 库存，退款恢复主库存 + SKU 库存
-15. **Token 过期自动跳转** — JWT 过期（403）自动清除 token 并跳转登录页
-16. **DDD 分层架构** — Controller/Service/Mapper 职责清晰，依赖方向正确，无层级穿透
+15. **Token 刷新与自动跳转** — Access Token 2 小时过期，前端自动用 Refresh Token 续期；并发请求排队等待刷新完成，无需用户重新登录
+16. **Token 黑名单机制** — 登出后 Token 加入 Redis 黑名单，防止被盗 Token 继续使用
+17. **上传文件安全分级** — 公开文件（商品图、头像）直接访问；敏感文件（营业执照）需认证后通过 API 获取，防止未授权访问
+18. **接口限流防护** — 登录/注册接口限制每 IP 每分钟最多 10 次请求，防止暴力破解
+19. **暗色主题与响应式** — 支持系统级暗色模式自动切换；管理后台小屏幕自动折叠侧边栏
+20. **DDD 分层架构** — Controller/Service/Mapper 职责清晰，依赖方向正确，无层级穿透
 
 ---
 
@@ -408,9 +412,7 @@ Nginx 统一入口 `http://localhost:80`，通过路径区分三个前端。
 | `ARCH-001_Architecture.md` | 架构设计文档 |
 | `DB-001_Database.md` | 数据库设计文档 |
 | `API-001_API_Contract.md` | API 接口契约文档 |
-| `TASK-001_Task_Breakdown.md` | 开发任务拆解 |
 | `DEV-001_Gamification_Roadmap.md` | 游戏化功能路线图 |
-| `REVIEW-001_M0-M3_Doc_Impl_Diff_Fixes.md` | 文档与实现差异修复记录 |
 
 ---
 

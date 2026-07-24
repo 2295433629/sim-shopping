@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   getNotifications,
@@ -9,47 +9,43 @@ import {
   deleteNotification,
   type NotificationItem,
 } from '@/api/modules/notification'
+import { usePagination } from '@/composables/usePagination'
+import type { PageResponse } from '@/types/common'
 
-const loading = ref(false)
-const notificationList = ref<NotificationItem[]>([])
-const page = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
 const unreadCount = ref(0)
+
+interface UnreadCountResponse {
+  unreadCount?: number
+  count?: number
+}
+
+const {
+  loading,
+  page,
+  pageSize,
+  total,
+  list: notificationList,
+  loadList: loadNotifications,
+  handlePageChange,
+} = usePagination<NotificationItem>(
+  async () => {
+    const data = await getNotifications({ page: page.value, size: pageSize.value }) as unknown as PageResponse<NotificationItem>
+    return { list: data.list || [], total: data.total || 0 }
+  }
+)
 
 onMounted(() => {
   loadNotifications()
   loadUnreadCount()
 })
 
-watch(page, () => {
-  loadNotifications()
-})
-
-async function loadNotifications() {
-  loading.value = true
-  try {
-    const data = await getNotifications({ page: page.value, size: pageSize.value })
-    notificationList.value = (data as any).list || []
-    total.value = (data as any).total || 0
-  } catch {
-    notificationList.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
 async function loadUnreadCount() {
   try {
-    const res = await getUnreadCount() as any
+    const res = await getUnreadCount() as unknown as UnreadCountResponse
     unreadCount.value = res?.unreadCount ?? res?.count ?? 0
   } catch {
     // handled by interceptor
   }
-}
-
-function handlePageChange(p: number) {
-  page.value = p
 }
 
 async function handleMarkRead(item: NotificationItem) {
@@ -155,7 +151,7 @@ function getNotificationTypeTag(type: string): string {
             <div class="notification-top">
               <div class="notification-title-row">
                 <span class="notification-title">{{ item.title }}</span>
-                <el-tag :type="getNotificationTypeTag(item.notificationType)" size="small" effect="plain">
+                <el-tag :type="getNotificationTypeTag(item.notificationType) as 'success' | 'warning' | 'info' | 'danger' | 'primary'" size="small" effect="plain">
                   {{ getNotificationTypeLabel(item.notificationType) }}
                 </el-tag>
               </div>

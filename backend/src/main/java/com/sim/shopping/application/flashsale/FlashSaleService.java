@@ -21,12 +21,14 @@ import com.sim.shopping.interfaces.dto.flashsale.FlashSaleResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sim.shopping.infrastructure.common.OrderConstants;
+import com.sim.shopping.infrastructure.common.OrderNoGenerator;
+import com.sim.shopping.infrastructure.common.SystemConstants;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 /**
@@ -38,12 +40,8 @@ import java.util.stream.Collectors;
 @Service
 public class FlashSaleService {
 
-    private static final String STATUS_ACTIVE = "ACTIVE";
-    private static final String STATUS_INACTIVE = "INACTIVE";
-    private static final String STATUS_ENDED = "ENDED";
-    private static final String ORDER_STATUS_CREATED = "CREATED";
-    private static final BigDecimal DEFAULT_SHIPPING_FEE = new BigDecimal("10.00");
-    private static final String FLASH_SALE_ORDER_PREFIX = "FLAS";
+    private static final String STATUS_INACTIVE = SystemConstants.STATUS_INACTIVE;
+    private static final String STATUS_ENDED = SystemConstants.STATUS_ENDED;
 
     private final FlashSaleMapper flashSaleMapper;
     private final ProductMapper productMapper;
@@ -78,7 +76,7 @@ public class FlashSaleService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        List<FlashSaleDO> activeSales = flashSaleMapper.selectActiveFlashSales(STATUS_ACTIVE, now);
+        List<FlashSaleDO> activeSales = flashSaleMapper.selectActiveFlashSales(SystemConstants.STATUS_ACTIVE, now);
 
         int total = activeSales.size();
         int fromIndex = (page - 1) * size;
@@ -149,7 +147,7 @@ public class FlashSaleService {
         if (flashSale.getEndTime() != null && now.isAfter(flashSale.getEndTime())) {
             throw new BusinessException(400, "秒杀活动已结束");
         }
-        if (!STATUS_ACTIVE.equals(flashSale.getStatus())) {
+        if (!SystemConstants.STATUS_ACTIVE.equals(flashSale.getStatus())) {
             throw new BusinessException(400, "秒杀活动未在进行中");
         }
 
@@ -197,7 +195,7 @@ public class FlashSaleService {
         if (flashSale.getOriginalPrice() != null) {
             discountAmount = flashSale.getOriginalPrice().subtract(flashPrice).multiply(BigDecimal.valueOf(quantity));
         }
-        BigDecimal payAmount = totalAmount.add(DEFAULT_SHIPPING_FEE);
+        BigDecimal payAmount = totalAmount.add(OrderConstants.DEFAULT_SHIPPING_FEE);
 
         // 原子扣减秒杀库存（防止并发超卖）
         int flashRows = flashSaleMapper.deductStock(flashSale.getId(), quantity);
@@ -213,14 +211,14 @@ public class FlashSaleService {
 
         // Create simplified order
         OrderDO order = new OrderDO();
-        order.setOrderNo(generateFlashSaleOrderNo());
+        order.setOrderNo(OrderNoGenerator.generateFlashSaleOrderNo());
         order.setUserId(userId);
         order.setShopId(product.getShopId());
         order.setTotalAmount(totalAmount);
-        order.setShippingFee(DEFAULT_SHIPPING_FEE);
+        order.setShippingFee(OrderConstants.DEFAULT_SHIPPING_FEE);
         order.setDiscountAmount(discountAmount);
         order.setPayAmount(payAmount);
-        order.setStatus(ORDER_STATUS_CREATED);
+        order.setStatus(OrderConstants.ORDER_STATUS_CREATED);
         order.setReceiverName(address.getReceiverName());
         order.setReceiverPhone(address.getReceiverPhone());
         order.setReceiverAddress(fullAddress);
@@ -253,7 +251,7 @@ public class FlashSaleService {
         // 按 saleId 对应的商品 ID 过滤，避免跨活动限购误计
         LambdaQueryWrapper<OrderDO> orderWrapper = new LambdaQueryWrapper<>();
         orderWrapper.eq(OrderDO::getUserId, userId)
-                .likeRight(OrderDO::getOrderNo, FLASH_SALE_ORDER_PREFIX);
+                .likeRight(OrderDO::getOrderNo, OrderConstants.ORDER_PREFIX_FLASH_SALE);
         List<OrderDO> flashSaleOrders = orderMapper.selectList(orderWrapper);
 
         if (flashSaleOrders.isEmpty()) {
@@ -272,22 +270,6 @@ public class FlashSaleService {
         if (purchasedCount + quantity > limitPerUser) {
             throw new BusinessException(400, "超出限购数量，每人限购 " + limitPerUser + " 件");
         }
-    }
-
-    private String generateFlashSaleOrderNo() {
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String random = randomAlphanumeric(4);
-        return FLASH_SALE_ORDER_PREFIX + timestamp + random;
-    }
-
-    private String randomAlphanumeric(int length) {
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
-        }
-        return sb.toString();
     }
 
     private FlashSaleResponse convertToFlashSaleResponse(FlashSaleDO sale) {

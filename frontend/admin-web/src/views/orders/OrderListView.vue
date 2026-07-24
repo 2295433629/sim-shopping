@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getAdminOrders, type OrderListVO } from '@/api/modules/order'
+import { getAdminOrders, type OrderListVO, type OrderQueryParams } from '@/api/modules/order'
+import { ORDER_STATUS_OPTIONS, ORDER_STATUS_TAG_TYPE } from '@/constants/order'
 
 const router = useRouter()
 const loading = ref(false)
@@ -14,24 +15,8 @@ const filterStatus = ref('')
 const filterShopId = ref<number | undefined>(undefined)
 const keyword = ref('')
 
-const statusOptions = [
-  { label: 'All', value: '' },
-  { label: 'Unpaid', value: 'CREATED' },
-  { label: 'Paid', value: 'PAID' },
-  { label: 'Shipped', value: 'SHIPPED' },
-  { label: 'Delivered', value: 'DELIVERED' },
-  { label: 'Completed', value: 'COMPLETED' },
-  { label: 'Cancelled', value: 'CANCELLED' },
-]
-
-const statusTagType: Record<string, string> = {
-  CREATED: 'warning',
-  PAID: 'primary',
-  SHIPPED: 'info',
-  DELIVERED: 'success',
-  COMPLETED: 'success',
-  CANCELLED: 'danger',
-}
+const statusOptions = ORDER_STATUS_OPTIONS
+const statusTagType = ORDER_STATUS_TAG_TYPE
 
 onMounted(() => {
   loadOrders()
@@ -44,11 +29,11 @@ watch(page, () => {
 async function loadOrders() {
   loading.value = true
   try {
-    const params: Record<string, unknown> = { page: page.value, size: pageSize.value }
+    const params: OrderQueryParams = { page: page.value, size: pageSize.value }
     if (filterStatus.value) params.status = filterStatus.value
     if (filterShopId.value) params.shopId = filterShopId.value
     if (keyword.value.trim()) params.keyword = keyword.value.trim()
-    const data = await getAdminOrders(params as any)
+    const data = await getAdminOrders(params)
     orderList.value = data.list || []
     total.value = data.total || 0
   } catch {

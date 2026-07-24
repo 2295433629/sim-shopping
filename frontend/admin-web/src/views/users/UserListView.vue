@@ -45,8 +45,8 @@ async function handleDisable(row: UserItem) {
     await disableUser(row.userId)
     ElMessage.success('已禁用')
     loadData()
-  } catch (e: any) {
-    if (e !== 'cancel') ElMessage.error('操作失败')
+  } catch (e: unknown) {
+    if (!(typeof e === 'string' && e === 'cancel')) ElMessage.error('操作失败')
   }
 }
 
@@ -56,8 +56,8 @@ async function handleEnable(row: UserItem) {
     await enableUser(row.userId)
     ElMessage.success('已启用')
     loadData()
-  } catch (e: any) {
-    if (e !== 'cancel') ElMessage.error('操作失败')
+  } catch (e: unknown) {
+    if (!(typeof e === 'string' && e === 'cancel')) ElMessage.error('操作失败')
   }
 }
 </script>

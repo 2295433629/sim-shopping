@@ -81,7 +81,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, type UploadRawFile, type UploadRequestOptions } from 'element-plus'
 import {
   getShopInfo,
   updateShopInfo,
@@ -114,38 +114,74 @@ watch(senderRegion, (val) => {
   if (val && val.length >= 3) shopForm.senderDistrict = val[2] || ''
   else shopForm.senderDistrict = ''
 })
-const banners = ref<any[]>([])
+
+interface BannerItem {
+  id: number
+  imageUrl: string
+  sortOrder: number
+  linkUrl: string
+}
+
+interface ShopInfoResponse {
+  banners?: BannerItem[]
+  shopName?: string
+  shopLogo?: string
+  description?: string
+  senderName?: string
+  senderPhone?: string
+  senderProvince?: string
+  senderCity?: string
+  senderDistrict?: string
+  senderAddress?: string
+}
+
+interface UploadResult {
+  url?: string
+  data?: { url?: string }
+}
+
+const banners = ref<BannerItem[]>([])
 const showBannerDialog = ref(false)
 const bannerForm = reactive({ imageUrl: '', sortOrder: 0, linkUrl: '' })
 
-const beforeUpload = (file: any) => {
+const beforeUpload = (file: UploadRawFile) => {
   if (!file.type.startsWith('image/')) { ElMessage.error('仅支持图片文件'); return false }
   if (file.size / 1024 / 1024 > 5) { ElMessage.error('图片最大5MB'); return false }
   return true
 }
-const uploadFile = async (options: any) => {
+
+const uploadFile = async (options: UploadRequestOptions) => {
   const formData = new FormData()
   formData.append('file', options.file)
   try {
-    const res = await request.post('/common/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-    const data: any = res
-    const url = data?.url || data?.data?.url || ''
+    const res = await request.post('/common/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }) as unknown as UploadResult
+    const url = res?.url || res?.data?.url || ''
     if (url) {
       options.onSuccess({ url })
     } else {
-      options.onError(new Error('上传失败'))
+      const onError = options.onError as (err: Error) => void
+      onError(new Error('上传失败'))
     }
-  } catch (e) {
-    options.onError(e)
+  } catch (e: unknown) {
+    const onError = options.onError as (err: Error) => void
+    onError(e instanceof Error ? e : new Error(String(e)))
   }
 }
-const handleLogoSuccess = (res: any) => { if (res.url) shopForm.shopLogo = res.url }
-const handleBannerSuccess = (res: any) => { if (res.url) bannerForm.imageUrl = res.url }
+
+const handleLogoSuccess = (res: unknown) => {
+  const r = res as UploadResult
+  if (r.url) shopForm.shopLogo = r.url
+}
+
+const handleBannerSuccess = (res: unknown) => {
+  const r = res as UploadResult
+  if (r.url) bannerForm.imageUrl = r.url
+}
 
 const loadShop = async () => {
   loading.value = true
   try {
-    const res = await getShopInfo()
+    const res = await getShopInfo() as unknown as ShopInfoResponse
     Object.assign(shopForm, res)
     // 还原省市区级联选择器的值
     if (shopForm.senderProvince || shopForm.senderCity || shopForm.senderDistrict) {
@@ -155,15 +191,21 @@ const loadShop = async () => {
         shopForm.senderDistrict || '',
       ].filter(Boolean)
     }
-  } catch (e: any) { ElMessage.error(e?.message || '加载失败') }
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '加载失败')
+  }
   loading.value = false
 }
+
 const saveShop = async () => {
   try {
     await updateShopInfo(shopForm)
     ElMessage.success('保存成功')
-  } catch (e: any) { ElMessage.error(e?.message || '保存失败') }
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '保存失败')
+  }
 }
+
 const handleAddBanner = async () => {
   if (!bannerForm.imageUrl) { ElMessage.warning('请先上传图片'); return }
   try {
@@ -174,25 +216,30 @@ const handleAddBanner = async () => {
     bannerForm.sortOrder = 0
     bannerForm.linkUrl = ''
     loadBanners()
-  } catch (e: any) {
-    ElMessage.error(e?.message || '操作失败')
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '操作失败')
   }
 }
+
 const loadBanners = async () => {
   try {
-    const res = await getShopInfo()
-    banners.value = (res as any).banners || []
-  } catch { /* ignore */ }
+    const res = await getShopInfo() as unknown as ShopInfoResponse
+    banners.value = res.banners || []
+  } catch {
+    /* ignore */
+  }
 }
-const handleRemoveBanner = async (row: any) => {
+
+const handleRemoveBanner = async (row: BannerItem) => {
   try {
     await removeShopBanner(row.id)
     ElMessage.success('删除成功')
     banners.value = banners.value.filter((b) => b.id !== row.id)
-  } catch (e: any) {
-    ElMessage.error(e?.message || '操作失败')
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '操作失败')
   }
 }
+
 onMounted(() => { loadShop(); loadBanners() })
 </script>
 

@@ -43,7 +43,7 @@
           <el-input v-model="form.description" type="textarea" :rows="5" placeholder="商品描述（支持HTML）" />
         </el-form-item>
         <el-form-item label="规格">
-          <div v-for="(sku, index) in form.skus" :key="index" class="sku-row">
+          <div v-for="(sku, index) in form.skus" :key="sku.skuName || index" class="sku-row">
             <el-input v-model="sku.skuName" placeholder="规格名称" style="width:200px" />
             <el-input-number v-model="sku.price" :precision="2" :min="0" placeholder="价格" />
             <el-input-number v-model="sku.stock" :min="0" placeholder="库存" />
@@ -65,7 +65,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Plus, Delete } from '@element-plus/icons-vue'
-import { ElMessage, type FormInstance } from 'element-plus'
+import { ElMessage, type FormInstance, type UploadFile, type UploadRawFile, type UploadRequestOptions } from 'element-plus'
 import { getCategories, getBrands, createProduct, updateProduct, getProductDetail } from '@/api/modules/product'
 import request from '@/api/request'
 
@@ -73,9 +73,21 @@ const route = useRoute()
 const router = useRouter()
 const isEdit = ref(false)
 const formRef = ref<FormInstance>()
-const categoryOptions = ref<any[]>([])
-const brands = ref<any[]>([])
-const imageFileList = ref<any[]>([])
+
+interface CategoryOption {
+  id: number
+  name: string
+  children?: CategoryOption[]
+}
+
+interface BrandItem {
+  brandId: number
+  brandName: string
+}
+
+const categoryOptions = ref<CategoryOption[]>([])
+const brands = ref<BrandItem[]>([])
+const imageFileList = ref<UploadFile[]>([])
 
 const form = reactive({
   name: '',
@@ -102,33 +114,50 @@ const rules = {
 const addSku = () => { form.skus.push({ skuName: '', price: form.price, stock: 0 }) }
 const removeSku = (i: number) => { form.skus.splice(i, 1) }
 
-const beforeUpload = (file: File) => {
+const beforeUpload = (file: UploadRawFile) => {
   if (!file.type.startsWith('image/')) { ElMessage.error('仅支持图片文件'); return false }
   if (file.size / 1024 / 1024 > 5) { ElMessage.error('图片最大5MB'); return false }
   return true
 }
 
-const handleUpload = async (options: any) => {
+const handleUpload = async (options: UploadRequestOptions) => {
   const formData = new FormData()
   formData.append('file', options.file)
   formData.append('type', 'product')
   try {
     const res = await request.post('/common/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
-    })
+    }) as unknown
     options.onSuccess(res)
-  } catch (e) {
-    options.onError(e)
+  } catch (e: unknown) {
+    const onError = options.onError as (err: Error) => void
+    onError(e instanceof Error ? e : new Error(String(e)))
   }
 }
 
-const handleMainImageSuccess = (res: any) => { if (res) form.mainImage = res }
-const handleImageSuccess = (res: any, file: any) => {
-  if (res) { form.images.push(res); imageFileList.value.push({ name: file.name, url: res }) }
+const handleMainImageSuccess = (res: unknown) => {
+  if (typeof res === 'string') {
+    form.mainImage = res
+  }
 }
-const handleImageRemove = (file: any) => {
+
+const handleImageSuccess = (res: unknown, file: UploadFile) => {
+  if (typeof res === 'string') {
+    form.images.push(res)
+    imageFileList.value.push({ name: file.name ?? 'img', url: res } as UploadFile)
+  }
+}
+
+const handleImageRemove = (file: UploadFile) => {
   const idx = imageFileList.value.findIndex(f => f.url === file.url)
-  if (idx >= 0) { form.images.splice(idx, 1); imageFileList.value.splice(idx, 1) }
+  if (idx >= 0) {
+    form.images.splice(idx, 1)
+    imageFileList.value.splice(idx, 1)
+  }
+}
+
+interface ProductDetailData {
+  images?: string[]
 }
 
 const submitForm = async (publish: boolean) => {
@@ -141,25 +170,38 @@ const submitForm = async (publish: boolean) => {
   }
   form.publish = publish
   try {
-    if (isEdit.value) { await updateProduct(Number(route.params.id), form); ElMessage.success('更新成功') }
-    else { await createProduct(form); ElMessage.success(publish ? '发布成功' : '已保存为草稿') }
+    if (isEdit.value) {
+      await updateProduct(Number(route.params.id), form)
+      ElMessage.success('更新成功')
+    } else {
+      await createProduct(form)
+      ElMessage.success(publish ? '发布成功' : '已保存为草稿')
+    }
     router.push('/products')
-  } catch (e: any) { ElMessage.error(e?.message || '操作失败') }
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '操作失败')
+  }
 }
 
 onMounted(async () => {
   try {
     const [catRes, brandRes] = await Promise.all([getCategories(), getBrands()])
-    categoryOptions.value = catRes || []
-    brands.value = brandRes || []
-  } catch (e) { /* ignore */ }
+    categoryOptions.value = (catRes as unknown as CategoryOption[]) || []
+    brands.value = (brandRes as unknown as BrandItem[]) || []
+  } catch {
+    /* ignore */
+  }
   if (route.params.id) {
     isEdit.value = true
     try {
-      const res = await getProductDetail(Number(route.params.id))
+      const res = await getProductDetail(Number(route.params.id)) as unknown as ProductDetailData
       Object.assign(form, res)
-      if (res.images) { imageFileList.value = res.images.map((url: string, i: number) => ({ name: 'img-' + i, url })) }
-    } catch (e: any) { ElMessage.error(e?.message || '加载失败') }
+      if (res.images) {
+        imageFileList.value = res.images.map((url, i) => ({ name: 'img-' + i, url } as UploadFile))
+      }
+    } catch (e: unknown) {
+      ElMessage.error(e instanceof Error ? e.message : '加载失败')
+    }
   }
 })
 </script>

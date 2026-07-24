@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.PointsProductDO;
 import com.sim.shopping.infrastructure.persistence.entity.PointsRecordDO;
 import com.sim.shopping.infrastructure.persistence.entity.UserPointsDO;
@@ -119,7 +120,7 @@ public class PointsAdminService {
             throw new BusinessException(400, "库存不能为负数");
         }
         if (!StringUtils.hasText(product.getStatus())) {
-            product.setStatus("ACTIVE");
+            product.setStatus(SystemConstants.STATUS_ACTIVE);
         }
         pointsProductMapper.insert(product);
     }

@@ -10,6 +10,7 @@ import com.sim.shopping.infrastructure.persistence.entity.ShopDO;
 import com.sim.shopping.infrastructure.persistence.mapper.MerchantMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.ShopMapper;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.interfaces.dto.merchant.MerchantApplyRequest;
 import com.sim.shopping.interfaces.dto.merchant.MerchantInfoResponse;
 import com.sim.shopping.interfaces.dto.merchant.MerchantListResponse;
@@ -50,10 +51,10 @@ public class MerchantService {
         wrapper.eq(MerchantDO::getUserId, userId);
         MerchantDO existing = merchantMapper.selectOne(wrapper);
         if (existing != null) {
-            if ("ACTIVE".equals(existing.getStatus())) {
+            if (SystemConstants.STATUS_ACTIVE.equals(existing.getStatus())) {
                 throw new MerchantException.MerchantAlreadyExistsException("您已是商家，无需重复申请");
             }
-            if ("PENDING".equals(existing.getStatus())) {
+            if (SystemConstants.MERCHANT_STATUS_PENDING.equals(existing.getStatus())) {
                 throw new MerchantException.MerchantAlreadyExistsException("您的入驻申请正在审核中");
             }
             // REJECTED or DISABLED — allow re-apply by updating existing record
@@ -61,7 +62,7 @@ public class MerchantService {
             existing.setContactPhone(req.getContactPhone());
             existing.setContactEmail(req.getContactEmail());
             existing.setBusinessLicense(req.getBusinessLicense());
-            existing.setStatus("PENDING");
+            existing.setStatus(SystemConstants.MERCHANT_STATUS_PENDING);
             merchantMapper.updateById(existing);
             return toMerchantInfoResponse(existing, null);
         }
@@ -72,7 +73,7 @@ public class MerchantService {
         merchant.setContactPhone(req.getContactPhone());
         merchant.setContactEmail(req.getContactEmail());
         merchant.setBusinessLicense(req.getBusinessLicense());
-        merchant.setStatus("PENDING");
+        merchant.setStatus(SystemConstants.MERCHANT_STATUS_PENDING);
         merchantMapper.insert(merchant);
         return toMerchantInfoResponse(merchant, null);
     }
@@ -115,7 +116,7 @@ public class MerchantService {
      */
     public PageResponse<MerchantListResponse> getPendingMerchants(int page, int size) {
         LambdaQueryWrapper<MerchantDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(MerchantDO::getStatus, "PENDING")
+        wrapper.eq(MerchantDO::getStatus, SystemConstants.MERCHANT_STATUS_PENDING)
                .orderByDesc(MerchantDO::getCreatedAt);
         return queryMerchantPage(page, size, wrapper);
     }
@@ -166,10 +167,10 @@ public class MerchantService {
         if (merchant == null) {
             throw new MerchantException.MerchantNotFoundException("商家不存在");
         }
-        if (!"PENDING".equals(merchant.getStatus())) {
+        if (!SystemConstants.MERCHANT_STATUS_PENDING.equals(merchant.getStatus())) {
             throw new BusinessException(400, "该商家不是待审核状态");
         }
-        merchant.setStatus("ACTIVE");
+        merchant.setStatus(SystemConstants.STATUS_ACTIVE);
         merchant.setApprovedBy(adminId);
         merchant.setApprovedAt(LocalDateTime.now());
         merchantMapper.updateById(merchant);
@@ -178,7 +179,7 @@ public class MerchantService {
         ShopDO shop = new ShopDO();
         shop.setMerchantId(merchant.getId());
         shop.setShopName(merchant.getMerchantName());
-        shop.setStatus("ACTIVE");
+        shop.setStatus(SystemConstants.STATUS_ACTIVE);
         shopMapper.insert(shop);
     }
 
@@ -194,10 +195,10 @@ public class MerchantService {
         if (merchant == null) {
             throw new MerchantException.MerchantNotFoundException("商家不存在");
         }
-        if (!"PENDING".equals(merchant.getStatus())) {
+        if (!SystemConstants.MERCHANT_STATUS_PENDING.equals(merchant.getStatus())) {
             throw new BusinessException(400, "该商家不是待审核状态");
         }
-        merchant.setStatus("REJECTED");
+        merchant.setStatus(SystemConstants.MERCHANT_STATUS_REJECTED);
         merchant.setApprovedBy(adminId);
         merchant.setApprovedAt(LocalDateTime.now());
         merchant.setRejectReason(reason);
@@ -214,10 +215,10 @@ public class MerchantService {
         if (merchant == null) {
             throw new MerchantException.MerchantNotFoundException("商家不存在");
         }
-        if (!"ACTIVE".equals(merchant.getStatus())) {
+        if (!SystemConstants.STATUS_ACTIVE.equals(merchant.getStatus())) {
             throw new BusinessException(400, "该商家不是启用状态");
         }
-        merchant.setStatus("DISABLED");
+        merchant.setStatus(SystemConstants.STATUS_DISABLED);
         merchantMapper.updateById(merchant);
 
         // Also disable the shop
@@ -225,7 +226,7 @@ public class MerchantService {
         wrapper.eq(ShopDO::getMerchantId, merchantId);
         ShopDO shop = shopMapper.selectOne(wrapper);
         if (shop != null) {
-            shop.setStatus("DISABLED");
+            shop.setStatus(SystemConstants.STATUS_DISABLED);
             shopMapper.updateById(shop);
         }
     }
@@ -240,10 +241,10 @@ public class MerchantService {
         if (merchant == null) {
             throw new MerchantException.MerchantNotFoundException("商家不存在");
         }
-        if (!"DISABLED".equals(merchant.getStatus())) {
+        if (!SystemConstants.STATUS_DISABLED.equals(merchant.getStatus())) {
             throw new BusinessException(400, "该商家不是禁用状态");
         }
-        merchant.setStatus("ACTIVE");
+        merchant.setStatus(SystemConstants.STATUS_ACTIVE);
         merchantMapper.updateById(merchant);
 
         // Also enable the shop
@@ -251,7 +252,7 @@ public class MerchantService {
         wrapper.eq(ShopDO::getMerchantId, merchantId);
         ShopDO shop = shopMapper.selectOne(wrapper);
         if (shop != null) {
-            shop.setStatus("ACTIVE");
+            shop.setStatus(SystemConstants.STATUS_ACTIVE);
             shopMapper.updateById(shop);
         }
     }

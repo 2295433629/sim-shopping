@@ -3,6 +3,7 @@ package com.sim.shopping.application.system;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.SysMenuDO;
 import com.sim.shopping.infrastructure.persistence.entity.SysPermissionDO;
 import com.sim.shopping.infrastructure.persistence.entity.SysRoleDO;
@@ -103,7 +104,7 @@ public class RoleService {
         }
         SysRoleDO role = toEntity(request);
         if (role.getStatus() == null) {
-            role.setStatus("ACTIVE");
+            role.setStatus(SystemConstants.STATUS_ACTIVE);
         }
         sysRoleMapper.insert(role);
         return toRoleResponse(role);

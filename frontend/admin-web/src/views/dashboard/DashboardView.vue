@@ -2,19 +2,13 @@
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { getDashboard, type DashboardData } from '@/api/modules/dashboard'
+import { ORDER_STATUS_TAG_TYPE } from '@/constants/order'
 
 const userStore = useUserStore()
 const loading = ref(false)
 const dashboard = ref<DashboardData | null>(null)
 
-const statusTagType: Record<string, string> = {
-  CREATED: 'warning',
-  PAID: 'primary',
-  SHIPPED: 'info',
-  DELIVERED: 'success',
-  COMPLETED: 'success',
-  CANCELLED: 'danger',
-}
+const statusTagType = ORDER_STATUS_TAG_TYPE
 
 const firstRow = [
   { label: '总用户数', key: 'totalUsers' as const, icon: 'User', color: '#409eff', bgColor: '#ecf5ff' },
@@ -110,7 +104,7 @@ onMounted(async () => {
         <el-table-column label="店铺" prop="shopName" width="150" />
         <el-table-column label="状态" width="120">
           <template #default="{ row }">
-            <el-tag :type="(statusTagType[row.status] as any) || 'info'" size="small">
+            <el-tag :type="statusTagType[row.status] || 'info'" size="small">
               {{ row.status }}
             </el-tag>
           </template>

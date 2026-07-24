@@ -115,18 +115,7 @@ public class ProductService {
         // save skus
         if (req.getSkus() != null && !req.getSkus().isEmpty()) {
             for (SkuRequest skuReq : req.getSkus()) {
-                ProductSkuDO sku = new ProductSkuDO();
-                sku.setProductId(product.getId());
-                sku.setSkuName(skuReq.getSkuName());
-                sku.setPrice(skuReq.getPrice());
-                sku.setStock(skuReq.getStock());
-                sku.setSkuCode("SKU-" + product.getId() + "-" + System.currentTimeMillis());
-                try {
-                    sku.setAttributes(skuReq.getAttributes() != null
-                            ? objectMapper.writeValueAsString(skuReq.getAttributes()) : "{}");
-                } catch (Exception e) {
-                    sku.setAttributes("{}");
-                }
+                ProductSkuDO sku = buildProductSku(product.getId(), skuReq);
                 productSkuMapper.insert(sku);
             }
         }
@@ -180,18 +169,7 @@ public class ProductService {
             productSkuMapper.delete(skuWrapper);
 
             for (SkuRequest skuReq : req.getSkus()) {
-                ProductSkuDO sku = new ProductSkuDO();
-                sku.setProductId(productId);
-                sku.setSkuName(skuReq.getSkuName());
-                sku.setPrice(skuReq.getPrice());
-                sku.setStock(skuReq.getStock());
-                sku.setSkuCode("SKU-" + productId + "-" + System.currentTimeMillis());
-                try {
-                    sku.setAttributes(skuReq.getAttributes() != null
-                            ? objectMapper.writeValueAsString(skuReq.getAttributes()) : "{}");
-                } catch (Exception e) {
-                    sku.setAttributes("{}");
-                }
+                ProductSkuDO sku = buildProductSku(productId, skuReq);
                 productSkuMapper.insert(sku);
             }
         }
@@ -693,5 +671,38 @@ public class ProductService {
         vo.setReviewSummary(rs);
 
         return vo;
+    }
+
+    /**
+     * 构建商品SKU实体，将请求DTO转换为持久化对象
+     * @param productId 商品ID
+     * @param skuReq SKU请求DTO
+     * @return SKU实体
+     */
+    private ProductSkuDO buildProductSku(Long productId, SkuRequest skuReq) {
+        ProductSkuDO sku = new ProductSkuDO();
+        sku.setProductId(productId);
+        sku.setSkuName(skuReq.getSkuName());
+        sku.setPrice(skuReq.getPrice());
+        sku.setStock(skuReq.getStock());
+        sku.setSkuCode("SKU-" + productId + "-" + System.currentTimeMillis());
+        sku.setAttributes(serializeSkuAttributes(skuReq.getAttributes()));
+        return sku;
+    }
+
+    /**
+     * 序列化SKU属性为JSON字符串，失败时返回空对象JSON
+     * @param attributes 属性对象
+     * @return JSON字符串
+     */
+    private String serializeSkuAttributes(Object attributes) {
+        if (attributes == null) {
+            return "{}";
+        }
+        try {
+            return objectMapper.writeValueAsString(attributes);
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 }

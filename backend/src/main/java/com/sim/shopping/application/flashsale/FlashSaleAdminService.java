@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.FlashSaleDO;
 import com.sim.shopping.infrastructure.persistence.mapper.FlashSaleMapper;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
@@ -23,9 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class FlashSaleAdminService {
 
-    private static final String STATUS_ACTIVE = "ACTIVE";
-    private static final String STATUS_INACTIVE = "INACTIVE";
-    private static final String STATUS_ENDED = "ENDED";
+
 
     private final FlashSaleMapper flashSaleMapper;
 
@@ -97,14 +96,14 @@ public class FlashSaleAdminService {
             sale.setLimitPerUser(1);
         }
         if (sale.getStatus() == null || sale.getStatus().isEmpty()) {
-            sale.setStatus(STATUS_INACTIVE);
+            sale.setStatus(SystemConstants.STATUS_INACTIVE);
         }
         if (sale.getSoldCount() == null) {
             sale.setSoldCount(0);
         }
 
         LocalDateTime now = LocalDateTime.now();
-        if (STATUS_ACTIVE.equals(sale.getStatus()) && sale.getEndTime().isBefore(now)) {
+        if (SystemConstants.STATUS_ACTIVE.equals(sale.getStatus()) && sale.getEndTime().isBefore(now)) {
             throw new BusinessException(400, "活动已结束，无法设置为进行中状态");
         }
 
@@ -163,7 +162,7 @@ public class FlashSaleAdminService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        if (STATUS_ACTIVE.equals(existing.getStatus()) && existing.getEndTime() != null && existing.getEndTime().isBefore(now)) {
+        if (SystemConstants.STATUS_ACTIVE.equals(existing.getStatus()) && existing.getEndTime() != null && existing.getEndTime().isBefore(now)) {
             throw new BusinessException(400, "活动已结束，无法设置为进行中状态");
         }
 

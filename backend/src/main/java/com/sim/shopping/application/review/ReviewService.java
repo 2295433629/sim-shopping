@@ -8,6 +8,7 @@ import com.sim.shopping.domain.event.ReviewCreatedEvent;
 import com.sim.shopping.infrastructure.persistence.entity.*;
 import com.sim.shopping.infrastructure.persistence.mapper.*;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
+import com.sim.shopping.interfaces.dto.review.BaseReviewResponse;
 import com.sim.shopping.interfaces.dto.review.CreateReviewRequest;
 import com.sim.shopping.interfaces.dto.review.MerchantReviewResponse;
 import com.sim.shopping.interfaces.dto.review.ReviewResponse;
@@ -397,24 +398,23 @@ public class ReviewService {
 
     private ReviewResponse convertToReviewResponse(ReviewDO review) {
         ReviewResponse resp = new ReviewResponse();
-        resp.setId(review.getId());
-        resp.setOrderNo(review.getOrderNo());
-        resp.setProductId(review.getProductId());
-        resp.setProductName(getProductName(review.getProductId()));
-        resp.setUserId(review.getUserId());
-        resp.setUsername(getUsername(review.getUserId()));
-        resp.setRating(review.getRating());
-        resp.setContent(review.getContent());
-        resp.setImages(getReviewImages(review.getId()));
-        resp.setStatus(review.getStatus());
-        resp.setMerchantReply(review.getMerchantReply());
+        fillCommonReviewFields(review, resp);
         resp.setMerchantRepliedAt(review.getMerchantRepliedAt());
-        resp.setCreatedAt(review.getCreatedAt());
         return resp;
     }
 
     private MerchantReviewResponse convertToMerchantReviewResponse(ReviewDO review) {
         MerchantReviewResponse resp = new MerchantReviewResponse();
+        fillCommonReviewFields(review, resp);
+        return resp;
+    }
+
+    /**
+     * 填充评价响应公共字段，消除convertToReviewResponse与convertToMerchantReviewResponse之间的重复代码
+     * @param review 评价实体
+     * @param resp 响应基类对象
+     */
+    private void fillCommonReviewFields(ReviewDO review, BaseReviewResponse resp) {
         resp.setId(review.getId());
         resp.setOrderNo(review.getOrderNo());
         resp.setProductId(review.getProductId());
@@ -427,6 +427,5 @@ public class ReviewService {
         resp.setStatus(review.getStatus());
         resp.setMerchantReply(review.getMerchantReply());
         resp.setCreatedAt(review.getCreatedAt());
-        return resp;
     }
 }

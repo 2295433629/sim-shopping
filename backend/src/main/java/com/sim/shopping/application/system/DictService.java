@@ -2,6 +2,7 @@ package com.sim.shopping.application.system;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.SysDictItemDO;
 import com.sim.shopping.infrastructure.persistence.entity.SysDictTypeDO;
 import com.sim.shopping.infrastructure.persistence.mapper.SysDictItemMapper;
@@ -56,7 +57,7 @@ public class DictService {
         SysDictTypeDO dictType = new SysDictTypeDO();
         dictType.setDictName(req.getDictName());
         dictType.setDictCode(req.getDictCode());
-        dictType.setStatus(req.getStatus() != null ? req.getStatus() : "ACTIVE");
+        dictType.setStatus(req.getStatus() != null ? req.getStatus() : SystemConstants.STATUS_ACTIVE);
         sysDictTypeMapper.insert(dictType);
         return toTypeResponse(dictType);
     }
@@ -150,7 +151,7 @@ public class DictService {
         }
         LambdaQueryWrapper<SysDictItemDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysDictItemDO::getDictTypeId, dictType.getId())
-               .eq(SysDictItemDO::getStatus, "ACTIVE")
+               .eq(SysDictItemDO::getStatus, SystemConstants.STATUS_ACTIVE)
                .orderByAsc(SysDictItemDO::getSortOrder);
         List<SysDictItemDO> list = sysDictItemMapper.selectList(wrapper);
         return list.stream().map(this::toItemResponse).collect(Collectors.toList());
@@ -175,7 +176,7 @@ public class DictService {
         resp.setItemValue(dictItem.getValue());
         resp.setSortOrder(dictItem.getSortOrder());
         // status 统一为数字：1=正常，0=禁用
-        resp.setStatus("ACTIVE".equals(dictItem.getStatus()) ? 1 : 0);
+        resp.setStatus(SystemConstants.STATUS_ACTIVE.equals(dictItem.getStatus()) ? 1 : 0);
         return resp;
     }
 }

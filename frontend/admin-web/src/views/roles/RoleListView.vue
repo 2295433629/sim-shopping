@@ -208,6 +208,11 @@ async function handleMenuSubmit() {
     menuSubmitting.value = false
   }
 }
+
+function handleMenuCheck(_: unknown, checked: unknown) {
+  const c = checked as { checkedKeys: number[]; halfCheckedKeys: number[] }
+  checkedMenuIds.value = c.checkedKeys.concat(c.halfCheckedKeys)
+}
 </script>
 
 <template>
@@ -321,7 +326,7 @@ async function handleMenuSubmit() {
         show-checkbox
         node-key="id"
         :default-checked-keys="checkedMenuIds"
-        @check="(_: any, checked: any) => { checkedMenuIds = checked.checkedKeys.concat(checked.halfCheckedKeys) }"
+        @check="handleMenuCheck"
       />
       <el-empty
         v-if="!menuLoading && allMenus.length === 0"

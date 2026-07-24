@@ -166,7 +166,7 @@ function handleCheckout() {
           <div class="item-info">
             <div class="item-name">{{ item.productName }}</div>
             <div class="item-sku">{{ item.skuName }}</div>
-            <div class="item-price">¥{{ item.price.toFixed(2) }}</div>
+            <div class="item-price">¥{{ (item.price ?? 0).toFixed(2) }}</div>
           </div>
           <el-input-number
             :model-value="item.quantity"

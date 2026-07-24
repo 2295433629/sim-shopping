@@ -120,7 +120,7 @@ const handleApprove = async (row: MerchantListItem) => {
     await approveMerchant(row.merchantId)
     ElMessage.success('已通过')
     loadList()
-  } catch (e: any) { if (e !== 'cancel') ElMessage.error('操作失败') }
+  } catch (e: unknown) { if (!(typeof e === 'string' && e === 'cancel')) ElMessage.error('操作失败') }
 }
 const handleReject = async (row: MerchantListItem) => {
   try {
@@ -128,7 +128,7 @@ const handleReject = async (row: MerchantListItem) => {
     await rejectMerchant(row.merchantId, value)
     ElMessage.success('已拒绝')
     loadList()
-  } catch (e: any) { if (e !== 'cancel') ElMessage.error('操作失败') }
+  } catch (e: unknown) { if (!(typeof e === 'string' && e === 'cancel')) ElMessage.error('操作失败') }
 }
 const handleDisable = async (row: MerchantListItem) => {
   try {
@@ -136,7 +136,7 @@ const handleDisable = async (row: MerchantListItem) => {
     await disableMerchant(row.merchantId)
     ElMessage.success('已禁用')
     loadList()
-  } catch (e: any) { if (e !== 'cancel') ElMessage.error('操作失败') }
+  } catch (e: unknown) { if (!(typeof e === 'string' && e === 'cancel')) ElMessage.error('操作失败') }
 }
 const handleEnable = async (row: MerchantListItem) => {
   try {

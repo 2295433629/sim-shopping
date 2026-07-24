@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getAdminOrderDetail, type OrderDetailVO } from '@/api/modules/order'
+import { ORDER_STATUS_TAG_TYPE } from '@/constants/order'
 
 const route = useRoute()
 const router = useRouter()
@@ -10,14 +11,7 @@ const order = ref<OrderDetailVO | null>(null)
 
 const orderNo = route.params.orderNo as string
 
-const statusTagType: Record<string, string> = {
-  CREATED: 'warning',
-  PAID: 'primary',
-  SHIPPED: 'info',
-  DELIVERED: 'success',
-  COMPLETED: 'success',
-  CANCELLED: 'danger',
-}
+const statusTagType = ORDER_STATUS_TAG_TYPE
 
 onMounted(() => {
   loadDetail()
@@ -86,12 +80,12 @@ async function loadDetail() {
           <el-table-column label="商品名称" prop="productName" min-width="200" />
           <el-table-column label="规格" prop="skuName" width="150" />
           <el-table-column label="单价" width="100" align="right">
-            <template #default="{ row }">¥{{ row.price.toFixed(2) }}</template>
+            <template #default="{ row }">¥{{ (row.price ?? 0).toFixed(2) }}</template>
           </el-table-column>
           <el-table-column label="数量" prop="quantity" width="80" align="center" />
           <el-table-column label="小计" width="120" align="right">
             <template #default="{ row }">
-              <span style="color: var(--color-price); font-weight: 600;">¥{{ row.subtotal.toFixed(2) }}</span>
+              <span style="color: var(--color-price); font-weight: 600;">¥{{ (row.subtotal ?? 0).toFixed(2) }}</span>
             </template>
           </el-table-column>
         </el-table>

@@ -7,6 +7,7 @@ import com.sim.shopping.application.merchant.MerchantService;
 import com.sim.shopping.domain.common.exception.BusinessException;
 import com.sim.shopping.domain.common.exception.MerchantException;
 import com.sim.shopping.application.settlement.SettlementService;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.SettlementRecordDO;
 import com.sim.shopping.infrastructure.persistence.entity.*;
 import com.sim.shopping.infrastructure.persistence.mapper.*;
@@ -222,7 +223,7 @@ public class ShopService {
         banner.setImageUrl(req.getImageUrl());
         banner.setSortOrder(req.getSortOrder() != null ? req.getSortOrder() : 0);
         banner.setLinkUrl(req.getLinkUrl());
-        banner.setStatus("ACTIVE");
+        banner.setStatus(SystemConstants.STATUS_ACTIVE);
         bannerMapper.insert(banner);
 
         return toShopBannerResponse(banner, shop.getId());
@@ -256,7 +257,7 @@ public class ShopService {
         if (shop == null) {
             throw new MerchantException.ShopNotFoundException("店铺信息不存在");
         }
-        if ("DISABLED".equals(shop.getStatus())) {
+        if (SystemConstants.STATUS_DISABLED.equals(shop.getStatus())) {
             throw new MerchantException.MerchantDisabledException("店铺已被禁用");
         }
         return shop;

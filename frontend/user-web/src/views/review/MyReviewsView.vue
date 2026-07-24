@@ -1,34 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getMyReviews, deleteReview, type ReviewItem } from '@/api/modules/review'
+import { usePagination } from '@/composables/usePagination'
 
-const loading = ref(false)
-const reviews = ref<ReviewItem[]>([])
-const page = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
+const { loading, page, pageSize, total, list: reviews, loadList, handlePageChange } = usePagination<ReviewItem>({
+  fetchFn: (page, pageSize) => getMyReviews({ page, size: pageSize }),
+})
 
 onMounted(() => {
-  loadReviews()
+  loadList()
 })
-
-watch([page], () => {
-  loadReviews()
-})
-
-async function loadReviews() {
-  loading.value = true
-  try {
-    const data = await getMyReviews({ page: page.value, size: pageSize.value }) as any
-    reviews.value = data.list || []
-    total.value = data.total || 0
-  } catch {
-    reviews.value = []
-  } finally {
-    loading.value = false
-  }
-}
 
 async function handleDelete(review: ReviewItem) {
   try {
@@ -39,14 +21,10 @@ async function handleDelete(review: ReviewItem) {
     })
     await deleteReview(review.id)
     ElMessage.success('评价已删除')
-    loadReviews()
+    loadList()
   } catch {
     // cancelled or error
   }
-}
-
-function handlePageChange(p: number) {
-  page.value = p
 }
 </script>
 
@@ -70,7 +48,7 @@ function handlePageChange(p: number) {
             <div class="review-images" v-if="review.images && review.images.length > 0">
               <el-image
                 v-for="(img, idx) in review.images"
-                :key="idx"
+                :key="img + '-' + idx"
                 :src="img"
                 fit="cover"
                 class="review-image"

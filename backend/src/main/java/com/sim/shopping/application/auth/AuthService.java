@@ -6,6 +6,7 @@ import com.sim.shopping.infrastructure.persistence.entity.MerchantDO;
 import com.sim.shopping.infrastructure.persistence.entity.UserDO;
 import com.sim.shopping.infrastructure.persistence.mapper.MerchantMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.UserMapper;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.security.JwtTokenProvider;
 import com.sim.shopping.infrastructure.security.SecurityUser;
 import com.sim.shopping.interfaces.dto.auth.LoginRequest;
@@ -72,8 +73,8 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setNickname(request.getNickname());
-        user.setRole("USER");
-        user.setStatus("ACTIVE");
+        user.setRole(SystemConstants.ROLE_USER);
+        user.setStatus(SystemConstants.STATUS_ACTIVE);
         user.setPoints(0);
         user.setGender(0);
         userMapper.insert(user);
@@ -82,16 +83,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getId(), user.getUsername(), user.getRole());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId(), user.getUsername());
 
-        return new TokenResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getNickname(),
-                user.getAvatar(),
-                user.getRole(),
-                accessToken,
-                jwtTokenProvider.getAccessTokenExpiration() / 1000,
-                refreshToken
-        );
+        return buildTokenResponse(user, accessToken, refreshToken);
     }
 
     /**
@@ -109,7 +101,7 @@ public class AuthService {
             throw new UserException.UserNotFoundException("用户不存在: " + request.getUsername());
         }
 
-        if (!"ACTIVE".equals(user.getStatus())) {
+        if (!SystemConstants.STATUS_ACTIVE.equals(user.getStatus())) {
             throw new UserException.UserDisabledException("账号已被禁用");
         }
 
@@ -120,16 +112,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getId(), user.getUsername(), user.getRole());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId(), user.getUsername());
 
-        return new TokenResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getNickname(),
-                user.getAvatar(),
-                user.getRole(),
-                accessToken,
-                jwtTokenProvider.getAccessTokenExpiration() / 1000,
-                refreshToken
-        );
+        return buildTokenResponse(user, accessToken, refreshToken);
     }
 
     /**
@@ -188,23 +171,14 @@ public class AuthService {
             throw new UserException.UserNotFoundException("用户不存在");
         }
 
-        if (!"ACTIVE".equals(user.getStatus())) {
+        if (!SystemConstants.STATUS_ACTIVE.equals(user.getStatus())) {
             throw new UserException.UserDisabledException("账号已被禁用");
         }
 
         String newAccessToken = jwtTokenProvider.generateAccessToken(user.getId(), user.getUsername(), user.getRole());
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId(), user.getUsername());
 
-        return new TokenResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getNickname(),
-                user.getAvatar(),
-                user.getRole(),
-                newAccessToken,
-                jwtTokenProvider.getAccessTokenExpiration() / 1000,
-                newRefreshToken
-        );
+        return buildTokenResponse(user, newAccessToken, newRefreshToken);
     }
 
     /**
@@ -235,7 +209,7 @@ public class AuthService {
         response.setPoints(user.getPoints());
 
         // If user is a merchant, find merchantId
-        if ("MERCHANT".equalsIgnoreCase(user.getRole())) {
+        if (SystemConstants.ROLE_MERCHANT.equalsIgnoreCase(user.getRole())) {
             MerchantDO merchant = merchantMapper.selectOne(
                     Wrappers.<MerchantDO>lambdaQuery()
                             .eq(MerchantDO::getUserId, user.getId())
@@ -247,5 +221,25 @@ public class AuthService {
         }
 
         return response;
+    }
+
+    /**
+     * 构建Token响应对象，统一封装用户信息、Token及过期时间
+     * @param user 用户实体
+     * @param accessToken Access Token
+     * @param refreshToken Refresh Token
+     * @return Token响应DTO
+     */
+    private TokenResponse buildTokenResponse(UserDO user, String accessToken, String refreshToken) {
+        return new TokenResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getNickname(),
+                user.getAvatar(),
+                user.getRole(),
+                accessToken,
+                jwtTokenProvider.getAccessTokenExpiration() / 1000,
+                refreshToken
+        );
     }
 }

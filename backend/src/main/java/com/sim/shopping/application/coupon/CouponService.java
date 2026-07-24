@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.CouponDO;
 import com.sim.shopping.infrastructure.persistence.mapper.CouponMapper;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
@@ -29,8 +30,7 @@ public class CouponService {
 
     private final CouponMapper couponMapper;
 
-    private static final String COUPON_STATUS_ACTIVE = "ACTIVE";
-    private static final String COUPON_STATUS_INACTIVE = "INACTIVE";
+
 
     public CouponService(CouponMapper couponMapper) {
         this.couponMapper = couponMapper;
@@ -54,7 +54,7 @@ public class CouponService {
         coupon.setClaimedQuantity(0);
         coupon.setUsedQuantity(0);
         if (coupon.getStatus() == null) {
-            coupon.setStatus(COUPON_STATUS_ACTIVE);
+            coupon.setStatus(SystemConstants.COUPON_STATUS_ACTIVE);
         }
         couponMapper.insert(coupon);
         return convertToResponse(coupon);
@@ -153,7 +153,7 @@ public class CouponService {
     public List<CouponResponse> getPublicAvailableCoupons() {
         LocalDateTime now = LocalDateTime.now();
         LambdaQueryWrapper<CouponDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CouponDO::getStatus, COUPON_STATUS_ACTIVE)
+        wrapper.eq(CouponDO::getStatus, SystemConstants.COUPON_STATUS_ACTIVE)
                 .le(CouponDO::getValidStartTime, now)
                 .ge(CouponDO::getValidEndTime, now)
                 .orderByDesc(CouponDO::getCreatedAt);
@@ -190,7 +190,7 @@ public class CouponService {
 
         // 进行中（有效且状态为ACTIVE）
         LambdaQueryWrapper<CouponDO> activeWrapper = new LambdaQueryWrapper<>();
-        activeWrapper.eq(CouponDO::getStatus, COUPON_STATUS_ACTIVE)
+        activeWrapper.eq(CouponDO::getStatus, SystemConstants.COUPON_STATUS_ACTIVE)
                 .le(CouponDO::getValidStartTime, now)
                 .ge(CouponDO::getValidEndTime, now);
         vo.setActiveCoupons(couponMapper.selectCount(activeWrapper));

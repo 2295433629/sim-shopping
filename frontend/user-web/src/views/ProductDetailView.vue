@@ -42,7 +42,7 @@ async function loadDetail() {
   try {
     product.value = await getProductDetail(productId.value)
     if (product.value) {
-      selectedImage.value = product.value.mainImage || product.value.images[0] || ''
+      selectedImage.value = product.value.mainImage || product.value.images?.[0] || ''
       if (product.value.skus.length > 0) {
         selectedSku.value = product.value.skus[0]
       }
@@ -201,10 +201,9 @@ async function loadReviews() {
     if (activeRating.value !== null) {
       params.rating = activeRating.value
     }
-    const res = await getProductReviews(productId.value, params)
+    const data = await getProductReviews(productId.value, params)
     // 后端返回 ApiResponse<PageResponse>，拦截器解包后 res 是 PageResponse 数据
-    const data = res as any
-    reviews.value = data.list || data.records || []
+    reviews.value = data.list || []
     reviewTotal.value = data.total || 0
   } catch {
     reviews.value = []
@@ -331,7 +330,7 @@ function renderStars(rating: number): number[] {
             <div class="review-module" v-if="product.reviewSummary && product.reviewSummary.reviewCount > 0">
               <!-- 评分分布 -->
                <div class="rating-distribution">
-                 <div v-for="(count, idx) in ratingDistribution" :key="idx" class="rating-bar-row">
+                 <div v-for="(count, idx) in ratingDistribution" :key="'star-' + (5 - idx)" class="rating-bar-row">
                    <span class="star-label">{{ 5 - idx }}星</span>
                    <div class="rating-bar-bg">
                      <div
@@ -370,7 +369,7 @@ function renderStars(rating: number): number[] {
                    <div class="review-images" v-if="review.images && review.images.length > 0">
                      <el-image
                        v-for="(img, idx) in review.images"
-                       :key="idx"
+                       :key="img + '-' + idx"
                        :src="img"
                        fit="cover"
                        class="review-img"

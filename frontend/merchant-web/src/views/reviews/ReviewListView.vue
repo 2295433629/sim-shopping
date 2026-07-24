@@ -1,42 +1,32 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getMerchantReviews, replyReview, type MerchantReviewItem } from '@/api/modules/review'
-
-const loading = ref(false)
-const reviewList = ref<MerchantReviewItem[]>([])
-const page = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
+import { usePagination } from '@/composables/usePagination'
+import type { PageResponse } from '@/types/common'
 
 // 回复相关
 const replyMap = ref<Record<number, string>>({})
 const replyLoadingMap = ref<Record<number, boolean>>({})
 
+const {
+  loading,
+  page,
+  pageSize,
+  total,
+  list: reviewList,
+  loadList: loadReviews,
+  handlePageChange,
+} = usePagination<MerchantReviewItem>(
+  async () => {
+    const data = await getMerchantReviews({ page: page.value, size: pageSize.value }) as unknown as PageResponse<MerchantReviewItem>
+    return { list: data.list || [], total: data.total || 0 }
+  }
+)
+
 onMounted(() => {
   loadReviews()
 })
-
-watch(page, () => {
-  loadReviews()
-})
-
-async function loadReviews() {
-  loading.value = true
-  try {
-    const data = await getMerchantReviews({ page: page.value, size: pageSize.value })
-    reviewList.value = (data as any).list || []
-    total.value = (data as any).total || 0
-  } catch {
-    reviewList.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-function handlePageChange(p: number) {
-  page.value = p
-}
 
 function handleReply(item: MerchantReviewItem) {
   const content = (replyMap.value[item.id] || '').trim()
@@ -92,7 +82,7 @@ function handleReply(item: MerchantReviewItem) {
           <div v-if="item.images && item.images.length > 0" class="review-images">
             <el-image
               v-for="(img, idx) in item.images"
-              :key="idx"
+              :key="img + '-' + idx"
               :src="img"
               fit="cover"
               class="review-image"

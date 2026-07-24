@@ -1,6 +1,7 @@
 package com.sim.shopping.application.schedule;
 
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.ScheduleJobDO;
 import com.sim.shopping.infrastructure.persistence.entity.ScheduleLogDO;
 import com.sim.shopping.infrastructure.persistence.mapper.ScheduleJobMapper;
@@ -77,7 +78,7 @@ public class ScheduleManager {
         try {
             List<ScheduleJobDO> jobs = scheduleJobMapper.selectList(
                     new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ScheduleJobDO>()
-                            .eq(ScheduleJobDO::getStatus, "ACTIVE"));
+                            .eq(ScheduleJobDO::getStatus, SystemConstants.SCHEDULE_JOB_STATUS_ACTIVE));
 
             int successCount = 0;
             for (ScheduleJobDO job : jobs) {
@@ -113,7 +114,7 @@ public class ScheduleManager {
             return;
         }
 
-        if (!"ACTIVE".equals(job.getStatus())) {
+        if (!SystemConstants.SCHEDULE_JOB_STATUS_ACTIVE.equals(job.getStatus())) {
             log.info("任务状态非ACTIVE，跳过调度: jobId={}, status={}", jobId, job.getStatus());
             return;
         }
@@ -122,7 +123,7 @@ public class ScheduleManager {
             try {
                 // 每次执行前重新加载最新的任务配置
                 ScheduleJobDO latestJob = scheduleJobMapper.selectById(jobId);
-                if (latestJob != null && "ACTIVE".equals(latestJob.getStatus())) {
+                if (latestJob != null && SystemConstants.SCHEDULE_JOB_STATUS_ACTIVE.equals(latestJob.getStatus())) {
                     executeJob(latestJob);
                 }
             } catch (Exception e) {

@@ -1,5 +1,6 @@
 package com.sim.shopping.infrastructure.security;
 
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,7 +36,7 @@ public class SecurityUser implements UserDetails {
         if (role != null) {
             authSet.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
             // SUPER_ADMIN 继承 ADMIN 权限
-            if ("SUPER_ADMIN".equalsIgnoreCase(role)) {
+            if (SystemConstants.ROLE_SUPER_ADMIN.equalsIgnoreCase(role)) {
                 authSet.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             }
         }

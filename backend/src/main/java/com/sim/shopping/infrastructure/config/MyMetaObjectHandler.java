@@ -47,7 +47,8 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
             if (auth != null && auth.getPrincipal() instanceof com.sim.shopping.infrastructure.security.SecurityUser) {
                 return ((com.sim.shopping.infrastructure.security.SecurityUser) auth.getPrincipal()).getUserId();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // 安全上下文未初始化时（如定时任务、匿名请求），静默返回0
         }
         return 0L;
     }

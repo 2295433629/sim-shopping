@@ -3,6 +3,7 @@ package com.sim.shopping.application.shipment;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sim.shopping.application.refund.RefundService;
 import com.sim.shopping.domain.event.LogisticsDeliveredEvent;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.LogisticsRecordDO;
 import com.sim.shopping.infrastructure.persistence.entity.LogisticsTrackDO;
 import com.sim.shopping.infrastructure.persistence.entity.OrderDO;
@@ -238,7 +239,7 @@ public class LogisticsScheduler {
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(3);
 
         LambdaQueryWrapper<RefundDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(RefundDO::getStatus, "PENDING");
+        wrapper.eq(RefundDO::getStatus, SystemConstants.REFUND_STATUS_PENDING);
         wrapper.lt(RefundDO::getCreatedAt, threshold);
         List<RefundDO> refunds = refundMapper.selectList(wrapper);
 

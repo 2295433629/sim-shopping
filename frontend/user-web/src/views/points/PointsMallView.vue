@@ -75,7 +75,7 @@ async function handleExchange(product: PointsProduct) {
     ElMessage.success('兑换成功')
     loadProducts()
     loadUserPoints()
-  } catch (e: any) {
+  } catch (e: unknown) {
     if (e !== 'cancel') {
       ElMessage.error('兑换失败')
     }

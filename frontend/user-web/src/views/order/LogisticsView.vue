@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft } from '@element-plus/icons-vue'
-import { getLogistics } from '@/api/modules/shipment'
+import { getLogistics, type LogisticsData } from '@/api/modules/shipment'
 import { ElMessage } from 'element-plus'
 
 const route = useRoute()
@@ -12,7 +12,7 @@ const loading = ref(false)
 const trackingNo = ref('')
 const company = ref('')
 const currentStatus = ref('')
-const tracks = ref<{ status: string; description: string; location: string; occurredAt: string }[]>([])
+const tracks = ref<LogisticsData['tracks']>([])
 const senderAddress = ref('')
 const receiverAddress = ref('')
 const senderCity = ref('')
@@ -76,20 +76,16 @@ const receiverLabel = computed(() => {
 onMounted(async () => {
   loading.value = true
   try {
-    const res = await getLogistics(orderNo)
-    const data = res as any
+    const data = await getLogistics(orderNo)
     trackingNo.value = data.trackingNo || ''
     company.value = data.logisticsCompany || ''
     currentStatus.value = data.status || ''
     senderAddress.value = data.senderAddress || ''
     receiverAddress.value = data.receiverAddress || ''
     senderCity.value = data.senderCity || ''
-    tracks.value = (data.tracks || []).map((t: any) => ({
-      ...t,
-      occurredAt: t.occurredAt,
-    }))
-  } catch (e: any) {
-    ElMessage.error(e.message || '获取物流信息失败')
+    tracks.value = data.tracks || []
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '获取物流信息失败')
   } finally {
     loading.value = false
   }
@@ -186,7 +182,7 @@ function goBack() {
       <el-timeline v-if="tracks.length > 0" class="logistics-timeline">
         <el-timeline-item
           v-for="(track, index) in tracks"
-          :key="index"
+          :key="track.occurredAt + '-' + index"
           :timestamp="track.occurredAt"
           placement="top"
           :type="index === 0 ? 'primary' : 'info'"

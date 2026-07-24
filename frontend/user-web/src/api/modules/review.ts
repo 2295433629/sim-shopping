@@ -1,4 +1,5 @@
 import request from '@/api/request'
+import type { PageResponse } from '@/types/common'
 
 export interface ReviewItem {
   id: number
@@ -32,7 +33,7 @@ export function submitReview(data: CreateReviewParams) {
 
 /** 我的评价 */
 export function getMyReviews(params: { page: number; size: number }) {
-  return request.get('/user/reviews', { params })
+  return request.get<unknown, PageResponse<ReviewItem>>('/user/reviews', { params })
 }
 
 /** 删除评价 */
@@ -42,5 +43,5 @@ export function deleteReview(reviewId: number) {
 
 /** 商品评价列表 */
 export function getProductReviews(productId: number, params: { page: number; size: number; rating?: number }) {
-  return request.get(`/public/products/${productId}/reviews`, { params })
+  return request.get<unknown, PageResponse<ReviewItem>>(`/public/products/${productId}/reviews`, { params })
 }

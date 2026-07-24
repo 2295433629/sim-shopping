@@ -1,81 +1,26 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrders, cancelOrder, confirmReceive, applyRefund, type OrderListVO } from '@/api/modules/order'
+import { ORDER_STATUS_TABS, ORDER_STATUS_TAG_TYPE, ORDER_STATUS_TEXT } from '@/constants/order'
+import { usePagination } from '@/composables/usePagination'
 
 const router = useRouter()
-const loading = ref(false)
-const orderList = ref<OrderListVO[]>([])
-const total = ref(0)
-const page = ref(1)
-const size = ref(10)
 const activeTab = ref('')
 
-const tabs = [
-  { label: '全部', value: '' },
-  { label: '待付款', value: 'CREATED' },
-  { label: '已付款', value: 'PAID' },
-  { label: '已发货', value: 'SHIPPED' },
-  { label: '运输中', value: 'IN_TRANSIT' },
-  { label: '配送中', value: 'OUT_FOR_DELIVERY' },
-  { label: '已送达', value: 'DELIVERED' },
-  { label: '已完成', value: 'COMPLETED' },
-  { label: '已取消', value: 'CANCELLED' },
-]
+const tabs = ORDER_STATUS_TABS
+const statusTagType: Record<string, 'success' | 'warning' | 'info' | 'danger' | 'primary'> = ORDER_STATUS_TAG_TYPE as Record<string, 'success' | 'warning' | 'info' | 'danger' | 'primary'>
+const statusTextMap = ORDER_STATUS_TEXT
 
-const statusTagType: Record<string, string> = {
-  CREATED: 'warning',
-  PAID: 'primary',
-  SHIPPED: 'info',
-  IN_TRANSIT: 'primary',
-  OUT_FOR_DELIVERY: 'warning',
-  DELIVERED: 'success',
-  COMPLETED: 'success',
-  CANCELLED: 'danger',
-}
-
-const statusTextMap: Record<string, string> = {
-  CREATED: '待付款',
-  PAID: '已付款',
-  SHIPPED: '已发货',
-  IN_TRANSIT: '运输中',
-  OUT_FOR_DELIVERY: '配送中',
-  DELIVERED: '已送达',
-  COMPLETED: '已完成',
-  CANCELLED: '已取消',
-}
-
-onMounted(() => {
-  loadOrders()
+const { loading, page, pageSize: size, total, list: orderList, loadList, handlePageChange } = usePagination<OrderListVO>({
+  fetchFn: (page, size) => getOrders({ page, size, status: activeTab.value || undefined }),
 })
-
-async function loadOrders() {
-  loading.value = true
-  try {
-    const res = await getOrders({
-      page: page.value,
-      size: size.value,
-      status: activeTab.value || undefined,
-    })
-    orderList.value = res.list || []
-    total.value = res.total || 0
-  } catch {
-    // handled by interceptor
-  } finally {
-    loading.value = false
-  }
-}
 
 function handleTabChange(val: string) {
   activeTab.value = val
   page.value = 1
-  loadOrders()
-}
-
-function handlePageChange(p: number) {
-  page.value = p
-  loadOrders()
+  loadList()
 }
 
 async function handleCancel(order: OrderListVO) {
@@ -87,7 +32,7 @@ async function handleCancel(order: OrderListVO) {
     })
     await cancelOrder(order.orderNo)
     ElMessage.success('订单已取消')
-    loadOrders()
+    loadList()
   } catch {
     // cancelled or error
   }
@@ -102,7 +47,7 @@ async function handleConfirmReceive(order: OrderListVO) {
     })
     await confirmReceive(order.orderNo)
     ElMessage.success('已确认收货')
-    loadOrders()
+    loadList()
   } catch {
     // cancelled or error
   }
@@ -126,7 +71,7 @@ async function handleRefund(order: OrderListVO) {
     })
     await applyRefund(order.orderNo, { refundType: 'REFUND_ONLY', reason: reason.trim(), amount: order.payAmount })
     ElMessage.success('退款申请已提交')
-    loadOrders()
+    loadList()
   } catch {
     // cancelled or error
   }
@@ -153,7 +98,7 @@ async function handleRefund(order: OrderListVO) {
         <div v-for="order in orderList" :key="order.orderNo" class="order-card">
           <div class="order-header">
             <span class="order-shop">{{ order.shopName }}</span>
-            <el-tag :type="(statusTagType[order.status] as any) || 'info'" size="small">
+            <el-tag :type="statusTagType[order.status] || 'info'" size="small">
               {{ statusTextMap[order.status] || order.status }}
             </el-tag>
           </div>
@@ -169,7 +114,7 @@ async function handleRefund(order: OrderListVO) {
                 <div class="item-name">{{ item.productName }}</div>
                 <div class="item-sku">{{ item.skuName }}</div>
               </div>
-              <div class="item-price">¥{{ item.price.toFixed(2) }}</div>
+              <div class="item-price">¥{{ (item.price ?? 0).toFixed(2) }}</div>
               <div class="item-qty">x{{ item.quantity }}</div>
             </div>
           </div>

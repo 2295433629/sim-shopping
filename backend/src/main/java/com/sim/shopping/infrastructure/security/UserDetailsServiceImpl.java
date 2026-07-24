@@ -1,5 +1,6 @@
 package com.sim.shopping.infrastructure.security;
 
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.UserDO;
 import com.sim.shopping.infrastructure.persistence.mapper.UserMapper;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,7 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 user.getPassword(),
                 user.getRole(),
                 user.getRole(),
-                "ACTIVE".equals(user.getStatus())
+                SystemConstants.STATUS_ACTIVE.equals(user.getStatus())
         );
     }
 

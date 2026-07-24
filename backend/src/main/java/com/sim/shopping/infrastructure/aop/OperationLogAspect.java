@@ -1,6 +1,7 @@
 package com.sim.shopping.infrastructure.aop;
 
 import com.sim.shopping.application.system.OperationLogService;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.security.SecurityUtils;
 import com.sim.shopping.infrastructure.security.SecurityUser;
 import jakarta.servlet.http.HttpServletRequest;
@@ -65,8 +66,8 @@ public class OperationLogAspect {
                 operatorId = user.getUserId();
                 operatorName = user.getUsername();
                 operatorType = user.getUserType();
-            } catch (Exception ignored) {
-                // 未登录场景（如登录接口本身）
+            } catch (Exception e) {
+                // 未登录场景（如登录接口本身），无需记录操作人
             }
 
             String module = logAnnotation.module();
@@ -78,16 +79,16 @@ public class OperationLogAspect {
                 type = inferType(method);
             }
 
-            String params = truncate(toJson(point.getArgs()), 500);
+            String params = truncate(toJson(point.getArgs()), SystemConstants.LOG_TRUNCATE_LENGTH);
             String response = ex != null ? ex.getMessage() : "success";
-            response = truncate(response, 500);
+            response = truncate(response, SystemConstants.LOG_TRUNCATE_LENGTH);
 
             operationLogService.saveOperationLog(
                     operatorId, operatorName, operatorType,
                     module, type, method, url, params, response, cost, ip
             );
-        } catch (Exception ignored) {
-            // 日志记录失败不应影响主业务
+        } catch (Exception e) {
+            // 日志记录失败不应影响主业务，静默处理避免级联故障
         }
     }
 

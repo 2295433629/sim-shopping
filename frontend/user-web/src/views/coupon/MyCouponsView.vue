@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, watch } from 'vue'
 import { getMyCoupons, type MyCoupon } from '@/api/modules/coupon'
+import { usePagination } from '@/composables/usePagination'
 
-const loading = ref(false)
-const couponList = ref<MyCoupon[]>([])
 const activeTab = ref('UNUSED')
-const page = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
 
 const tabs = [
   { label: '未使用', value: 'UNUSED' },
@@ -16,38 +11,20 @@ const tabs = [
   { label: '已过期', value: 'EXPIRED' },
 ]
 
-const statusTagType: Record<string, string> = {
+const statusTagType: Record<string, 'success' | 'info' | 'danger'> = {
   UNUSED: 'success',
   USED: 'info',
   EXPIRED: 'danger',
 }
 
-onMounted(() => {
-  loadCoupons()
+const { loading, page, pageSize, total, list: couponList, loadList, handlePageChange } = usePagination<MyCoupon>({
+  fetchFn: (page, pageSize) => getMyCoupons({ status: activeTab.value, page, size: pageSize }),
 })
 
-watch([activeTab, page], () => {
-  loadCoupons()
+watch([activeTab], () => {
+  page.value = 1
+  loadList()
 })
-
-async function loadCoupons() {
-  loading.value = true
-  try {
-    const data = await getMyCoupons({ status: activeTab.value, page: page.value, size: pageSize.value })
-    couponList.value = data.list || []
-    total.value = data.total || 0
-  } catch {
-    couponList.value = []
-    total.value = 0
-    ElMessage.error('加载优惠券失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-function handlePageChange(p: number) {
-  page.value = p
-}
 
 function formatValue(coupon: MyCoupon) {
   if (coupon.couponType === 'PERCENTAGE') {
@@ -88,7 +65,7 @@ function formatType(type: string) {
               <div class="coupon-name">{{ coupon.couponName }}</div>
               <div class="coupon-meta">
                 <span>最低消费: ¥{{ coupon.minSpend.toFixed(2) }}</span>
-                <el-tag :type="(statusTagType[coupon.status] as any) || 'info'" size="small">
+                <el-tag :type="statusTagType[coupon.status] || 'info'" size="small">
                   {{ coupon.status === 'UNUSED' ? '未使用' : coupon.status === 'USED' ? '已使用' : '已过期' }}
                 </el-tag>
               </div>

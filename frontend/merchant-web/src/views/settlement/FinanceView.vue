@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getFinance, getSettlementRecords, type ShopFinanceResponse, type SettlementRecordResponse } from '@/api/modules/settlement'
+import { usePagination } from '@/composables/usePagination'
 
-const loading = ref(false)
+type ElTagType = 'success' | 'warning' | 'info' | 'danger' | 'primary'
+
 const finance = ref<ShopFinanceResponse>({
   balance: 0,
   totalIncome: 0,
@@ -11,17 +13,23 @@ const finance = ref<ShopFinanceResponse>({
   todayIncome: 0,
 })
 
-const recordList = ref<SettlementRecordResponse[]>([])
-const page = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
+const {
+  loading,
+  page,
+  pageSize,
+  total,
+  list: recordList,
+  loadList: loadRecords,
+  handlePageChange,
+} = usePagination<SettlementRecordResponse>(
+  async () => {
+    const data = await getSettlementRecords({ page: page.value, size: pageSize.value })
+    return { list: data.list || [], total: data.total || 0 }
+  }
+)
 
 onMounted(() => {
   loadFinance()
-  loadRecords()
-})
-
-watch(page, () => {
   loadRecords()
 })
 
@@ -31,23 +39,6 @@ async function loadFinance() {
   } catch {
     // handled by interceptor
   }
-}
-
-async function loadRecords() {
-  loading.value = true
-  try {
-    const data = await getSettlementRecords({ page: page.value, size: pageSize.value })
-    recordList.value = data.list || []
-    total.value = data.total || 0
-  } catch {
-    recordList.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-function handlePageChange(p: number) {
-  page.value = p
 }
 
 function formatAmount(amount: number): string {
@@ -112,7 +103,7 @@ function getAmountClass(row: SettlementRecordResponse): string {
         </el-table-column>
         <el-table-column label="类型" width="120" align="center">
           <template #default="{ row }">
-            <el-tag :type="(getTypeTagType(row.type) as any)" size="small">
+            <el-tag :type="getTypeTagType(row.type) as ElTagType" size="small">
               {{ getTypeLabel(row.type) }}
             </el-tag>
           </template>

@@ -1,5 +1,6 @@
 package com.sim.shopping.interfaces.dto.system;
 
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 
@@ -72,6 +73,6 @@ public class DictItemCreateRequest {
      * 转换为数据库存储的状态字符串
      */
     public String getDbStatus() {
-        return status != null && status == 1 ? "ACTIVE" : "INACTIVE";
+        return status != null && status == 1 ? SystemConstants.STATUS_ACTIVE : SystemConstants.STATUS_INACTIVE;
     }
 }

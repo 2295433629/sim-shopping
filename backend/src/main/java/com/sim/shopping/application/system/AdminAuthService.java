@@ -7,6 +7,7 @@ import com.sim.shopping.infrastructure.persistence.entity.SysAdminDO;
 import com.sim.shopping.infrastructure.persistence.entity.UserDO;
 import com.sim.shopping.infrastructure.persistence.mapper.SysAdminMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.UserMapper;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.security.JwtTokenProvider;
 import com.sim.shopping.interfaces.dto.system.AdminLoginRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -62,7 +63,7 @@ public class AdminAuthService {
         // 确定管理员角色：优先从 sys_admin 表获取，回退到 user 表的 role
         String adminRole = user.getRole();
         String adminName = user.getNickname();
-        if (!"ADMIN".equalsIgnoreCase(adminRole) && !"SUPER_ADMIN".equalsIgnoreCase(adminRole)) {
+        if (!SystemConstants.ROLE_ADMIN.equalsIgnoreCase(adminRole) && !SystemConstants.ROLE_SUPER_ADMIN.equalsIgnoreCase(adminRole)) {
             // user 表角色不是管理员，尝试查 sys_admin 表
             LambdaQueryWrapper<SysAdminDO> adminWrapper = new LambdaQueryWrapper<>();
             adminWrapper.eq(SysAdminDO::getUserId, user.getId())
@@ -87,7 +88,7 @@ public class AdminAuthService {
         }
 
         // Check user status
-        if (!"ACTIVE".equals(user.getStatus())) {
+        if (!SystemConstants.STATUS_ACTIVE.equals(user.getStatus())) {
             throw new UserException.UserDisabledException("账号已被禁用");
         }
 

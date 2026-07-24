@@ -12,6 +12,8 @@ import com.sim.shopping.infrastructure.persistence.mapper.*;
 import com.sim.shopping.application.points.PointsService;
 import com.sim.shopping.application.refund.RefundService;
 import com.sim.shopping.application.settlement.SettlementService;
+import com.sim.shopping.infrastructure.common.OrderConstants;
+import com.sim.shopping.infrastructure.common.OrderNoGenerator;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
 import com.sim.shopping.interfaces.dto.order.*;
 import com.sim.shopping.interfaces.dto.refund.RefundVO;
@@ -21,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,11 +50,7 @@ public class OrderService {
     private final PointsService pointsService;
     private final SettlementService settlementService;
 
-    private static final BigDecimal DEFAULT_SHIPPING_FEE = new BigDecimal("10.00");
-    private static final String ORDER_STATUS_CREATED = "CREATED";
-    private static final String ORDER_STATUS_CANCELLED = "CANCELLED";
-    private static final String ORDER_STATUS_DELIVERED = "DELIVERED";
-    private static final String ORDER_STATUS_COMPLETED = "COMPLETED";
+
 
     public OrderService(OrderMapper orderMapper,
                        OrderItemMapper orderItemMapper,
@@ -180,18 +177,18 @@ public class OrderService {
             }
 
             BigDecimal discountAmount = BigDecimal.ZERO;
-            BigDecimal payAmount = totalAmount.add(DEFAULT_SHIPPING_FEE).subtract(discountAmount);
+            BigDecimal payAmount = totalAmount.add(OrderConstants.DEFAULT_SHIPPING_FEE).subtract(discountAmount);
 
             // Create order
             OrderDO order = new OrderDO();
-            order.setOrderNo(generateOrderNo());
+            order.setOrderNo(OrderNoGenerator.generateNormalOrderNo());
             order.setUserId(userId);
             order.setShopId(shopId);
             order.setTotalAmount(totalAmount);
-            order.setShippingFee(DEFAULT_SHIPPING_FEE);
+            order.setShippingFee(OrderConstants.DEFAULT_SHIPPING_FEE);
             order.setDiscountAmount(discountAmount);
             order.setPayAmount(payAmount);
-            order.setStatus(ORDER_STATUS_CREATED);
+            order.setStatus(OrderConstants.ORDER_STATUS_CREATED);
             order.setReceiverName(address.getReceiverName());
             order.setReceiverPhone(address.getReceiverPhone());
             order.setReceiverAddress(fullAddress);
@@ -306,11 +303,11 @@ public class OrderService {
         if (!userId.equals(order.getUserId())) {
             throw new BusinessException(403, "无权操作此订单");
         }
-        if (!ORDER_STATUS_CREATED.equals(order.getStatus())) {
+        if (!OrderConstants.ORDER_STATUS_CREATED.equals(order.getStatus())) {
             throw new OrderException.OrderCannotCancelException("只能取消待支付的订单");
         }
 
-        order.setStatus(ORDER_STATUS_CANCELLED);
+        order.setStatus(OrderConstants.ORDER_STATUS_CANCELLED);
         order.setCancelledAt(LocalDateTime.now());
         orderMapper.updateById(order);
 
@@ -354,11 +351,11 @@ public class OrderService {
         if (!userId.equals(order.getUserId())) {
             throw new BusinessException(403, "无权操作此订单");
         }
-        if (!ORDER_STATUS_DELIVERED.equals(order.getStatus())) {
+        if (!OrderConstants.ORDER_STATUS_DELIVERED.equals(order.getStatus())) {
             throw new OrderException.OrderStatusException("只能确认已送达的订单");
         }
 
-        order.setStatus(ORDER_STATUS_COMPLETED);
+        order.setStatus(OrderConstants.ORDER_STATUS_COMPLETED);
         order.setCompletedAt(LocalDateTime.now());
         orderMapper.updateById(order);
 
@@ -480,21 +477,7 @@ public class OrderService {
         return orderMapper.selectOne(wrapper);
     }
 
-    private String generateOrderNo() {
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String random = randomAlphanumeric(4);
-        return "SD" + timestamp + random;
-    }
 
-    private String randomAlphanumeric(int length) {
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        java.util.concurrent.ThreadLocalRandom random = java.util.concurrent.ThreadLocalRandom.current();
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
-        }
-        return sb.toString();
-    }
 
     private List<OrderItemVO> getOrderItemVOs(Long orderId) {
         LambdaQueryWrapper<OrderItemDO> wrapper = new LambdaQueryWrapper<>();

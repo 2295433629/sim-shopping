@@ -54,7 +54,7 @@ const editingBrand = reactive({ id: null as number | null, brandName: '', brandL
 
 const beforeUpload = (file: File) => { if (!file.type.startsWith('image/')) { ElMessage.error('仅支持图片格式'); return false } if (file.size / 1024 / 1024 > 5) { ElMessage.error('最大5MB'); return false } return true }
 
-const handleUpload = async (options: any) => {
+const handleUpload = async (options: { file: File; onSuccess: (res: unknown) => void; onError: (err: unknown) => void }) => {
   const formData = new FormData()
   formData.append('file', options.file)
   formData.append('type', 'product')
@@ -67,15 +67,15 @@ const handleUpload = async (options: any) => {
     options.onError(e)
   }
 }
-const handleLogoSuccess = (res: any) => { if (res && res.url) editingBrand.brandLogo = res.url }
+const handleLogoSuccess = (res: { url?: string }) => { if (res && res.url) editingBrand.brandLogo = res.url }
 const loadList = async () => { try { const res = await getBrands(); brandList.value = res.data || [] } catch { ElMessage.error('加载失败') } }
-const openDialog = (row: any) => { if (row) { Object.assign(editingBrand, row) } else { editingBrand.id = null; editingBrand.brandName = ''; editingBrand.brandLogo = ''; editingBrand.brandDescription = '' } dialogVisible.value = true }
+const openDialog = (row: Record<string, unknown> | null) => { if (row) { Object.assign(editingBrand, row) } else { editingBrand.id = null; editingBrand.brandName = ''; editingBrand.brandLogo = ''; editingBrand.brandDescription = '' } dialogVisible.value = true }
 const handleSave = async () => {
   if (!editingBrand.brandName) { ElMessage.warning('请输入品牌名称'); return }
   try { if (editingBrand.id) { await updateBrand(editingBrand.id, editingBrand) } else { await createBrand(editingBrand) } ElMessage.success('保存成功'); dialogVisible.value = false; loadList() } catch { ElMessage.error('保存失败') }
 }
-const handleDelete = async (row: any) => {
-  try { await ElMessageBox.confirm('确认删除该品牌？', '确认', { type: 'warning' }); await deleteBrand(row.id); ElMessage.success('删除成功'); loadList() } catch (e: any) { if (e !== 'cancel') ElMessage.error('删除失败') }
+const handleDelete = async (row: Record<string, unknown>) => {
+  try { await ElMessageBox.confirm('确认删除该品牌？', '确认', { type: 'warning' }); await deleteBrand(row.id as number); ElMessage.success('删除成功'); loadList() } catch (e: unknown) { if (!(typeof e === 'string' && e === 'cancel')) ElMessage.error('删除失败') }
 }
 onMounted(loadList)
 </script>

@@ -1,4 +1,5 @@
 import request from '@/api/request'
+import type { PageResponse } from '@/types/common'
 
 export interface NotificationItem {
   id: number
@@ -14,14 +15,19 @@ export interface NotificationItem {
   createdAt: string
 }
 
+/** 未读消息数量响应 */
+export interface UnreadCountResponse {
+  unreadCount: number
+}
+
 /** 消息列表 */
 export function getNotifications(params: { pageNum: number; pageSize: number }) {
-  return request.get('/notifications', { params })
+  return request.get<unknown, PageResponse<NotificationItem>>('/notifications', { params })
 }
 
 /** 未读消息数量 */
 export function getUnreadCount() {
-  return request.get('/notifications/unread-count')
+  return request.get<unknown, UnreadCountResponse>('/notifications/unread-count')
 }
 
 /** 标记已读 */

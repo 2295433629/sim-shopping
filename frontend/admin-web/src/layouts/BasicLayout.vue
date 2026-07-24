@@ -169,7 +169,7 @@ function toggleFullscreen() {
             <template #title>仪表盘</template>
           </el-menu-item>
 
-          <template v-for="(group, gi) in menuGroups" :key="gi">
+          <template v-for="(group, gi) in menuGroups" :key="group.title || gi">
             <el-sub-menu v-if="!isCollapse" :index="`group-${gi}`">
               <template #title>
                 <el-icon><component :is="group.items[0].icon" /></el-icon>

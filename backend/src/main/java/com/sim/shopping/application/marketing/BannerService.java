@@ -2,6 +2,7 @@ package com.sim.shopping.application.marketing;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.BannerDO;
 import com.sim.shopping.infrastructure.persistence.mapper.BannerMapper;
 import com.sim.shopping.interfaces.dto.banner.BannerResponse;
@@ -23,8 +24,6 @@ import java.util.stream.Collectors;
 public class BannerService {
 
     private final BannerMapper bannerMapper;
-
-    private static final String BANNER_STATUS_ACTIVE = "ACTIVE";
 
     public BannerService(BannerMapper bannerMapper) {
         this.bannerMapper = bannerMapper;
@@ -49,7 +48,7 @@ public class BannerService {
     public List<BannerResponse> getActiveBanners() {
         LocalDateTime now = LocalDateTime.now();
         LambdaQueryWrapper<BannerDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BannerDO::getStatus, BANNER_STATUS_ACTIVE)
+        wrapper.eq(BannerDO::getStatus, SystemConstants.STATUS_ACTIVE)
                 .le(BannerDO::getStartTime, now)
                 .ge(BannerDO::getEndTime, now)
                 .orderByAsc(BannerDO::getSortOrder);

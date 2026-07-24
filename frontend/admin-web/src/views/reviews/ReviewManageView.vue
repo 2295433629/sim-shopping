@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getAdminReviews, hideReview, showReview, deleteReview, type AdminReviewItem } from '@/api/modules/review'
+import type { PageResponse } from '@/types/common'
 
 const loading = ref(false)
 const reviewList = ref<AdminReviewItem[]>([])
@@ -21,11 +22,12 @@ watch(page, () => {
 async function loadReviews() {
   loading.value = true
   try {
-    const params: Record<string, unknown> = { page: page.value, size: pageSize.value }
-    if (keyword.value.trim()) params.keyword = keyword.value.trim()
-    const data = await getAdminReviews(params as any)
-    reviewList.value = (data as any).list || []
-    total.value = (data as any).total || 0
+    const params = { page: page.value, size: pageSize.value }
+    if (keyword.value.trim()) (params as Record<string, unknown>).keyword = keyword.value.trim()
+    const data = await getAdminReviews(params)
+    const pageData = data as unknown as PageResponse<AdminReviewItem>
+    reviewList.value = pageData.list || []
+    total.value = pageData.total || 0
   } catch {
     reviewList.value = []
   } finally {

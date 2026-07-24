@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sim.shopping.domain.common.exception.BusinessException;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.CouponDO;
 import com.sim.shopping.infrastructure.persistence.entity.UserCouponDO;
 import com.sim.shopping.infrastructure.persistence.mapper.CouponMapper;
@@ -31,10 +32,9 @@ public class UserCouponService {
     private final UserCouponMapper userCouponMapper;
     private final CouponMapper couponMapper;
 
-    private static final String COUPON_STATUS_ACTIVE = "ACTIVE";
-    private static final String USER_COUPON_STATUS_CLAIMED = "CLAIMED";
-    private static final String USER_COUPON_STATUS_USED = "USED";
-    private static final String USER_COUPON_STATUS_EXPIRED = "EXPIRED";
+    private static final String USER_COUPON_STATUS_CLAIMED = SystemConstants.USER_COUPON_STATUS_CLAIMED;
+    private static final String USER_COUPON_STATUS_USED = SystemConstants.USER_COUPON_STATUS_USED;
+    private static final String USER_COUPON_STATUS_EXPIRED = SystemConstants.USER_COUPON_STATUS_EXPIRED;
 
     public UserCouponService(UserCouponMapper userCouponMapper, CouponMapper couponMapper) {
         this.userCouponMapper = userCouponMapper;
@@ -60,7 +60,7 @@ public class UserCouponService {
         }
 
         // 2. 检查状态
-        if (!COUPON_STATUS_ACTIVE.equals(coupon.getStatus())) {
+        if (!SystemConstants.COUPON_STATUS_ACTIVE.equals(coupon.getStatus())) {
             throw new BusinessException(400, "优惠券已失效");
         }
 

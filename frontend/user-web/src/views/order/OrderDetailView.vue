@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrderDetail, cancelOrder, confirmReceive, applyRefund, type OrderDetailVO } from '@/api/modules/order'
+import { ORDER_STATUS_TAG_TYPE, ORDER_STATUS_TEXT } from '@/constants/order'
 
 const route = useRoute()
 const router = useRouter()
@@ -13,27 +14,8 @@ const refundForm = ref({ refundType: 'REFUND_ONLY', reason: '', amount: 0 })
 
 const orderNo = route.params.orderNo as string
 
-const statusTagType: Record<string, string> = {
-  CREATED: 'warning',
-  PAID: 'primary',
-  SHIPPED: 'info',
-  IN_TRANSIT: 'primary',
-  OUT_FOR_DELIVERY: 'warning',
-  DELIVERED: 'success',
-  COMPLETED: 'success',
-  CANCELLED: 'danger',
-}
-
-const statusTextMap: Record<string, string> = {
-  CREATED: '待付款',
-  PAID: '已付款',
-  SHIPPED: '已发货',
-  IN_TRANSIT: '运输中',
-  OUT_FOR_DELIVERY: '配送中',
-  DELIVERED: '已送达',
-  COMPLETED: '已完成',
-  CANCELLED: '已取消',
-}
+const statusTagType: Record<string, 'success' | 'warning' | 'info' | 'danger' | 'primary'> = ORDER_STATUS_TAG_TYPE as Record<string, 'success' | 'warning' | 'info' | 'danger' | 'primary'>
+const statusTextMap = ORDER_STATUS_TEXT
 
 const paymentMethodMap: Record<string, string> = {
   ALIPAY: '支付宝',
@@ -59,7 +41,7 @@ const refundStatusMap: Record<string, string> = {
   REJECTED: '退款已拒绝',
 }
 
-const refundStatusType: Record<string, string> = {
+const refundStatusType: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
   PENDING: 'warning',
   APPROVED: 'success',
   COMPLETED: 'success',
@@ -138,7 +120,7 @@ function handleViewLogistics() {
 }
 
 function handleReview() {
-  if (!order.value) return
+  if (!order.value || !order.value.items?.length) return
   const firstItem = order.value.items[0]
   router.push(`/order/${order.value.orderNo}/review?productId=${firstItem.productId}`)
 }
@@ -183,7 +165,7 @@ async function handleRefundSubmit() {
         <template #header>
           <div class="card-header">
             <span class="section-title">订单状态</span>
-            <el-tag :type="(statusTagType[order.status] as any) || 'info'" size="large">
+            <el-tag :type="statusTagType[order.status] || 'info'" size="large">
               {{ statusTextMap[order.status] || order.status }}
             </el-tag>
           </div>
@@ -205,7 +187,7 @@ async function handleRefundSubmit() {
         <template #header>
           <div class="card-header">
             <span class="section-title">退款信息</span>
-            <el-tag :type="(refundStatusType[order.refund.status] as any) || 'info'" size="large">
+            <el-tag :type="refundStatusType[order.refund.status] || 'info'" size="large">
               {{ refundStatusMap[order.refund.status] || order.refund.status }}
             </el-tag>
           </div>
@@ -230,27 +212,27 @@ async function handleRefundSubmit() {
             <div class="item-name">{{ item.productName }}</div>
             <div class="item-sku">{{ item.skuName }}</div>
           </div>
-          <div class="item-price">¥{{ item.price.toFixed(2) }}</div>
+          <div class="item-price">¥{{ (item.price ?? 0).toFixed(2) }}</div>
           <div class="item-qty">x{{ item.quantity }}</div>
-          <div class="item-subtotal">¥{{ item.subtotal.toFixed(2) }}</div>
+          <div class="item-subtotal">¥{{ (item.subtotal ?? 0).toFixed(2) }}</div>
         </div>
         <el-divider />
         <div class="amount-summary">
           <div class="summary-row">
             <span>商品总额：</span>
-            <span>¥{{ order.totalAmount.toFixed(2) }}</span>
+            <span>¥{{ (order.totalAmount ?? 0).toFixed(2) }}</span>
           </div>
           <div class="summary-row">
             <span>运费：</span>
-            <span>¥{{ order.shippingFee.toFixed(2) }}</span>
+            <span>¥{{ (order.shippingFee ?? 0).toFixed(2) }}</span>
           </div>
           <div class="summary-row">
             <span>优惠金额：</span>
-            <span>¥{{ (order.discountAmount || 0).toFixed(2) }}</span>
+            <span>¥{{ (order.discountAmount ?? 0).toFixed(2) }}</span>
           </div>
           <div class="summary-row total">
             <span>应付总额：</span>
-            <span class="pay-amount">¥{{ order.payAmount.toFixed(2) }}</span>
+            <span class="pay-amount">¥{{ (order.payAmount ?? 0).toFixed(2) }}</span>
           </div>
         </div>
       </el-card>

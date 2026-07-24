@@ -1,6 +1,7 @@
 package com.sim.shopping.interfaces.auth;
 
 import com.sim.shopping.application.auth.AuthService;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.application.system.LoginLogService;
 import com.sim.shopping.interfaces.dto.auth.LoginRequest;
 import com.sim.shopping.interfaces.dto.auth.RefreshTokenRequest;
@@ -63,11 +64,11 @@ public class AuthController {
             TokenResponse tokenResponse = authService.login(request);
             loginLogService.recordLoginLog(
                     tokenResponse.getUserId(), request.getUsername(),
-                    tokenResponse.getRole(), 1, ip, userAgent, null);
+                    tokenResponse.getRole(), SystemConstants.LOGIN_STATUS_SUCCESS, ip, userAgent, null);
             return ApiResponse.success(tokenResponse);
         } catch (Exception e) {
             loginLogService.recordLoginLog(
-                    null, request.getUsername(), "USER", 0, ip, userAgent, e.getMessage());
+                    null, request.getUsername(), SystemConstants.ROLE_USER, SystemConstants.LOGIN_STATUS_FAILURE, ip, userAgent, e.getMessage());
             throw e;
         }
     }
@@ -84,7 +85,7 @@ public class AuthController {
             String ip = request.getRemoteAddr();
             String userAgent = request.getHeader("User-Agent");
             loginLogService.recordLoginLog(user.getUserId(), user.getUsername(), user.getUserType(), 2, ip, userAgent, null);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             // 登出日志记录失败不影响主业务
         }
         String bearerToken = request.getHeader("Authorization");

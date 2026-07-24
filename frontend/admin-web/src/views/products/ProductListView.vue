@@ -73,7 +73,6 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProducts, getProductDetail, forceOfflineProduct } from '@/api/modules/product'
-
 const list = ref<any[]>([])
 const total = ref(0)
 const page = ref(1)
@@ -96,7 +95,17 @@ const loadList = async () => {
   loading.value = false
 }
 
-const openDetail = async (row: any) => {
+interface ProductRow {
+  productId: number
+  name: string
+  shopName?: string
+  price: number
+  sales?: number
+  status: string
+  [key: string]: unknown
+}
+
+const openDetail = async (row: ProductRow) => {
   try {
     const res = await getProductDetail(row.productId)
     detail.value = res
@@ -106,14 +115,14 @@ const openDetail = async (row: any) => {
   }
 }
 
-const handleForceOffline = async (row: any) => {
+const handleForceOffline = async (row: ProductRow) => {
   try {
     await ElMessageBox.confirm('确认强制下架该商品？', '强制下架', { type: 'warning' })
     await forceOfflineProduct(row.productId)
     ElMessage.success('已下架')
     loadList()
-  } catch (e: any) {
-    if (e !== 'cancel') ElMessage.error('操作失败')
+  } catch (e: unknown) {
+    if (!(typeof e === 'string' && e === 'cancel')) ElMessage.error('操作失败')
   }
 }
 onMounted(loadList)

@@ -38,24 +38,47 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination v-model:current-page="page" :page-size="size" :total="total" layout="prev, pager, next, total" @current-change="loadList" style="margin-top:16px;justify-content:flex-end" />
+      <el-pagination v-model:current-page="page" :page-size="pageSize" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" style="margin-top:16px;justify-content:flex-end" />
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProducts, publishProduct, offlineProduct, deleteProduct } from '@/api/modules/product'
+import { usePagination } from '@/composables/usePagination'
+import type { PageResponse } from '@/types/common'
 
 const router = useRouter()
-const list = ref<any[]>([])
-const total = ref(0)
-const page = ref(1)
-const size = ref(20)
-const loading = ref(false)
+
+interface ProductListItem {
+  productId: number
+  name: string
+  price: number
+  stock: number
+  sales: number
+  status: string
+}
+
+const {
+  loading,
+  page,
+  pageSize,
+  total,
+  list,
+  loadList,
+  handlePageChange,
+} = usePagination<ProductListItem>(
+  async () => {
+    const res = await getProducts({ page: page.value, size: pageSize.value, status: filter.status, keyword: filter.keyword }) as PageResponse<ProductListItem>
+    return { list: res.list || [], total: res.total || 0 }
+  },
+  { defaultPageSize: 20 }
+)
+
 const filter = reactive({ status: '', keyword: '' })
 
 const statusMap: Record<string, string> = {
@@ -66,29 +89,23 @@ const statusMap: Record<string, string> = {
 
 function formatPrice(val: number) { return val != null ? val.toFixed(2) : '0.00' }
 
-const loadList = async () => {
-  loading.value = true
-  try {
-    const res = await getProducts({ page: page.value, size: size.value, status: filter.status, keyword: filter.keyword })
-    list.value = res.list || []
-    total.value = res.total || 0
-  } catch (e: any) { ElMessage.error(e?.message || '加载失败') }
-  loading.value = false
-}
-
-const handlePublish = async (row: any) => {
+const handlePublish = async (row: ProductListItem) => {
   try { await publishProduct(row.productId); ElMessage.success('发布成功'); loadList() } catch { ElMessage.error('操作失败') }
 }
 
-const handleOffline = async (row: any) => {
+const handleOffline = async (row: ProductListItem) => {
   try { await offlineProduct(row.productId); ElMessage.success('已下架'); loadList() } catch { ElMessage.error('操作失败') }
 }
 
-const handleDelete = async (row: any) => {
+const handleDelete = async (row: ProductListItem) => {
   try {
     await ElMessageBox.confirm('确定删除商品「' + row.name + '」吗？', '确认', { type: 'warning' })
     await deleteProduct(row.productId); ElMessage.success('删除成功'); loadList()
-  } catch (e: any) { if (e !== 'cancel') ElMessage.error('删除失败') }
+  } catch (e: unknown) {
+    if (!(typeof e === 'string' && e === 'cancel')) {
+      ElMessage.error(e instanceof Error ? e.message : '删除失败')
+    }
+  }
 }
 
 onMounted(loadList)

@@ -1,6 +1,7 @@
 package com.sim.shopping.application.auth;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.SysPermissionDO;
 import com.sim.shopping.infrastructure.persistence.entity.SysRoleDO;
 import com.sim.shopping.infrastructure.persistence.entity.SysRolePermissionDO;
@@ -63,7 +64,7 @@ public class RbacService {
      */
     public List<SysRoleDO> getAllActiveRoles() {
         return sysRoleMapper.selectList(
-                Wrappers.<SysRoleDO>lambdaQuery().eq(SysRoleDO::getStatus, "ACTIVE")
+                Wrappers.<SysRoleDO>lambdaQuery().eq(SysRoleDO::getStatus, SystemConstants.STATUS_ACTIVE)
         );
     }
 

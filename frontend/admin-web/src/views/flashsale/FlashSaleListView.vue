@@ -229,8 +229,8 @@ async function handleDelete(row: FlashSale) {
     await deleteAdminFlashSale(row.saleId)
     ElMessage.success('删除成功')
     loadList()
-  } catch (e: any) {
-    if (e !== 'cancel') ElMessage.error('删除失败')
+  } catch (e: unknown) {
+    if (!(typeof e === 'string' && e === 'cancel')) ElMessage.error('删除失败')
   }
 }
 

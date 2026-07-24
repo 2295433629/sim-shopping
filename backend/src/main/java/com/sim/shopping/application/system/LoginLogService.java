@@ -2,6 +2,7 @@ package com.sim.shopping.application.system;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.infrastructure.persistence.entity.SysLoginLogDO;
 import com.sim.shopping.infrastructure.persistence.mapper.SysLoginLogMapper;
 import com.sim.shopping.interfaces.dto.common.PageResponse;
@@ -44,7 +45,7 @@ public class LoginLogService {
         log.setStatus(status);
         log.setIp(ip);
         log.setUserAgent(userAgent);
-        log.setLoginType("LOGIN");
+        log.setLoginType(SystemConstants.LOGIN_TYPE_LOGIN);
         log.setErrorMsg(errorMsg);
         sysLoginLogMapper.insert(log);
     }

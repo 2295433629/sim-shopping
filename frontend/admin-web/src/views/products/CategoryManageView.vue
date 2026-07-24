@@ -43,14 +43,14 @@ import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getCategories, createCategory, updateCategory, deleteCategory } from '@/api/modules/product'
 
-const categoryTree = ref<any[]>([])
+const categoryTree = ref<Record<string, unknown>[]>([])
 const dialogVisible = ref(false)
 const editingCategory = reactive({ id: null as number | null, parentId: 0, name: '', icon: '', sortOrder: 0, status: 'ACTIVE' as string })
 
 const loadTree = async () => {
   try { const res = await getCategories(); categoryTree.value = res.data || [] } catch { ElMessage.error('加载失败') }
 }
-const openDialog = (row: any, parentId?: number) => {
+const openDialog = (row: Record<string, unknown> | null, parentId?: number) => {
   if (row) { Object.assign(editingCategory, row) }
   else { editingCategory.id = null; editingCategory.name = ''; editingCategory.icon = ''; editingCategory.sortOrder = 0; editingCategory.status = 'ACTIVE'; editingCategory.parentId = parentId || 0 }
   dialogVisible.value = true
@@ -60,10 +60,10 @@ const handleSave = async () => {
   try {
     if (editingCategory.id) { await updateCategory(editingCategory.id, editingCategory) } else { await createCategory(editingCategory) }
     ElMessage.success('保存成功'); dialogVisible.value = false; loadTree()
-  } catch (e: any) { ElMessage.error('保存失败') }
+  } catch { ElMessage.error('保存失败') }
 }
-const handleDelete = async (row: any) => {
-  try { await ElMessageBox.confirm('确认删除该分类？', '确认', { type: 'warning' }); await deleteCategory(row.id); ElMessage.success('删除成功'); loadTree() } catch (e: any) { if (e !== 'cancel') ElMessage.error('删除失败') }
+const handleDelete = async (row: Record<string, unknown>) => {
+  try { await ElMessageBox.confirm('确认删除该分类？', '确认', { type: 'warning' }); await deleteCategory(row.id as number); ElMessage.success('删除成功'); loadTree() } catch (e: unknown) { if (!(typeof e === 'string' && e === 'cancel')) ElMessage.error('删除失败') }
 }
 onMounted(loadTree)
 </script>

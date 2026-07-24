@@ -62,7 +62,7 @@
         :page-size="size"
         :total="total"
         layout="prev, pager, next, total"
-        @current-change="loadList"
+        @current-change="handlePageChange"
         style="margin-top: 16px; justify-content: flex-end"
       />
     </el-card>
@@ -148,13 +148,26 @@ import {
   type CouponFormData,
   type CouponStats,
 } from '@/api/modules/coupon'
+import { usePagination } from '@/composables/usePagination'
 
-const list = ref<Coupon[]>([])
-const total = ref(0)
-const page = ref(1)
-const size = ref(20)
-const loading = ref(false)
 const filter = reactive({ status: '', keyword: '' })
+
+const {
+  loading,
+  page,
+  pageSize: size,
+  total,
+  list,
+  loadList,
+  handlePageChange,
+} = usePagination<Coupon>({
+  fetch: (page, size) =>
+    getCouponList({ page, size, status: filter.status, keyword: filter.keyword }),
+  onError: (err) => {
+    const msg = err instanceof Error ? err.message : String(err)
+    ElMessage.error(msg || '加载失败')
+  },
+})
 
 const dialogVisible = ref(false)
 const isEdit = ref(false)
@@ -288,8 +301,10 @@ async function handleDelete(row: Coupon) {
     await deleteCoupon(row.id)
     ElMessage.success('删除成功')
     loadList()
-  } catch (e: any) {
-    if (e !== 'cancel') ElMessage.error('删除失败')
+  } catch (e: unknown) {
+    if (e === 'cancel') return
+    const msg = e instanceof Error ? e.message : String(e)
+    ElMessage.error(msg || '删除失败')
   }
 }
 
@@ -310,22 +325,7 @@ async function handleStats(_row: Coupon) {
   }
 }
 
-const loadList = async () => {
-  loading.value = true
-  try {
-    const data = await getCouponList({ page: page.value, size: size.value, status: filter.status, keyword: filter.keyword })
-    list.value = data.list || []
-    total.value = data.total || 0
-  } catch {
-    list.value = []
-    total.value = 0
-    ElMessage.error('加载失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(loadList)
+onMounted(() => loadList())
 </script>
 
 <style scoped>

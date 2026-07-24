@@ -57,6 +57,7 @@ export interface RefundVO {
 
 /** Order detail — 对齐后端 OrderDetailVO */
 export interface OrderDetailVO {
+  orderId?: number
   orderNo: string
   status: string
   shopId: number

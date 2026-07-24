@@ -23,6 +23,7 @@ import com.sim.shopping.infrastructure.persistence.mapper.UserPointsMapper;
 import com.sim.shopping.infrastructure.persistence.mapper.PointsRecordMapper;
 import com.sim.shopping.infrastructure.persistence.entity.PointsRecordDO;
 import com.sim.shopping.application.settlement.SettlementService;
+import com.sim.shopping.infrastructure.common.SystemConstants;
 import com.sim.shopping.application.points.PointsService;
 import com.sim.shopping.application.coupon.UserCouponService;
 import com.sim.shopping.interfaces.dto.refund.RefundRequest;
@@ -132,7 +133,7 @@ public class RefundService {
         refund.setOrderNo(orderNo);
         refund.setUserId(userId);
         refund.setRefundType(req.getRefundType());
-        refund.setStatus("PENDING");
+        refund.setStatus(SystemConstants.REFUND_STATUS_PENDING);
         refund.setReason(req.getReason());
         refund.setAmount(req.getAmount());
         refundMapper.insert(refund);
@@ -161,7 +162,7 @@ public class RefundService {
     @Transactional
     public RefundVO autoApproveRefund(String orderNo) {
         RefundDO refund = refundMapper.selectByOrderNo(orderNo);
-        if (refund == null || !"PENDING".equals(refund.getStatus())) {
+        if (refund == null || !SystemConstants.REFUND_STATUS_PENDING.equals(refund.getStatus())) {
             return null;
         }
 
@@ -217,11 +218,8 @@ public class RefundService {
                 if (pointsRecordMapper.selectCount(pointsCheckWrapper) > 0) {
                     // 原子扣减积分
                     userPointsMapper.deductPoints(order.getUserId(), pointsToRevoke);
-                    // 同步更新 t_user.points
-                    userMapper.update(null,
-                            new LambdaUpdateWrapper<UserDO>()
-                                    .eq(UserDO::getId, order.getUserId())
-                                    .setSql("points = GREATEST(points - " + pointsToRevoke + ", 0)"));
+                    // 同步更新 t_user.points（使用参数化Mapper方法，避免SQL拼接）
+                    userMapper.deductPointsWithFloor(order.getUserId(), pointsToRevoke);
                     // 记录积分扣减明细
                     PointsRecordDO revokeRecord = new PointsRecordDO();
                     revokeRecord.setUserId(order.getUserId());

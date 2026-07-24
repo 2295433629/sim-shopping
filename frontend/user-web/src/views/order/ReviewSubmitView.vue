@@ -25,10 +25,10 @@ const uploadingCount = ref(0)
 onMounted(async () => {
   loading.value = true
   try {
-    const orderData: any = await getOrderDetail(orderNo)
-    orderIdRef.value = orderData.orderId || orderData.id || 0
-  } catch {
-    ElMessage.error('订单信息获取失败')
+    const orderData = await getOrderDetail(orderNo)
+    orderIdRef.value = orderData.orderId || 0
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '订单信息获取失败')
   } finally {
     loading.value = false
   }
@@ -59,8 +59,8 @@ async function handleSubmit() {
     })
     ElMessage.success('评价提交成功')
     router.push('/orders')
-  } catch (e: any) {
-    ElMessage.error(e.message || '评价提交失败')
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '评价提交失败')
   } finally {
     submitting.value = false
   }
@@ -70,6 +70,12 @@ function goBack() {
   router.back()
 }
 
+/** 上传响应结构 */
+interface UploadResponse {
+  url?: string
+  data?: { url?: string }
+}
+
 /** 自定义上传方法：调用后端 /api/common/upload 接口 */
 async function handleHttpUpload(options: UploadRequestOptions) {
   const file = options.file
@@ -77,28 +83,29 @@ async function handleHttpUpload(options: UploadRequestOptions) {
   formData.append('file', file)
   uploadingCount.value++
   try {
-    const res: any = await request.post('/common/upload', formData, {
+    const res = await request.post<unknown, UploadResponse | string>('/common/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
     // 后端返回的 URL 格式可能是 res.url 或 res.data?.url 或完整路径
-    const url = res?.url || res?.data?.url || (typeof res === 'string' ? res : '')
+    const url = typeof res === 'string' ? res : (res?.url || res?.data?.url || '')
     if (!url) {
       ElMessage.error('图片上传失败：未获取到返回URL')
       return
     }
     imageUrls.value.push(url)
     ElMessage.success('图片上传成功')
-  } catch (e: any) {
-    ElMessage.error(e.message || '图片上传失败')
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '图片上传失败')
   } finally {
     uploadingCount.value--
   }
 }
 
 function handleImageRemove(file: UploadFile, _fileList: UploadFile[]) {
-  const url = (file.response as any)?.url || file.url || ''
+  const response = file.response as UploadResponse | undefined
+  const url = response?.url || file.url || ''
   if (url) {
     imageUrls.value = imageUrls.value.filter(u => u !== url)
   }

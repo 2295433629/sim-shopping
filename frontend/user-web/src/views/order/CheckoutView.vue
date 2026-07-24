@@ -238,9 +238,9 @@ function formatAddress(addr: AddressInfo) {
           <div class="item-name">{{ item.productName }}</div>
           <div class="item-sku">{{ item.skuName }}</div>
         </div>
-        <div class="item-price">¥ {{ item.price.toFixed(2) }}</div>
+        <div class="item-price">¥ {{ (item.price ?? 0).toFixed(2) }}</div>
         <div class="item-qty">x{{ item.quantity }}</div>
-        <div class="item-subtotal">¥{{ (item.price * item.quantity).toFixed(2) }}</div>
+        <div class="item-subtotal">¥{{ ((item.price ?? 0) * item.quantity).toFixed(2) }}</div>
       </div>
     </el-card>
 
