@@ -1,15 +1,14 @@
 package com.sim.shopping.infrastructure.security;
 
-import com.sim.shopping.application.auth.AuthService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.slf4j.Logger;
@@ -18,21 +17,22 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 /**
  * JWT认证过滤器，拦截请求并验证JWT Token，同时检查Token黑名单
+ * 注意：不使用@Component，由SecurityConfig作为Bean创建并传入依赖，避免Spring Security 6.x的Filter order注册问题
  *
  * @author Sim Team
  * @since 1.0.0
  */
-@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthService authService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, AuthService authService) {
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
+                                  RedisTemplate<String, Object> redisTemplate) {
         this.jwtTokenProvider = jwtTokenProvider;
-        this.authService = authService;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             try {
                 // 检查Token是否在黑名单中（已登出或被吊销）
-                if (authService.isTokenBlacklisted(token)) {
+                if (redisTemplate != null && isTokenBlacklisted(token)) {
                     log.debug("Token is blacklisted");
                     SecurityContextHolder.clearContext();
                 } else {
@@ -81,6 +81,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    /**
+     * 判断Token是否在黑名单中
+     */
+    private boolean isTokenBlacklisted(String token) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey("jwt:blacklist:" + token));
     }
 
 }

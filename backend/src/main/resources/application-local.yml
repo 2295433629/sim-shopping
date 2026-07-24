@@ -23,6 +23,9 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 app:
+  jwt:
+    # 本地开发使用默认密钥，生产环境强制通过环境变量注入
+    secret: ${JWT_SECRET:ShoppingDreamSecretKey2026ForJwtTokenGenerationMustBeLongEnough}
   upload:
     path: D:/workspace/shopping/sim-shopping/uploads
 #    path: /usr/bear/uploads

@@ -20,13 +20,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="主图" prop="mainImage">
-          <el-upload action="/api/common/upload" :show-file-list="false" :on-success="handleMainImageSuccess" :before-upload="beforeUpload">
+          <el-upload :http-request="handleUpload" :show-file-list="false" :on-success="handleMainImageSuccess" :before-upload="beforeUpload">
             <el-image v-if="form.mainImage" :src="form.mainImage" fit="cover" style="width:120px;height:120px;border-radius:8px" />
             <el-button v-else type="primary" plain>上传</el-button>
           </el-upload>
         </el-form-item>
         <el-form-item label="商品图片" prop="images">
-          <el-upload action="/api/common/upload" list-type="picture-card" :file-list="imageFileList" :on-success="handleImageSuccess" :on-remove="handleImageRemove" :before-upload="beforeUpload">
+          <el-upload :http-request="handleUpload" list-type="picture-card" :file-list="imageFileList" :on-success="handleImageSuccess" :on-remove="handleImageRemove" :before-upload="beforeUpload">
             <el-icon><Plus /></el-icon>
           </el-upload>
         </el-form-item>
@@ -67,6 +67,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Plus, Delete } from '@element-plus/icons-vue'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { getCategories, getBrands, createProduct, updateProduct, getProductDetail } from '@/api/modules/product'
+import request from '@/api/request'
 
 const route = useRoute()
 const router = useRouter()
@@ -107,9 +108,23 @@ const beforeUpload = (file: File) => {
   return true
 }
 
-const handleMainImageSuccess = (res: any) => { if (res.code === 200) form.mainImage = res.data }
+const handleUpload = async (options: any) => {
+  const formData = new FormData()
+  formData.append('file', options.file)
+  formData.append('type', 'product')
+  try {
+    const res = await request.post('/common/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    options.onSuccess(res)
+  } catch (e) {
+    options.onError(e)
+  }
+}
+
+const handleMainImageSuccess = (res: any) => { if (res) form.mainImage = res }
 const handleImageSuccess = (res: any, file: any) => {
-  if (res.code === 200) { form.images.push(res.data); imageFileList.value.push({ name: file.name, url: res.data }) }
+  if (res) { form.images.push(res); imageFileList.value.push({ name: file.name, url: res }) }
 }
 const handleImageRemove = (file: any) => {
   const idx = imageFileList.value.findIndex(f => f.url === file.url)

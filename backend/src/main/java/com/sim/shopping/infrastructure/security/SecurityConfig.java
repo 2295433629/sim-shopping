@@ -3,9 +3,11 @@ package com.sim.shopping.infrastructure.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sim.shopping.interfaces.dto.common.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,18 +33,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final RateLimitFilter rateLimitFilter;
+    private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
+
+    @Autowired(required = false)
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${spring.profiles.active:local}")
     private String activeProfile;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                         RateLimitFilter rateLimitFilter,
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider,
                          ObjectMapper objectMapper) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.rateLimitFilter = rateLimitFilter;
+        this.jwtTokenProvider = jwtTokenProvider;
         this.objectMapper = objectMapper;
     }
 
@@ -64,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/common/refresh-token").permitAll()
                         .requestMatchers("/api/admin/login").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/uploads/private/**").authenticated()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                         if (!"prod".equals(activeProfile) && !"production".equals(activeProfile)) {
                             auth.requestMatchers("/swagger-ui/**").permitAll()
@@ -86,9 +89,12 @@ public class SecurityConfig {
                             objectMapper.writeValue(response.getOutputStream(),
                                     ApiResponse.error(403, "无权限访问该资源"));
                         })
-                )
-                .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                );
+
+        // 在UsernamePasswordAuthenticationFilter前插入自定义Filter
+        // 先添加的在后面，后添加的在前面（都相对于UsernamePasswordAuthenticationFilter）
+        http.addFilterBefore(new RateLimitFilter(objectMapper), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

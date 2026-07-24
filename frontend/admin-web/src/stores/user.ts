@@ -37,14 +37,17 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function logout() {
+    // 先清除本地token，避免logout请求期间并发401触发token刷新
+    token.value = ''
+    userInfo.value = null
+    removeToken()
+    removeRefreshToken()
+    removeUserInfo()
+    // 尽力通知后端吊销token，失败不影响本地已清理的状态
     try {
       await logoutApi()
-    } finally {
-      token.value = ''
-      userInfo.value = null
-      removeToken()
-      removeRefreshToken()
-      removeUserInfo()
+    } catch {
+      // logout请求本身失败（如网络错误、token已过期等）不影响登出结果
     }
   }
 

@@ -26,7 +26,7 @@
       <el-form :model="editingBrand" label-width="80px">
         <el-form-item label="品牌名称"><el-input v-model="editingBrand.brandName" /></el-form-item>
         <el-form-item label="Logo">
-          <el-upload action="/api/common/upload" :show-file-list="false" :on-success="handleLogoSuccess" :before-upload="beforeUpload">
+          <el-upload :http-request="handleUpload" :show-file-list="false" :on-success="handleLogoSuccess" :before-upload="beforeUpload">
             <el-image v-if="editingBrand.brandLogo" :src="editingBrand.brandLogo" fit="cover" style="width:80px;height:80px;border-radius:8px" />
             <el-button v-else type="primary" plain>上传</el-button>
           </el-upload>
@@ -46,12 +46,27 @@ import { ref, reactive, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getBrands, createBrand, updateBrand, deleteBrand } from '@/api/modules/product'
+import request from '@/api/request'
 
 const brandList = ref<any[]>([])
 const dialogVisible = ref(false)
 const editingBrand = reactive({ id: null as number | null, brandName: '', brandLogo: '', brandDescription: '' })
 
 const beforeUpload = (file: File) => { if (!file.type.startsWith('image/')) { ElMessage.error('仅支持图片格式'); return false } if (file.size / 1024 / 1024 > 5) { ElMessage.error('最大5MB'); return false } return true }
+
+const handleUpload = async (options: any) => {
+  const formData = new FormData()
+  formData.append('file', options.file)
+  formData.append('type', 'product')
+  try {
+    const res = await request.post('/common/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    options.onSuccess(res)
+  } catch (e) {
+    options.onError(e)
+  }
+}
 const handleLogoSuccess = (res: any) => { if (res && res.url) editingBrand.brandLogo = res.url }
 const loadList = async () => { try { const res = await getBrands(); brandList.value = res.data || [] } catch { ElMessage.error('加载失败') } }
 const openDialog = (row: any) => { if (row) { Object.assign(editingBrand, row) } else { editingBrand.id = null; editingBrand.brandName = ''; editingBrand.brandLogo = ''; editingBrand.brandDescription = '' } dialogVisible.value = true }

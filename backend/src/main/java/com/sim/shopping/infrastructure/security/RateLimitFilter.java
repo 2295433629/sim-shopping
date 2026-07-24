@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,14 +22,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * 登录接口简单限流过滤器
  * 使用 ConcurrentHashMap + 滑动窗口实现内存限流
  * 每个IP每分钟最多10次登录请求
+ * 注意：不使用@Component，由SecurityConfig作为Bean创建，避免Spring Security 6.x的Filter order注册问题
  *
  * @author Sim Team
  * @since 1.0.0
  */
-@Component
-public class RateLimitFilter extends OncePerRequestFilter {
+public class RateLimitFilter extends OncePerRequestFilter implements Ordered {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitFilter.class);
+    private static final int FILTER_ORDER = Ordered.HIGHEST_PRECEDENCE + 9;
 
     private final ConcurrentHashMap<String, LinkedList<Long>> loginAttempts = new ConcurrentHashMap<>();
     private static final int MAX_ATTEMPTS = 10;
@@ -117,5 +119,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return ip.trim();
         }
         return request.getRemoteAddr();
+    }
+
+    @Override
+    public int getOrder() {
+        return FILTER_ORDER;
     }
 }

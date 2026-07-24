@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * WebMvc配置类，仅公开公共上传目录，敏感文件通过控制器鉴权访问
+ * WebMvc配置类，公开上传目录（产品图、头像等公共图片），私有文件通过控制器鉴权
  *
  * @author Sim Team
  * @since 1.0.0
@@ -22,14 +22,20 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
      * 添加Resource Handlers
-     * 仅注册公开目录 /uploads/public/**，敏感文件/private/** 不直接暴露
+     * 1. /uploads/public/**  新公开文件
+     * 2. /uploads/**         兼容旧文件路径（历史文件直接存放在uploads/yyyy/MM/dd/下）
+     * /uploads/private/** 虽然被此映射覆盖，但SecurityConfig已拦截需要认证
      * @param registry registry
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String location = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
+        // 新公开文件路径（更具体的路径优先匹配）
         registry.addResourceHandler(urlPrefix + "/public/**")
                 .addResourceLocations("file:" + location + "public/");
+        // 兼容旧文件路径
+        registry.addResourceHandler(urlPrefix + "/**")
+                .addResourceLocations("file:" + location);
     }
 
     /**
