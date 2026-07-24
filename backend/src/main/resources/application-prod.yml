@@ -11,7 +11,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/sim_shopping?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD}
+    password: ${DB_PASSWORD:root123}
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
@@ -29,7 +29,7 @@ springdoc:
 
 app:
   jwt:
-    secret: ${JWT_SECRET}
+    secret: ${JWT_SECRET:ShoppingDreamSecretKey2026ForJwtTokenGenerationMustBeLongEnough}
   upload:
     path: /usr/bear/uploads
   cache:
